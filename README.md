@@ -6,7 +6,7 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, M
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.5.0, first in-game test pending.** Everything below is built against Blizzard's Forever UI code
+> Status: **0.5.1, first in-game test pending.** Everything below is built against Blizzard's Forever UI code
 > and an offline test client, not yet confirmed in the real game.
 
 ## Install

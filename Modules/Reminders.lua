@@ -48,7 +48,7 @@ end
 function R:Update()
     local db = NS.db.reminders
     local on = NS:IsEnabled("reminders")
-    local inCombat = InCombatLockdown()
+    local inCombat = NS.InCombat()
     local A = NS.Alerts
 
     -- shield

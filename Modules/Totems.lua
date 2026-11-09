@@ -206,7 +206,7 @@ function Totems:Refresh(forceShow)
     local db = NS.db.totems
     local any = false
     for _, st in pairs(slotState) do if st.active then any = true end end
-    local show = NS:IsEnabled("totems") and (NS.editing or forceShow or not db.hideIdle or any or InCombatLockdown())
+    local show = NS:IsEnabled("totems") and (NS.editing or forceShow or not db.hideIdle or any or NS.InCombat())
     NS.AfterCombat("totemframe", function() frame:SetShown(show and true or false) end)
 end
 

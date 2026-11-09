@@ -475,6 +475,43 @@ run("leave combat", function()
     assert(NS.UI.root:IsShown() and NS.UI.root:GetAlpha() == 1, "enemy targeted out of combat: HUD shown")
 end)
 
+-- Regressions reported from the Mage HUD review (combat start happens BEFORE lockdown:
+-- PLAYER_REGEN_DISABLED fires while InCombatLockdown() is still false).
+run("regression: pull with 0 Maelstrom stacks keeps the bar", function()
+    NS.db.learned.maelstromBuffID = NS.db.learned.maelstromBuffID or 408505
+    playerAuras[2] = nil
+    fire("UNIT_AURA", "player", {})
+    fire("PLAYER_REGEN_DISABLED")            -- not locked yet
+    combat = true
+    fire("UNIT_AURA", "player", {})
+    local f = _G.FarseerHUDMaelstrom
+    assert(f:IsShown() and f:GetAlpha() == 1, "Maelstrom bar visible in combat after a 0-stack pull")
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+end)
+
+run("regression: edit mode open at the pull", function()
+    UnitCanAttack = function() return false end
+    NS.Movers:Toggle(true)
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    assert(NS.UI.root:IsShown(), "HUD root shown in combat although edit mode was open at the pull")
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    UnitCanAttack = function() return true end
+end)
+
+run("regression: auras secret out of combat (BG / encounter)", function()
+    local old = C_Secrets.ShouldAurasBeSecret
+    C_Secrets.ShouldAurasBeSecret = function() return true end
+    local h = NS.Native:Slot({ key = "regress", parent = CreateFrame("Frame"), unit = "player", filter = "HELPFUL",
+        ids = function() return { 324 } end, init = function() end })
+    h:Build()                 -- must not recurse forever
+    fire("SF_SPELLS")         -- refilter every slot while secret
+    assert(not h:Active(), "not built while secret")
+    C_Secrets.ShouldAurasBeSecret = old
+end)
+
 run("reset", function()
     SlashCmdList.FARSEERHUD("reset confirm")
 end)

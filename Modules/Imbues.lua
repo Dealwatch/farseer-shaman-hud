@@ -160,7 +160,7 @@ function Imbues:Update()
     if not frame then return end
     local db = NS.db.imbues
     local enabled = NS:IsEnabled("imbues")
-    local inCombat = InCombatLockdown()
+    local inCombat = NS.InCombat()
     for _, hand in ipairs(HANDS) do
         local b = buttons[hand.key]
         local def = chosenSpell(hand)

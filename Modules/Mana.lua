@@ -57,7 +57,7 @@ function Mana:Update(enteringCombat)
 
     local frac = Mana.Fraction()
     if NS.editing then frac = frac or 0.7 end
-    local inCombat = enteringCombat or InCombatLockdown()
+    local inCombat = enteringCombat or NS.InCombat()
     local full = frac and frac >= 0.999
     local show = NS:IsEnabled("mana") and (NS.editing or inCombat or not db.hideFull or not full)
     frame:SetShown(show and true or false)

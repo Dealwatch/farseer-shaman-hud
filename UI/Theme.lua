@@ -278,7 +278,10 @@ end
 
 function UI:SafeShow(frame, show)
     show = show and true or false
-    if InCombatLockdown() then
+    if NS.InCombat() then
+        -- in combat these frames are never hidden, only faded; Show() still works
+        -- in the moment between PLAYER_REGEN_DISABLED and the lockdown
+        if not frame:IsShown() and not InCombatLockdown() then frame:Show() end
         frame:SetAlpha(show and 1 or 0)
     else
         frame:SetAlpha(1)
@@ -325,7 +328,7 @@ end
 function UI:UpdateFade(forceActive)
     if not NS.db then return end
     local a = NS.db.appearance
-    local active = forceActive or InCombatLockdown() or NS.editing
+    local active = forceActive or NS.InCombat() or NS.editing
         or (NS.Options and NS.Options:IsShown()) or (a.showOnTarget and hostileTarget())
     if active then
         self.root:Show()

@@ -45,8 +45,13 @@ function NS.Try(fn, ...)
     return unpack(res, 2)
 end
 
+-- Combat flag, set as the very first PLAYER_REGEN_DISABLED handler (Core loads
+-- first). That event fires BEFORE InCombatLockdown() turns true, so visibility
+-- code must ask this, not InCombatLockdown(), or it hides frames at the pull.
+NS.combat = false
+
 function NS.InCombat()
-    return InCombatLockdown() or UnitAffectingCombat("player") and true or false
+    return NS.combat or InCombatLockdown()
 end
 
 ---------------------------------------------------------------------------
@@ -118,7 +123,11 @@ function NS.AfterCombat(key, fn)
     end
 end
 
+-- first handlers of these events (Core loads first): the combat flag
+NS:On("PLAYER_REGEN_DISABLED", function() NS.combat = true end)
+
 NS:On("PLAYER_REGEN_ENABLED", function()
+    NS.combat = false
     for key, fn in pairs(afterCombat) do
         afterCombat[key] = nil
         local ok, err = pcall(fn)

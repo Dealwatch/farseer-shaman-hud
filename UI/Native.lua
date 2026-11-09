@@ -26,6 +26,19 @@ local function aurasSecretNow()
     return InCombatLockdown()
 end
 
+-- Retry while auras are secret. In a locked fight: after combat. Outside one
+-- (battlegrounds, encounters keep auras secret without lockdown): on a timer.
+-- AfterCombat would run fn immediately out of combat and recurse forever.
+local pending = {}
+local function later(key, fn)
+    if InCombatLockdown() then
+        NS.AfterCombat(key, fn)
+    elseif not pending[key] then
+        pending[key] = true
+        C_Timer.After(2, function() pending[key] = nil; fn() end)
+    end
+end
+
 local function idMap(list)
     local map, n = {}, 0
     for _, id in ipairs(list or {}) do
@@ -45,7 +58,7 @@ function Native:Slot(spec)
         if self.container or self.failed then return end
         if aurasSecretNow() then
             self.status = "waiting for auras to be readable"
-            NS.AfterCombat("native" .. spec.key, function() self:Build() end)
+            later("native" .. spec.key, function() self:Build() end)
             return
         end
         local map, n = idMap(spec.ids())
@@ -100,7 +113,7 @@ function Native:Slot(spec)
     function h:Refilter()
         if not self.container then return self:Build() end
         if aurasSecretNow() then
-            NS.AfterCombat("nativefilter" .. spec.key, function() self:Refilter() end)
+            later("nativefilter" .. spec.key, function() self:Refilter() end)
             return
         end
         local map = idMap(spec.ids())
@@ -118,7 +131,7 @@ function Native:Slot(spec)
     function h:Restyle(fn)
         if not self.button then return end
         if aurasSecretNow() then
-            NS.AfterCombat("nativestyle" .. spec.key, function() self:Restyle(fn) end)
+            later("nativestyle" .. spec.key, function() self:Restyle(fn) end)
             return
         end
         local ok, err = pcall(fn, self.button)

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.5.1
+- Fix: pulling with 0 Maelstrom stacks hid the Maelstrom bar for the whole fight. PLAYER_REGEN_DISABLED
+  fires before the combat lockdown starts, so visibility now uses a combat flag set first thing at the pull.
+- Fix: with edit mode open at the pull (and no enemy targeted) the whole HUD stayed hidden in combat.
+- Fix: stack overflow when auras are secret out of combat (battlegrounds, encounters): native aura slots
+  now retry on a timer instead of recursing.
+- Regression tests for all three.
+
 ## 0.5.0
 - New name: **Farseer – Shaman HUD** (addon folder `FarseerShamanHUD`, `/farseer`; `/sham` still works).
   Settings and positions start fresh once (new saved-variables name).
