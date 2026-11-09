@@ -1,8 +1,8 @@
 <Bindings>
-	<Binding name="CLICK ShammyForeverTotemEarth:LeftButton" header="SHAMMYFOREVER" category="ADDONS"/>
-	<Binding name="CLICK ShammyForeverTotemFire:LeftButton" category="ADDONS"/>
-	<Binding name="CLICK ShammyForeverTotemWater:LeftButton" category="ADDONS"/>
-	<Binding name="CLICK ShammyForeverTotemAir:LeftButton" category="ADDONS"/>
-	<Binding name="CLICK ShammyForeverImbueMH:LeftButton" category="ADDONS"/>
-	<Binding name="CLICK ShammyForeverImbueOH:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemEarth:LeftButton" header="FARSEERHUD" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemFire:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemWater:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemAir:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDImbueMH:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDImbueOH:LeftButton" category="ADDONS"/>
 </Bindings>

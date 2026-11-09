@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - mana bar
+    Farseer - mana bar
     A thin bar in the HUD column. Your own mana is not secret on Forever, but
     if it ever is, the values still go straight into the bar (StatusBar setters
     accept secrets); only the low-mana tint and the percentage need readable
@@ -20,7 +20,7 @@ local MANA = Enum and Enum.PowerType and Enum.PowerType.Mana or 0
 local COLOR = { 0.25, 0.55, 1.0 }
 
 function Mana:Init()
-    frame = CreateFrame("Frame", "ShammyForeverMana", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDMana", UIParent)
     frame:Hide()
     self.frame = frame
     bar = UI:Bar(frame, NS.db.mana.width, NS.db.mana.height)

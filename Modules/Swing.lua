@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - swing timer
+    Farseer - swing timer
     Main hand and off hand bars driven by Forever's native swing events
     (PLAYER_SWING carries the swing duration and which hand swung), so it is
     exact without the combat log. Casts are projected onto the main hand bar
@@ -50,7 +50,7 @@ local function makeBar(h)
 end
 
 function Swing:Init()
-    frame = CreateFrame("Frame", "ShammyForeverSwing", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDSwing", UIParent)
     frame:SetSize(NS.db.swing.width, 40)
     frame:Hide()
     self.frame = frame

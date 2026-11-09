@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - core
+    Farseer - core
     Namespace, event bus, saved settings, module registry, slash commands and
     the secret-value helpers every module uses.
 
@@ -11,10 +11,10 @@
 ]]
 
 local ADDON, NS = ...
-_G.ShammyForever = NS
+_G.FarseerShamanHUD = NS
 
 NS.ADDON = ADDON
-NS.TITLE = "Shammy Forever"
+NS.TITLE = "Farseer - Shaman HUD"
 NS.VERSION = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version")) or "dev"
 NS.MEDIA = "Interface\\AddOns\\" .. ADDON .. "\\"
 
@@ -54,7 +54,7 @@ end
 ---------------------------------------------------------------------------
 
 function NS.Print(...)
-    print("|cff0070ddShammy|r|cffe8eaedForever|r:", ...)
+    print("|cff0097ffFarseer|r:", ...)
 end
 
 ---------------------------------------------------------------------------
@@ -233,14 +233,14 @@ local function copy(src)
 end
 
 function NS:InitDB()
-    if type(_G.ShammyForeverDB) ~= "table" then _G.ShammyForeverDB = {} end
-    fill(_G.ShammyForeverDB, self.defaults)
-    self.db = _G.ShammyForeverDB
+    if type(_G.FarseerShamanHUDDB) ~= "table" then _G.FarseerShamanHUDDB = {} end
+    fill(_G.FarseerShamanHUDDB, self.defaults)
+    self.db = _G.FarseerShamanHUDDB
 end
 
 function NS:ResetDB()
-    _G.ShammyForeverDB = copy(self.defaults)
-    self.db = _G.ShammyForeverDB
+    _G.FarseerShamanHUDDB = copy(self.defaults)
+    self.db = _G.FarseerShamanHUDDB
 end
 
 ---------------------------------------------------------------------------
@@ -339,7 +339,7 @@ commands["reset"] = function(arg)
 end
 commands["help"] = function()
     NS.Print("commands:")
-    print("  /sham - settings window")
+    print("  /farseer or /sham - settings window")
     print("  /sham edit - move frames")
     print("  /sham test - preview alerts")
     print("  /sham probe - what Forever lets the addon read (use it in combat too)")
@@ -347,17 +347,17 @@ commands["help"] = function()
     print("  /sham reset confirm - reset everything")
 end
 
--- Key bindings (Bindings.xml): Options > Key Bindings > AddOns > Shammy Forever
-BINDING_HEADER_SHAMMYFOREVER = "Shammy Forever"
+-- Key bindings (Bindings.xml): Options > Key Bindings > AddOns > Farseer - Shaman HUD
+BINDING_HEADER_FARSEERHUD = "Farseer - Shaman HUD"
 for _, el in ipairs({ "Earth", "Fire", "Water", "Air" }) do
-    _G["BINDING_NAME_CLICK ShammyForeverTotem" .. el .. ":LeftButton"] = "Recast " .. el:lower() .. " totem"
+    _G["BINDING_NAME_CLICK FarseerHUDTotem" .. el .. ":LeftButton"] = "Recast " .. el:lower() .. " totem"
 end
-_G["BINDING_NAME_CLICK ShammyForeverImbueMH:LeftButton"] = "Apply main hand imbue"
-_G["BINDING_NAME_CLICK ShammyForeverImbueOH:LeftButton"] = "Apply off hand imbue"
+_G["BINDING_NAME_CLICK FarseerHUDImbueMH:LeftButton"] = "Apply main hand imbue"
+_G["BINDING_NAME_CLICK FarseerHUDImbueOH:LeftButton"] = "Apply off hand imbue"
 
-SLASH_SHAMMYFOREVER1 = "/sham"
-SLASH_SHAMMYFOREVER2 = "/shammy"
-SlashCmdList.SHAMMYFOREVER = function(msg)
+SLASH_FARSEERHUD1 = "/farseer"
+SLASH_FARSEERHUD2 = "/sham"
+SlashCmdList.FARSEERHUD = function(msg)
     msg = (msg or ""):lower()
     local cmd, arg = msg:match("^%s*(%S*)%s*(.-)%s*$")
     local fn = commands[cmd or ""] or commands.help
@@ -365,6 +365,6 @@ SlashCmdList.SHAMMYFOREVER = function(msg)
     fn(arg)
 end
 
-function _G.ShammyForever_OnAddonCompartmentClick()
+function _G.FarseerShamanHUD_OnAddonCompartmentClick()
     commands[""]()
 end

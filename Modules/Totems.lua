@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - totem bar
+    Farseer - totem bar
     One button per element (Earth, Fire, Water, Air) with the time left.
     Left-click recasts the last totem of that element, right-click destroys it
     (both are secure actions, so they work in combat).
@@ -46,7 +46,7 @@ end
 
 local function makeButton(el)
     local db = NS.db.totems
-    local b = UI:Icon(frame, db.size, "SecureActionButtonTemplate", "ShammyForeverTotem" .. el.label)
+    local b = UI:Icon(frame, db.size, "SecureActionButtonTemplate", "FarseerHUDTotem" .. el.label)
     b.slot = el.slot
     b.el = el
     b:RegisterForClicks("AnyUp", "AnyDown")
@@ -82,7 +82,7 @@ end
 function Totems:Init()
     NS.db.totems.last = NS.db.totems.last or {}
     NS.db.learned.totemSlots = NS.db.learned.totemSlots or {}
-    frame = CreateFrame("Frame", "ShammyForeverTotems", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDTotems", UIParent)
     frame:Hide()
     self.frame = frame
     for _, el in ipairs(Spells.ELEMENTS) do makeButton(el) end

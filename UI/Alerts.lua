@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - alerts
+    Farseer - alerts
     One stack of reminder cards. Modules call Alerts:Set(key, info) while a
     condition holds and Alerts:Clear(key) when it is gone. Right-click a card
     to snooze it.
@@ -13,7 +13,7 @@ NS.Alerts = Alerts
 
 local CARD_W, CARD_H, GAP = 300, 44, 6
 
-local anchor = CreateFrame("Frame", "ShammyForeverAlerts", UIParent)
+local anchor = CreateFrame("Frame", "FarseerHUDAlerts", UIParent)
 anchor:SetSize(CARD_W, CARD_H)
 Alerts.anchor = anchor
 

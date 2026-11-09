@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - spells
+    Farseer - spells
     Forever's spell IDs are not published anywhere we can read, so nothing here
     depends on one exact ID. Every spell has a few candidate IDs (Classic Era,
     later expansions) and its English name. At login we read the player's

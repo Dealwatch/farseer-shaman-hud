@@ -1,4 +1,4 @@
-package-as: ShammyForever
+package-as: FarseerShamanHUD
 
 ignore:
   - tests

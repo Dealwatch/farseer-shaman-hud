@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - Stormstrike, shocks and cooldowns
+    Farseer - Stormstrike, shocks and cooldowns
       * Shock prompt right after Stormstrike: on Forever it boosts your next
         Earth Shock, Lightning Bolt or Chain Lightning by 20% for 12 s, so
         Earth Shock (or an instant Bolt at five Maelstrom) should follow. The Earth Shock
@@ -34,7 +34,7 @@ local promptUntil = 0
 ---------------------------------------------------------------------------
 
 local function buildPrompt()
-    prompt = CreateFrame("Frame", "ShammyForeverShockPrompt", UIParent)
+    prompt = CreateFrame("Frame", "FarseerHUDShockPrompt", UIParent)
     prompt:SetSize(170, 40)
     UI:Skin(prompt, UI.palette.surface, UI.palette.border, "lg")
     prompt.iconFrame = UI:Icon(prompt, 32)
@@ -78,7 +78,7 @@ end
 
 local function buildFlameShock()
     local w = NS.db.shocks.barWidth
-    fsBar = CreateFrame("Frame", "ShammyForeverFlameShock", UIParent)
+    fsBar = CreateFrame("Frame", "FarseerHUDFlameShock", UIParent)
     fsBar:SetSize(w, FS_H)
     fsBar.iconFrame = UI:Icon(fsBar, FS_H)
     fsBar.iconFrame:SetPoint("LEFT")
@@ -180,7 +180,7 @@ end
 ---------------------------------------------------------------------------
 
 local function buildCooldowns()
-    cdRow = CreateFrame("Frame", "ShammyForeverCooldowns", UIParent)
+    cdRow = CreateFrame("Frame", "FarseerHUDCooldowns", UIParent)
     cdRow:SetSize(100, 32)
     cdRow:Hide()
     for _, key in ipairs(COOLDOWNS) do

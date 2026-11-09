@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - edit mode
+    Farseer - edit mode
     Every HUD frame registers here. In edit mode each one gets an overlay you
     can drag (snaps to the grid, Shift = free), nudge with the arrow keys
     (Shift = 10px) or right-click to reset. Not available in combat, because

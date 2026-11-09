@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - weapon imbues
+    Farseer - weapon imbues
     Two buttons, main hand and off hand, with the imbue's time left. Clicking
     one casts your chosen imbue onto that weapon (secure macro, works in combat).
     Warns when an imbue is missing or about to run out.
@@ -120,7 +120,7 @@ local function setSecure(b)
 end
 
 local function makeButton(hand)
-    local b = UI:Icon(frame, NS.db.imbues.size, "SecureActionButtonTemplate", "ShammyForeverImbue" .. hand.key:upper())
+    local b = UI:Icon(frame, NS.db.imbues.size, "SecureActionButtonTemplate", "FarseerHUDImbue" .. hand.key:upper())
     b.hand = hand
     b:RegisterForClicks("AnyUp", "AnyDown")
     b.time = UI:Text(b, 11, UI.palette.text, "OUTLINE")
@@ -139,7 +139,7 @@ local function makeButton(hand)
 end
 
 function Imbues:Init()
-    frame = CreateFrame("Frame", "ShammyForeverImbues", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDImbues", UIParent)
     frame:Hide()
     self.frame = frame
     for _, hand in ipairs(HANDS) do makeButton(hand) end

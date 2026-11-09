@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - settings widgets
+    Farseer - settings widgets
     Cards with rows: toggle, slider, dropdown, segmented choice, button.
     Every widget has :Refresh() which re-reads its value from the settings.
 ]]

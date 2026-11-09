@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - Maelstrom Weapon
+    Farseer - Maelstrom Weapon
     A five-segment bar that fills with your stacks and turns gold at five
     ("instant Lightning Bolt"), with an optional glow and sound.
 
@@ -68,7 +68,7 @@ local function geometry()
 end
 
 function MW:Init()
-    frame = CreateFrame("Frame", "ShammyForeverMaelstrom", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDMaelstrom", UIParent)
     frame:Hide()
     UI:NativeHost(frame)
     self.frame = frame

@@ -1,12 +1,12 @@
 ## Interface: 16001
-## Title: |cff0070ddShammy|r|cffe8eaedForever|r
-## Notes: Enhancement Shaman toolkit for WoW Forever: swing timer, totems, weapon imbues, Maelstrom Weapon, Stormstrike/shock prompts and reminders.
+## Title: |cff0097ffFarseer|r |cffe8eaed- Shaman HUD|r
+## Notes: Enhancement Shaman HUD / UI for WoW Forever: swing timer, totems, weapon imbues, Maelstrom Weapon, Stormstrike/shock prompts and reminders.
 ## Author: Dealwatch
-## Version: 0.4.0
-## SavedVariables: ShammyForeverDB
+## Version: 0.5.0
+## SavedVariables: FarseerShamanHUDDB
 ## IconTexture: Interface\Icons\Spell_Nature_LightningShield
 ## Category: Combat
-## AddonCompartmentFunc: ShammyForever_OnAddonCompartmentClick
+## AddonCompartmentFunc: FarseerShamanHUD_OnAddonCompartmentClick
 
 Core.lua
 Spells.lua

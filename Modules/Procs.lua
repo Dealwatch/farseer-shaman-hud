@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - procs
+    Farseer - procs
     One centred row above the Maelstrom bar that shows only what is up right
     now: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer,
     Lightning Mastery, Nature's Swiftness. Each icon has its
@@ -27,7 +27,7 @@ local preview = {}
 
 function Procs:Init()
     local size = NS.db.procs.size
-    frame = CreateFrame("Frame", "ShammyForeverProcs", UIParent)
+    frame = CreateFrame("Frame", "FarseerHUDProcs", UIParent)
     frame:SetSize(4 * size + 12, size)
     frame:Hide()
     UI:NativeHost(frame)

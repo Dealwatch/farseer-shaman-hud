@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - settings window (/sham)
+    Farseer - settings window (/sham)
     Navigation on the left, pages of cards on the right. Every page is built
     once and refreshed whenever it is shown or a setting changes.
 ]]
@@ -101,8 +101,8 @@ local function heroBlock(parent)
     function h:Layout(width) self:SetSize(width, 130) return 130 end
     function h:Refresh()
         local r, g, b = UI:Accent()
-        self.title:SetText(string.format("|cff%02x%02x%02xShammy|r Forever", r * 255, g * 255, b * 255))
-        self.ver:SetText("v" .. NS.VERSION)
+        self.title:SetText(string.format("|cff%02x%02x%02xFarseer|r", r * 255, g * 255, b * 255))
+        self.ver:SetText("Shaman HUD  v" .. NS.VERSION)
         local build, iface, forever = buildInfo()
         self.line1:SetText(string.format("%s  -  build %s  -  interface %s", forever and "WoW Forever" or "WoW", tostring(build), tostring(iface)))
         self.edit:Refresh(); self.test:Refresh()
@@ -330,7 +330,7 @@ local function buildPages()
         c:Add(W.Slider(c, "Snooze on right-click", nil, 15, 600, 15, bind("reminders", "snooze"), secs))
     end
 
-    p = newPage("appearance", "Appearance", "Look and feel for every Shammy Forever frame.", "Interface\\Icons\\Spell_Nature_Bloodlust")
+    p = newPage("appearance", "Appearance", "Look and feel for every Farseer frame.", "Interface\\Icons\\Spell_Nature_Bloodlust")
     p.build = function(self, parent)
         local look = self:Add(W.Card(parent, "Look", "Interface\\Icons\\INV_Misc_Gem_Sapphire_02"))
         local accents = {}
@@ -388,7 +388,7 @@ local function navButton(page, i)
 end
 
 local function build()
-    win = CreateFrame("Frame", "ShammyForeverOptions", UIParent)
+    win = CreateFrame("Frame", "FarseerHUDOptions", UIParent)
     win:SetSize(WIN_W, WIN_H)
     win:SetPoint("CENTER")
     win:SetFrameStrata("HIGH")
@@ -401,7 +401,7 @@ local function build()
     win:SetScript("OnDragStop", win.StopMovingOrSizing)
     UI:Skin(win, P.surface, P.border, "lg")
     UI:Shadow(win)
-    tinsert(UISpecialFrames, "ShammyForeverOptions")
+    tinsert(UISpecialFrames, "FarseerHUDOptions")
 
     -- navigation
     win.nav = CreateFrame("Frame", nil, win)
@@ -429,7 +429,7 @@ local function build()
     win.logo.icon:SetTexture("Interface\\Icons\\Spell_Nature_LightningShield")
     win.name = UI:Text(win.nav, 18)
     win.name:SetPoint("TOPLEFT", win.logo, "TOPRIGHT", 12, -3)
-    win.name:SetText(NS.TITLE)
+    win.name:SetText("Farseer")
     win.ver = UI:Text(win.nav, 11, P.textDim)
     win.ver:SetPoint("TOPLEFT", win.name, "BOTTOMLEFT", 0, -4)
     for i, page in ipairs(pages) do navButton(page, i) end
@@ -496,7 +496,7 @@ function Options:Restyle()
     local _, iface, forever = buildInfo()
     win.status.dot:SetVertexColor(forever and r or P.warn[1], forever and g or P.warn[2], forever and b or P.warn[3], 1)
     win.status.text:SetText(forever and "WoW Forever detected" or ("Interface " .. tostring(iface)))
-    win.ver:SetText("v" .. NS.VERSION .. "  -  Enhancement")
+    win.ver:SetText("Shaman HUD  -  v" .. NS.VERSION)
     win.editBtn:Refresh()
     if current then current:Refresh() end
 end

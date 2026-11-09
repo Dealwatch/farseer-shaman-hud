@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - reminders
+    Farseer - reminders
       * Lightning Shield (or Water Shield) missing.
       * Ghost Wolf still on in combat.
       * Low on Ankhs for Reincarnation.

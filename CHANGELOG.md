@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.0
+- New name: **Farseer – Shaman HUD** (addon folder `FarseerShamanHUD`, `/farseer`; `/sham` still works).
+  Settings and positions start fresh once (new saved-variables name).
+
 ## 0.4.0
 - New: proc row above the Maelstrom bar, showing only what is up (Flurry, Clearcasting,
   Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness)

@@ -1,21 +1,26 @@
-# Shammy Forever
+# Farseer – Shaman HUD
 
-Enhancement Shaman toolkit for **WoW Forever** (interface 16001, build 1.60.1). Working title, the name will change.
+Enhancement Shaman HUD / UI for **WoW Forever** (interface 16001, build 1.60.1).
 
 One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, Maelstrom Weapon, Flame Shock,
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.4.0, first in-game test pending.** Everything below is built against Blizzard's Forever UI code
+> Status: **0.5.0, first in-game test pending.** Everything below is built against Blizzard's Forever UI code
 > and an offline test client, not yet confirmed in the real game.
 
 ## Install
 
-1. Download `ShammyForever-<version>.zip` (release or the zip you were sent).
+**WowUp:** *My Addons* > *Install from URL* > paste the GitHub address of this repository. Updates then show up
+in WowUp by themselves (every tagged release).
+
+**Manual:**
+
+1. Download `FarseerShamanHUD-<version>.zip` (release or the zip you were sent).
 2. Unzip it into `World of Warcraft\_forever_\Interface\AddOns\` so you get
-   `...\AddOns\ShammyForever\ShammyForever.toc` (not `ShammyForever\ShammyForever\...`).
+   `...\AddOns\FarseerShamanHUD\FarseerShamanHUD.toc` (not `FarseerShamanHUD\FarseerShamanHUD\...`).
 3. Restart the game completely (a `/reload` is not enough for a new addon).
-4. Character select > **AddOns**: make sure *Shammy Forever* is ticked. If it shows as out of date,
+4. Character select > **AddOns**: make sure *Farseer - Shaman HUD* is ticked. If it shows as out of date,
    tick *Load out of date AddOns*.
 
 ## Quick start
@@ -30,7 +35,7 @@ switched off. The addon is in English.
 
 | Command | |
 |---|---|
-| `/sham` (or `/shammy`) | Settings window |
+| `/farseer` (or `/sham`) | Settings window |
 | `/sham edit` | Edit mode: drag frames (snaps to the grid, Shift = free), arrow keys nudge (Shift = 10px), right-click resets a frame |
 | `/sham test` | Preview the alerts for 8 seconds |
 | `/sham probe` | What Forever lets the addon read right now. Run it once out of combat and once **in combat** |
@@ -84,13 +89,13 @@ Ankhs) and the imbue buttons that need a click.
 
 ## Key bindings
 
-Options > Key Bindings > AddOns > Shammy Forever:
+Options > Key Bindings > AddOns > Farseer - Shaman HUD:
 recast the earth / fire / water / air totem, apply the main hand / off hand imbue.
 
 ## How it copes with Forever's addon limits
 
 Forever runs the modern engine: there is no combat log, and in combat many values reach addons as
-*secret values* that can be shown but not compared or calculated with. Shammy Forever therefore
+*secret values* that can be shown but not compared or calculated with. Farseer - Shaman HUD therefore
 
 - uses events that are never secret: the native swing timer, your own casts, spell activation glows;
 - hands secret values straight to widgets: duration objects for totem and cooldown timers;
@@ -174,7 +179,7 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
    Maelstrom filling and turning gold at five, Lightning Bolt resetting it, mana bar, grey swing bar when
    you step out of range.
 5. **In combat**, with a few Maelstrom stacks: `/sham probe`. Screenshot the HUD.
-6. `/reload`, then send `World of Warcraft\_forever_\WTF\Account\<account>\SavedVariables\ShammyForever.lua`
+6. `/reload`, then send `World of Warcraft\_forever_\WTF\Account\<account>\SavedVariables\FarseerShamanHUD.lua`
    (it holds both probes and the spell list), the screenshots and any Lua errors.
 
 ### Troubleshooting
@@ -193,7 +198,7 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
 ## Project layout
 
 ```
-ShammyForever.toc   load order, interface 16001
+FarseerShamanHUD.toc   load order, interface 16001
 Bindings.xml        key bindings
 Core.lua            namespace, events, settings, modules, slash commands, secret-value helpers
 Spells.lua          spell table, spellbook lookup, aura IDs

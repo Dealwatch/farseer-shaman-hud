@@ -1,5 +1,5 @@
 --[[
-    ShammyForever - theme
+    Farseer - theme
     Palette, accents, fonts and the small drawing helpers every frame uses:
     flat surfaces with 1px borders, bars, icons and a pulse glow.
 ]]
@@ -311,7 +311,7 @@ end
 -- secure buttons); in combat it is always shown.
 ---------------------------------------------------------------------------
 
-UI.root = CreateFrame("Frame", "ShammyForeverHUD", UIParent)
+UI.root = CreateFrame("Frame", "FarseerHUDHUD", UIParent)
 UI.root:SetAllPoints(UIParent)
 
 local function hostileTarget()

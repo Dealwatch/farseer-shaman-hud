@@ -297,12 +297,12 @@ end
 
 -- load the addon in TOC order
 local NS = {}
-local toc = assert(io.open(ROOT .. "ShammyForever.toc")):read("*a")
+local toc = assert(io.open(ROOT .. "FarseerShamanHUD.toc")):read("*a")
 for line in toc:gmatch("[^\r\n]+") do
     if not line:match("^##") and line:match("%.lua$") then
         local path = ROOT .. line:gsub("\\", "/")
         local chunk = assert(loadfile(path))
-        chunk("ShammyForever", NS)
+        chunk("FarseerShamanHUD", NS)
     end
 end
 
@@ -335,11 +335,11 @@ run("login", function()
     assert(NS.Native.slots.maelstrom.container._ids[408505], "maelstrom buff id in filter")
     assert(NS.Native.slots.flameshock.container._ids[10448], "flame shock ranks in filter")
     assert(NS.Native.slots.procs.container._ids[16257] and NS.Native.slots.procs.container._ids[425336], "proc ids in filter")
-    assert(_G.ShammyForeverImbues:GetParent() == UIParent, "imbues stay outside the HUD root")
+    assert(_G.FarseerHUDImbues:GetParent() == UIParent, "imbues stay outside the HUD root")
 end)
 
 run("settings window, every page", function()
-    SlashCmdList.SHAMMYFOREVER("")
+    SlashCmdList.FARSEERHUD("")
     for _, key in ipairs({ "overview", "swing", "totems", "imbues", "maelstrom", "shocks", "reminders", "appearance" }) do
         NS.Options:Show(key)
     end
@@ -356,7 +356,7 @@ run("settings change", function()
 end)
 
 run("edit mode", function()
-    SlashCmdList.SHAMMYFOREVER("edit")
+    SlashCmdList.FARSEERHUD("edit")
     tick(0.1)
     NS.Movers:Toggle(false)
 end)
@@ -370,9 +370,9 @@ run("out of combat events", function()
     assert(NS.modules.imbues.Read({ key = "mh", inv = 16, slot = 0 }) == true, "mh imbue (imbue entry, not the stone)")
     assert(NS.modules.imbues.Read({ key = "oh", inv = 17, slot = 1 }) == false, "oh imbue missing")
     assert(NS.Alerts.active.imbueoh, "missing off hand imbue alert")
-    SlashCmdList.SHAMMYFOREVER("probe")
-    SlashCmdList.SHAMMYFOREVER("spells")
-    SlashCmdList.SHAMMYFOREVER("test")
+    SlashCmdList.FARSEERHUD("probe")
+    SlashCmdList.FARSEERHUD("spells")
+    SlashCmdList.FARSEERHUD("test")
 end)
 
 run("low level: unknown imbue falls back to a known one", function()
@@ -380,9 +380,9 @@ run("low level: unknown imbue falls back to a known one", function()
     local def = NS.modules.imbues.ChosenSpell({ key = "mh" })
     assert(def and def.key == "windfury", "falls back to the first known imbue")
     NS.db.imbues.mh = "windfury"
-    assert(_G.ShammyForeverTotemEarth:IsShown() and _G.ShammyForeverTotemFire:IsShown(), "known elements shown")
-    assert(not _G.ShammyForeverTotemWater:IsShown() and not _G.ShammyForeverTotemAir:IsShown(), "unknown elements hidden")
-    assert(not _G.ShammyForeverMaelstrom:IsShown(), "no Maelstrom bar before the talent")
+    assert(_G.FarseerHUDTotemEarth:IsShown() and _G.FarseerHUDTotemFire:IsShown(), "known elements shown")
+    assert(not _G.FarseerHUDTotemWater:IsShown() and not _G.FarseerHUDTotemAir:IsShown(), "unknown elements hidden")
+    assert(not _G.FarseerHUDMaelstrom:IsShown(), "no Maelstrom bar before the talent")
 end)
 
 run("fishing pole: no main hand imbue warning", function()
@@ -401,10 +401,10 @@ end)
 run("mana bar", function()
     mana = 1000
     NS.modules.mana:Update()
-    assert(not _G.ShammyForeverMana:IsShown(), "hidden at full mana out of combat")
+    assert(not _G.FarseerHUDMana:IsShown(), "hidden at full mana out of combat")
     mana = 200
     NS.modules.mana:Update()
-    assert(_G.ShammyForeverMana:IsShown(), "shown when not full")
+    assert(_G.FarseerHUDMana:IsShown(), "shown when not full")
     assert(NS.modules.mana.Fraction() == 0.2, "fraction")
 end)
 
@@ -416,10 +416,10 @@ run("combat with secrets", function()
     fire("PLAYER_SWING", 1.8, 1)
     tick(0.5)
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 17364)   -- Stormstrike
-    assert(not _G.ShammyForeverShockPrompt:IsShown(), "no card by default: the icon glows")
+    assert(not _G.FarseerHUDShockPrompt:IsShown(), "no card by default: the icon glows")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 8050)    -- Flame Shock
     fire("UNIT_POWER_FREQUENT", "player", "MANA")               -- secret mana in combat
-    assert(_G.ShammyForeverFlameShock:IsShown() and _G.ShammyForeverFlameShock:GetAlpha() == 1, "flame shock bar")
+    assert(_G.FarseerHUDFlameShock:IsShown() and _G.FarseerHUDFlameShock:GetAlpha() == 1, "flame shock bar")
     assert(NS.UI.root:GetAlpha() == 1, "HUD not faded in combat")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 3599)    -- Searing Totem
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 66842)   -- Call of the Elements (secret totem info)
@@ -443,7 +443,7 @@ run("combat with secrets", function()
     assert(NS.modules.maelstrom.state.full and NS.modules.maelstrom.state.source == "proc", "maelstrom via glow")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 403)
     assert(not NS.modules.maelstrom.state.full, "bolt consumed")
-    SlashCmdList.SHAMMYFOREVER("probe")
+    SlashCmdList.FARSEERHUD("probe")
     NS.Options:Show("overview")
     tick(1)
 end)
@@ -460,7 +460,7 @@ run("leave combat", function()
     assert(not NS.Alerts.active.recall, "reminder cleared by the recall")
     fire("PLAYER_TOTEM_UPDATE", 2)
     assert(not NS.Alerts.active.totem2, "no 'totem is gone' alert after Totemic Recall")
-    _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD visible
+    _G.FarseerHUDOptions:Hide()   -- an open settings window keeps the HUD visible
     UnitCanAttack = function() return false end
     fire("PLAYER_TARGET_CHANGED")
     assert(not NS.UI.root:IsShown(), "HUD hidden out of combat without an enemy")
@@ -470,7 +470,7 @@ run("leave combat", function()
 end)
 
 run("reset", function()
-    SlashCmdList.SHAMMYFOREVER("reset confirm")
+    SlashCmdList.FARSEERHUD("reset confirm")
 end)
 
 print("all good")
