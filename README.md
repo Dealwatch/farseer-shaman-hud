@@ -1,66 +1,157 @@
 # Shammy Forever
 
-Enhancement Shaman toolkit for **WoW Forever** (interface 16001). Working title, the name will change.
+Enhancement Shaman toolkit for **WoW Forever** (interface 16001, build 1.60.1). Working title, the name will change.
 
-## Install (manual)
+One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, Maelstrom Weapon, Flame Shock,
+cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
+switched off. The addon is in English.
 
-1. Download `ShammyForever-<version>.zip` from the releases (or the zip you were sent).
+> Status: **0.3.0, first in-game test pending.** Everything below is built against Blizzard's Forever UI code
+> and an offline test client, not yet confirmed in the real game.
+
+## Install
+
+1. Download `ShammyForever-<version>.zip` (release or the zip you were sent).
 2. Unzip it into `World of Warcraft\_forever_\Interface\AddOns\` so you get
-   `...\AddOns\ShammyForever\ShammyForever.toc`.
-3. Restart the game (a `/reload` is not enough for a new addon).
+   `...\AddOns\ShammyForever\ShammyForever.toc` (not `ShammyForever\ShammyForever\...`).
+3. Restart the game completely (a `/reload` is not enough for a new addon).
+4. Character select > **AddOns**: make sure *Shammy Forever* is ticked. If it shows as out of date,
+   tick *Load out of date AddOns*.
+
+## Quick start
+
+1. `/sham` opens the settings window. The overview shows your imbues, shield and Maelstrom detection,
+   plus one switch per module.
+2. `/sham edit` (or **Edit layout**) shows every frame with a label: drag them where you want them, click **Done**.
+3. Fight something. The HUD is at full opacity in combat or with an enemy targeted, and fades to 50% otherwise.
 
 ## Commands
 
 | Command | |
 |---|---|
-| `/sham` | Settings window |
-| `/sham edit` | Edit mode: drag frames, arrows nudge, right-click resets |
-| `/sham test` | Preview alerts |
+| `/sham` (or `/shammy`) | Settings window |
+| `/sham edit` | Edit mode: drag frames (snaps to the grid, Shift = free), arrow keys nudge (Shift = 10px), right-click resets a frame |
+| `/sham test` | Preview the alerts for 8 seconds |
 | `/sham probe` | What Forever lets the addon read right now. Run it once out of combat and once **in combat** |
-| `/sham spells` | Copyable list of your spells and their IDs |
-| `/sham reset confirm` | Reset all settings |
+| `/sham spells` | Copyable list of your spellbook with spell IDs |
+| `/sham reset confirm` | Reset all settings and positions |
+
+The addon also has an entry in the minimap's addon compartment.
+
+## Default layout
+
+One 240px column under your character and one row of 30px icons below it:
+
+```
+                 Instant Bolt!        <- only at five stacks
+[====|====|====|    |    ]            Maelstrom Weapon (5 segments)
+[=========|           1.1]            Swing timer, main hand
+[====                    ]            Off hand (thin line, dual wield only)
+[==============          ]            Mana
+[F][=============     8.3]            Flame Shock on your target
+
+[E][F][W][A]   [SS][ES][FN][RF]   [MH][OH][LS]
+   Totems          Cooldowns      Imbues + Shield
+```
+
+Alerts stack at the top of the screen. All positions are saved per account.
 
 ## Modules
 
-The default layout is one 240px column under your character (Maelstrom, swing, mana, Flame Shock) and one
-icon row (totems | cooldowns | imbues + shield). Everything can be moved, resized or switched off, and the
-HUD fades to 50% out of combat when you have no enemy targeted.
+| Module | What it shows | Settings |
+|---|---|---|
+| **Swing Timer** | Main hand bar with time to the next swing, thin off hand line. Casts are projected onto the bar and turn red when they delay your swing. Grey when the target is out of melee range. | width, height, off hand, cast projection, range tint, text, hide when not fighting |
+| **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
+| **Totem Bar** | Earth, Fire, Water, Air with time left. Left-click recasts the last totem of that element, right-click destroys it. Alert when a totem dies or expires. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert |
+| **Weapon Imbues** | Time left per hand. Click a button to apply your chosen imbue. Warns when an imbue is missing or about to run out (not with a fishing pole). | imbue per hand, warn below minutes, always / only when needed, warn in combat, icon size |
+| **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
+| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
+| **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing, Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
-- **Swing timer** – main hand bar with time to the next swing, thin off hand line, casts projected onto the bar (red = the cast delays your swing), grey when out of melee range.
-- **Mana bar** – thin bar, red when low, hidden at full mana out of combat.
-- **Totem bar** – Earth, Fire, Water, Air with time left. Left-click recasts the last totem of that element, right-click destroys it.
-- **Weapon imbues** – time left per hand, click to apply your chosen imbue, warnings when missing or running out.
-- **Maelstrom Weapon** – five-segment bar, gold with glow and sound at five stacks (instant Lightning Bolt).
-- **Stormstrike & shocks** – the Earth Shock icon glows right after Stormstrike, Flame Shock timer with the real time left, cooldown icons (Stormstrike, shocks, Fire Nova, Rage of the Farseer).
-- **Reminders** – shield icon with charges, Lightning Shield missing, Ghost Wolf in combat, low on Ankhs.
+**Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, text size, bar texture, sounds,
+fade out of combat (100% = never fade), HUD scale, edit mode grid, reset positions.
 
 ## Key bindings
 
-Options > Key Bindings > AddOns > Shammy Forever: recast the earth/fire/water/air totem, apply the main/off hand imbue.
+Options > Key Bindings > AddOns > Shammy Forever:
+recast the earth / fire / water / air totem, apply the main hand / off hand imbue.
 
 ## How it copes with Forever's addon limits
 
-Forever runs the modern engine: no combat log, and in combat many values reach addons as *secret values*
-that can be shown but not compared. Shammy Forever therefore
+Forever runs the modern engine: there is no combat log, and in combat many values reach addons as
+*secret values* that can be shown but not compared or calculated with. Shammy Forever therefore
 
-- uses native events that are never secret (swing timer, your own casts, spell glows),
-- feeds secret values straight into widgets (duration objects for totem and cooldown timers),
-- uses Blizzard's native aura container for Maelstrom stacks, shield charges and the Flame Shock on your target, so the client fills them in even while the values are secret,
-- re-reads exact state the moment combat ends,
-- finds spells by your spellbook, not by hard-coded IDs, so Forever-only spell IDs and any client language work.
+- uses events that are never secret: the native swing timer, your own casts, spell activation glows;
+- hands secret values straight to widgets: duration objects for totem and cooldown timers;
+- uses Blizzard's native aura container (`Blizzard_AuraContainer`) for Maelstrom stacks, shield charges and
+  the Flame Shock on your target, so the client draws them even while they are secret to the addon;
+- never shows or hides those frames in combat (they fade instead) and re-reads exact state when combat ends;
+- treats "unknown" as unknown: a value it cannot read never triggers a "missing" warning.
 
-## Feedback for the first test
+## Spells and IDs
 
-Please send:
-1. `/sham probe` out of combat **and** in combat (while hitting a mob, with a few Maelstrom stacks).
-2. `/sham spells`.
-3. Screenshots of anything that looks wrong and any Lua errors (BugSack/BugGrabber help).
+Spells are found in your spellbook by name, so every rank and every client language works. Aura filters
+need IDs, so the addon also carries the known IDs, including the Forever-only ones:
 
-Both diagnostics are also saved in `WTF\Account\<account>\SavedVariables\ShammyForever.lua`.
+| Spell | ID |
+|---|---|
+| Maelstrom Weapon (talent / buff) | 408498 / 408505 |
+| Water Shield | 408510, 408511 |
+| Rage of the Farseer | 425336 |
+| Fire Nova | 408341 |
+| Totemic Call | 437009 |
+| Stormstrike | 17364 |
+
+Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning Bolt, Chain Lightning and Purge
+(see `Spells.lua`). `/sham spells` prints the IDs your client really uses.
+
+## Testing in game
+
+1. Optional but helpful: install **BugGrabber + BugSack**, or type `/console scriptErrors 1`.
+2. Out of combat: `/sham` (screenshot the overview), `/sham spells`, `/sham probe`, `/sham edit`
+   (screenshot), `/sham test`.
+3. Check: cast Lightning Shield (shield icon shows charges), click each imbue button (does the off hand
+   button really imbue the **off hand**?), drop a totem, left-click and right-click its icon.
+4. Fight a few mobs for 2-3 minutes: swing bars, Earth Shock glow after Stormstrike, Flame Shock bar,
+   Maelstrom filling and turning gold at five, Lightning Bolt resetting it, mana bar, grey swing bar when
+   you step out of range.
+5. **In combat**, with a few Maelstrom stacks: `/sham probe`. Screenshot the HUD.
+6. `/reload`, then send `World of Warcraft\_forever_\WTF\Account\<account>\SavedVariables\ShammyForever.lua`
+   (it holds both probes and the spell list), the screenshots and any Lua errors.
+
+### Troubleshooting
+
+- `/sham` does nothing: the addon is not loaded. Check the folder path and the AddOns list at character select.
+- An alert or module gets in the way: switch it off in `/sham`, then keep testing the rest.
+- A frame is off screen: `/sham edit` > **Reset all**.
+
+### Open points for the first test
+
+- Whether the native aura container works in the real client (`/sham probe` shows `native` per slot).
+- Unit of the imbue time left (assumed milliseconds; wrong if imbues warn all the time).
+- Whether the off hand imbue button imbues the off hand.
+- Whether Reincarnation needs an Ankh on Forever (turn the Ankh reminder off if not).
+
+## Project layout
+
+```
+ShammyForever.toc   load order, interface 16001
+Bindings.xml        key bindings
+Core.lua            namespace, events, settings, modules, slash commands, secret-value helpers
+Spells.lua          spell table, spellbook lookup, aura IDs
+UI/                 Theme (look, rounded textures), Movers (edit mode), Alerts, Native (aura container),
+                    Widgets and Options (settings window)
+Modules/            Swing, Mana, Totems, Imbues, Maelstrom, Shocks, Reminders
+Probe.lua           /sham probe and /sham spells
+Media/              rounded-corner textures (TGA)
+tests/run.lua       offline test client
+```
 
 ## Development
 
-`lua5.1 tests/run.lua` loads the addon into a fake client (including secret values in combat) and drives
-login, every settings page, edit mode and a combat sequence.
+`lua5.1 tests/run.lua` loads the addon into a fake client (including secret values in combat and the native
+aura container) and drives login, every settings page, edit mode, the mana bar, the fade and a combat sequence.
+Any Lua error fails the run.
 
-Releases: push a tag `vX.Y.Z`; the GitHub Action runs the test and builds the release zip.
+Releases: write the notes in `CHANGELOG.md`, push a tag `vX.Y.Z`; the GitHub Action runs the test and builds
+the release zip (`.pkgmeta` leaves out `tests` and `.github`).

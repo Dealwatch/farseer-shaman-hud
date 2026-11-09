@@ -10,6 +10,7 @@
 - Less text: no hand labels on the swing bars, no range text (grey tint instead),
   no MH/OH tags, no name on the Flame Shock bar, no mini bars under totems
 - Cooldown icons ignore the global cooldown
+- README rewritten: layout, every module and its settings, spell IDs, in-game test steps, troubleshooting
 
 ## 0.2.0
 - Native aura slots (Blizzard_AuraContainer): the client itself fills
