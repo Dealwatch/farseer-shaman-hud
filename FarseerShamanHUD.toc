@@ -1,0 +1,30 @@
+## Interface: 16001
+## Title: |cff0097ffFarseer|r |cffe8eaed- Shaman HUD|r
+## Notes: Enhancement Shaman HUD / UI for WoW Forever: swing timer, totems, weapon imbues, Maelstrom Weapon, Stormstrike/shock prompts and reminders.
+## Author: Dealwatch
+## Version: 0.5.2
+## SavedVariables: FarseerShamanHUDDB
+## IconTexture: Interface\Icons\Spell_Nature_LightningShield
+## Category: Combat
+## AddonCompartmentFunc: FarseerShamanHUD_OnAddonCompartmentClick
+
+Core.lua
+Spells.lua
+
+UI\Theme.lua
+UI\Movers.lua
+UI\Alerts.lua
+UI\Native.lua
+
+Modules\Swing.lua
+Modules\Mana.lua
+Modules\Totems.lua
+Modules\Imbues.lua
+Modules\Maelstrom.lua
+Modules\Procs.lua
+Modules\Shocks.lua
+Modules\Reminders.lua
+
+UI\Widgets.lua
+UI\Options.lua
+Probe.lua

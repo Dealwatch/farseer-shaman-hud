@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="CLICK FarseerHUDTotemEarth:LeftButton" header="FARSEERHUD" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemFire:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemWater:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDTotemAir:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDImbueMH:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK FarseerHUDImbueOH:LeftButton" category="ADDONS"/>
+</Bindings>
