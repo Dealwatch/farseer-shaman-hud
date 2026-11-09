@@ -167,7 +167,7 @@ local function probe()
 
     add("")
     add("== Cooldowns")
-    for _, key in ipairs({ "stormstrike", "earthShock", "rageFarseer", "shamanisticRage" }) do
+    for _, key in ipairs({ "stormstrike", "earthShock", "fireNova", "rageFarseer" }) do
         local d = Spells:Get(key)
         if d.known then
             local ok, info = pcall(C_Spell.GetSpellCooldown, d.id)

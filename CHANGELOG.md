@@ -2,7 +2,7 @@
 
 ## 0.4.0
 - New: proc row above the Maelstrom bar, showing only what is up (Flurry, Clearcasting,
-  Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, Shamanistic Rage)
+  Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness)
   with time-left swipe and stacks; filled by the client (native aura group), also in combat
 - Out of combat the HUD is now hidden (was 50%). What stays: alerts, and the imbue buttons when an
   imbue is missing or running out. Targeting an enemy shows the HUD before the pull.
@@ -10,6 +10,8 @@
 - Imbue buttons default to "When needed"; invisible buttons no longer catch clicks
 - Low levels: if your chosen imbue is not learned yet, the best imbue you know is used (e.g. Rockbiter)
 - Off hand weapon detection falls back to the item in the off hand slot
+- Researched against Forever client data (build 1.60.1.70862): removed spells that do not exist on
+  Forever (Shamanistic Rage, Fire Nova Totem, Tranquil Air Totem); README has a Forever level table
 - Forever totem tools: totems dropped by Call of the Elements / Ancestors / Spirits show up (icon
   from the client, also in combat); Totemic Recall no longer raises "totem is gone" alerts
 - Low levels: the Maelstrom bar stays hidden until you have the talent; the totem bar only shows

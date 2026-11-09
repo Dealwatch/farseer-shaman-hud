@@ -66,7 +66,7 @@ Alerts stack at the top of the screen. All positions are saved per account.
 | **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
 | **Totem Bar** | Earth, Fire, Water, Air with time left. Left-click recasts the last totem of that element, right-click destroys it. Alert when a totem dies or expires. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert |
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
-| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, Shamanistic Rage, with time-left swipe and stacks. | icon size (after /reload) |
+| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size (after /reload) |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
 | **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing, Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
@@ -115,10 +115,41 @@ need IDs, so the addon also carries the known IDs, including the Forever-only on
 | Call of the Elements / Ancestors / Spirits | 66842 / 66843 / 66844 |
 | Stormstrike | 17364 |
 
-Forever is not Classic: Fire Nova is a spell (level 12), Call of the Elements and Totemic Recall come at 20,
-Call of the Ancestors at 30 and Call of the Spirits at 40, Elemental Mastery is now Lightning Mastery, and
-Stormstrike, Maelstrom Weapon and Rage of the Farseer work differently. The addon never relies on a level
-table: it shows what is in your spellbook.
+### What Forever changes (and what the addon does with it)
+
+From the game client data of build 1.60.1.70862 (sources below). The addon never relies on these levels:
+it shows what is in your spellbook, so this table is only what to expect while levelling.
+
+| Level | New for an Enhancement Shaman | In the addon |
+|---|---|---|
+| 1 | Lightning Bolt, Rockbiter Weapon | imbue button (best imbue you know) |
+| 4 / 6 / 8 | Earth Shock, Stoneskin / Earthbind / Lightning Shield, Stoneclaw | cooldown row, totem bar, shield icon |
+| 10 | Flame Shock, Flametongue Weapon, Searing Totem, Strength of Earth | Flame Shock bar, fire totem slot |
+| 12 | **Fire Nova** (a spell now: erupts at your fire totem; Fire Nova Totem is gone), Purge | cooldown row |
+| 20 | **Call of the Elements** (drops a set of 4 totems, unlocks Blizzard's totem bar), **Totemic Recall** (returns all totems, refunds mana), Ghost Wolf, Frost Shock, Frostbrand | totems from a Call show up; no alerts after a Recall; Ghost Wolf warning |
+| 22 | **Totemic Call** (teleports your totems to you, 30 s cooldown) | |
+| 25 | **Stormstrike** (talent, row 4; was 40), Flurry | Earth Shock glow after Stormstrike, Flurry in the proc row |
+| 26 / 28 | Magma, Mana Spring / Flametongue Totem | |
+| 30 | Windfury Weapon, Reincarnation (needs an Ankh), a second totem set | imbue switches to Windfury, Ankh reminder |
+| 32 | Chain Lightning, Windfury Totem | |
+| 35 | **Maelstrom Weapon** (talent, row 6) | Maelstrom bar appears |
+| 40 | **Rage of the Farseer** (talent, row 7: +30% attack speed for 25 s), a third totem set | cooldown row and proc row |
+| 42 | Grace of Air Totem | |
+
+Other Forever facts the addon is built on:
+- Weapon imbues last **60 minutes** (Classic: 5); Lightning Shield 10 minutes with 3 charges; Flame Shock 12 s.
+- Stormstrike: 150% weapon damage, **6 s cooldown**, its debuff boosts your next Nature spell (Earth Shock).
+- Maelstrom Weapon: stacks up to 5, 20% faster and cheaper Lightning Bolt per stack, lasts 30 s.
+- Improved Stormstrike: mana regeneration while casting, and Stormstrike's cooldown resets on dodge or parry.
+- Totems: 1 s global cooldown; buff totems last 5 minutes.
+- Elemental Mastery is now Lightning Mastery; Lava Burst, Fire Nova Totem, Tranquil Air Totem and
+  Shamanistic Rage do not exist on Forever.
+
+Sources: [The Forever Era: spells by level](https://theforeverera.com/en/spells/shaman/levels/),
+[The Forever Era: Enhancement](https://theforeverera.com/en/classes/shaman/enhancement/),
+[The Forever Era: Shaman changes](https://theforeverera.com/en/classes/shaman/),
+[WoW Forever Talent Calculator: Shaman spells](https://wow-forever-talent-calculator.com/shaman/spells),
+[WCLBox: Shaman spells by level](https://wowforever.wclbox.com/en/fashu/shaman/levels).
 
 Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning Bolt, Chain Lightning and Purge
 (see `Spells.lua`). `/sham spells` prints the IDs your client really uses.

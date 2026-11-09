@@ -28,7 +28,6 @@ local DEFS = {
     chainLightning  = { en = "Chain Lightning",      ids = { 421, 930, 2860, 10605 } },
     fireNova        = { en = "Fire Nova",            ids = { 408341 } },  -- a spell on Forever, not a totem
     rageFarseer     = { en = "Rage of the Farseer",  ids = { 425336 } },
-    shamanisticRage = { en = "Shamanistic Rage",     ids = { 30823 } },
     elementalMastery = { en = "Lightning Mastery",   ids = { 16166 } },   -- Elemental Mastery, renamed on Forever
     purge           = { en = "Purge",                ids = { 370, 8012, 27626 } },
     -- Forever totem tools: Call of the Elements / Ancestors / Spirits (levels 20/30/40) drop
@@ -61,7 +60,6 @@ local DEFS = {
     -- Fire totems
     searingTotem    = { en = "Searing Totem",        ids = { 3599 },  element = 1 },
     magmaTotem      = { en = "Magma Totem",          ids = { 8190 },  element = 1 },
-    fireNovaTotem   = { en = "Fire Nova Totem",      ids = { 1535 },  element = 1 },
     flametongueTotem = { en = "Flametongue Totem",   ids = { 8227 },  element = 1 },
     frostResTotem   = { en = "Frost Resistance Totem", ids = { 8181 }, element = 1 },
     -- Earth totems
@@ -83,7 +81,6 @@ local DEFS = {
     groundingTotem  = { en = "Grounding Totem",      ids = { 8177 },  element = 4 },
     natureResTotem  = { en = "Nature Resistance Totem", ids = { 10595 }, element = 4 },
     windwallTotem   = { en = "Windwall Totem",       ids = { 15107 }, element = 4 },
-    tranquilTotem   = { en = "Tranquil Air Totem",   ids = { 25908 }, element = 4 },
     sentryTotem     = { en = "Sentry Totem",         ids = { 6495 },  element = 4 },
 }
 Spells.DEFS = DEFS

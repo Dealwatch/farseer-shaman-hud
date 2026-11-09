@@ -2,7 +2,7 @@
     ShammyForever - procs
     One centred row above the Maelstrom bar that shows only what is up right
     now: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer,
-    Lightning Mastery, Nature's Swiftness, Shamanistic Rage. Each icon has its
+    Lightning Mastery, Nature's Swiftness. Each icon has its
     time-left swipe and stacks.
 
     The client fills the row itself (native aura group), so it works while
@@ -20,7 +20,7 @@ local Procs = NS:NewModule("procs", {
 })
 
 local PROCS = { "flurry", "clearcasting", "impStormstrike", "rageFarseer", "elementalMastery",
-                "naturesSwiftness", "shamanisticRage" }
+                "naturesSwiftness" }
 
 local frame
 local preview = {}

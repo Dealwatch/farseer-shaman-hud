@@ -19,7 +19,7 @@ local Shocks = NS:NewModule("shocks", {
     icon = "Interface\\Icons\\Ability_Shaman_Stormstrike",
 })
 
-local COOLDOWNS = { "stormstrike", "earthShock", "fireNova", "rageFarseer", "shamanisticRage", "elementalMastery" }
+local COOLDOWNS = { "stormstrike", "earthShock", "fireNova", "rageFarseer", "elementalMastery" }
 local SHOCKS = { earthShock = true, flameShock = true, frostShock = true }
 
 local FS_H = 16            -- Flame Shock bar height (icon is square)

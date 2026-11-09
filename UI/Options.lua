@@ -300,7 +300,7 @@ local function buildPages()
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Procs", self.icon, bindModule("procs")))
         c:Add(W.Slider(c, "Icon size", "Applies after /reload: the client lays out this row.", 20, 48, 1, bind("procs", "size"), px))
-        c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, Shamanistic Rage - whichever you have.", "Reload UI", function() ReloadUI() end))
+        c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness - whichever you have.", "Reload UI", function() ReloadUI() end))
     end
 
     p = newPage("shocks", "Stormstrike & Shocks", "Shock-now prompt, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")
