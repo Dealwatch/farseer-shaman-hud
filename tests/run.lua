@@ -114,6 +114,24 @@ end
 function Object:SetCooldownFromDurationObject(d) assert(type(d) == "table" and d._duration, "needs duration object") end
 function Object:SetTimerDuration(d) assert(type(d) == "table" and d._duration, "needs duration object") end
 function Object:SetTexture(t) self._tex = t end
+
+-- Blizzard_AuraContainer (CustomAuraContainerTemplate)
+local function kindIs(o, kind) return type(o) == "table" and o._kind == kind end
+function Object:AddAuraSlot(key, filter, opts)
+    assert(type(key) == "string" and type(filter) == "string", "slot key/filter")
+    local ids = opts and opts.candidateFilters and opts.candidateFilters.includeSpellIDs
+    assert(type(ids) == "table" and next(ids), "includeSpellIDs map")
+    self._ids = ids
+    local b = newObject("Button", self)
+    if opts.initializeFrame then opts.initializeFrame(b) end
+    return b
+end
+function Object:SetApplicationBar(bar, o) assert(kindIs(bar, "StatusBar") and o and o.maxApplications, "application bar") end
+function Object:SetApplicationCount(fs) assert(kindIs(fs, "FontString"), "application count") end
+function Object:SetDurationBar(bar) assert(kindIs(bar, "StatusBar"), "duration bar") end
+function Object:SetDurationText(fs) assert(kindIs(fs, "FontString"), "duration text") end
+function Object:SetDurationCooldown(cd) assert(kindIs(cd, "Cooldown"), "duration cooldown") end
+function Object:SetIcon(t) assert(kindIs(t, "Texture"), "icon texture") end
 function Object:IsMouseOver() return false end
 
 function CreateFrame(kind, name, parent, template)
@@ -153,6 +171,7 @@ function InCombatLockdown() return combat end
 function UnitCastingInfo() return nil end
 function GetShapeshiftForm() return S(0) end
 function GetInventoryItemID(_, slot) return 1000 + slot end
+GetBindingKey = function() return nil end
 function PlaySound() end
 function wipe(t) for k in pairs(t) do t[k] = nil end return t end
 tinsert = table.insert
@@ -297,6 +316,11 @@ run("login", function()
     assert(NS.Spells:Get("stormstrike").known, "stormstrike resolved")
     assert(NS.Spells:Get("rageFarseer").known and NS.Spells:Get("rageFarseer").id == 90001, "resolved by name from spellbook")
     assert(not NS.Spells:Get("chainLightning").known, "unknown spell stays unknown")
+    for _, key in ipairs({ "maelstrom", "flameshock", "shield" }) do
+        assert(NS.Native.slots[key]:Active(), "native slot " .. key)
+    end
+    assert(NS.Native.slots.maelstrom.container._ids[408505], "maelstrom buff id in filter")
+    assert(NS.Native.slots.flameshock.container._ids[10448], "flame shock ranks in filter")
 end)
 
 run("settings window, every page", function()
@@ -334,6 +358,19 @@ run("out of combat events", function()
     SlashCmdList.SHAMMYFOREVER("probe")
     SlashCmdList.SHAMMYFOREVER("spells")
     SlashCmdList.SHAMMYFOREVER("test")
+end)
+
+run("fishing pole: no main hand imbue warning", function()
+    local old = C_Item.GetWeaponEnchantInfo
+    C_Item.GetWeaponEnchantInfo = function() return {} end
+    C_Item.GetItemInfoInstant = function(id) return id, "Weapon", "Fishing Poles", "INVTYPE_2HWEAPON", 1, 2, 20 end
+    NS.modules.imbues:Update()
+    assert(not NS.Alerts.active.imbuemh, "no alert with a fishing pole")
+    C_Item.GetItemInfoInstant = nil
+    NS.modules.imbues:Update()
+    assert(NS.Alerts.active.imbuemh, "alert with a real weapon")
+    C_Item.GetWeaponEnchantInfo = old
+    NS.modules.imbues:Update()
 end)
 
 run("combat with secrets", function()

@@ -24,8 +24,11 @@ NS.MEDIA = "Interface\\AddOns\\" .. ADDON .. "\\"
 
 local issecretvalue = _G.issecretvalue
 
+local issecrettable = _G.issecrettable
+
 function NS.IsSecret(v)
-    return issecretvalue ~= nil and issecretvalue(v) == true
+    if issecretvalue ~= nil and issecretvalue(v) == true then return true end
+    return issecrettable ~= nil and type(v) == "table" and issecrettable(v) == true
 end
 
 -- The value, or nil when the client hides it from us right now.
@@ -188,6 +191,8 @@ NS.defaults = {
         ankh = true,
         ankhMin = 1,
         snooze = 60,
+        shieldIcon = true,      -- shield icon with charges (native aura slot)
+        shieldSize = 34,
     },
     learned = {
         maelstromBuffID = nil,  -- learned from a readable aura
@@ -326,6 +331,14 @@ commands["help"] = function()
     print("  /sham spells - copyable list of your spells and their IDs")
     print("  /sham reset confirm - reset everything")
 end
+
+-- Key bindings (Bindings.xml): Options > Key Bindings > AddOns > Shammy Forever
+BINDING_HEADER_SHAMMYFOREVER = "Shammy Forever"
+for _, el in ipairs({ "Earth", "Fire", "Water", "Air" }) do
+    _G["BINDING_NAME_CLICK ShammyForeverTotem" .. el .. ":LeftButton"] = "Recast " .. el:lower() .. " totem"
+end
+_G["BINDING_NAME_CLICK ShammyForeverImbueMH:LeftButton"] = "Apply main hand imbue"
+_G["BINDING_NAME_CLICK ShammyForeverImbueOH:LeftButton"] = "Apply off hand imbue"
 
 SLASH_SHAMMYFOREVER1 = "/sham"
 SLASH_SHAMMYFOREVER2 = "/shammy"

@@ -42,7 +42,7 @@ end
 
 local function makeButton(el)
     local db = NS.db.totems
-    local b = UI:Icon(frame, db.size, "SecureActionButtonTemplate")
+    local b = UI:Icon(frame, db.size, "SecureActionButtonTemplate", "ShammyForeverTotem" .. el.label)
     b.slot = el.slot
     b.el = el
     b:RegisterForClicks("AnyUp", "AnyDown")

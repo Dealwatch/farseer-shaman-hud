@@ -1,0 +1,8 @@
+<Bindings>
+	<Binding name="CLICK ShammyForeverTotemEarth:LeftButton" header="SHAMMYFOREVER" category="ADDONS"/>
+	<Binding name="CLICK ShammyForeverTotemFire:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK ShammyForeverTotemWater:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK ShammyForeverTotemAir:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK ShammyForeverImbueMH:LeftButton" category="ADDONS"/>
+	<Binding name="CLICK ShammyForeverImbueOH:LeftButton" category="ADDONS"/>
+</Bindings>

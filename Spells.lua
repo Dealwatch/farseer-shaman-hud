@@ -17,22 +17,28 @@ NS.Spells = Spells
 -- Totem slots on the Classic layout: 1 Fire, 2 Earth, 3 Water, 4 Air.
 local DEFS = {
     -- Rotation
-    stormstrike     = { en = "Stormstrike",          ids = { 17364 } },
-    earthShock      = { en = "Earth Shock",          ids = { 8042 } },
-    flameShock      = { en = "Flame Shock",          ids = { 8050 } },
-    frostShock      = { en = "Frost Shock",          ids = { 8056 } },
-    lightningBolt   = { en = "Lightning Bolt",       ids = { 403 } },
-    chainLightning  = { en = "Chain Lightning",      ids = { 421 } },
-    rageFarseer     = { en = "Rage of the Farseer",  ids = {} },
+    -- Forever-only IDs (408xxx, 425336, 437009) agree between the public
+    -- ShamanForever addon and a second independent lookup; every rank is
+    -- listed where an aura filter has to match IDs instead of names.
+    stormstrike     = { en = "Stormstrike",          ids = { 17364 } },   -- its debuff has the same ID
+    earthShock      = { en = "Earth Shock",          ids = { 8042, 8044, 8045, 8046, 10412, 10413, 10414 } },
+    flameShock      = { en = "Flame Shock",          ids = { 8050, 8052, 8053, 10447, 10448, 29228 } },
+    frostShock      = { en = "Frost Shock",          ids = { 8056, 8058, 10472, 10473 } },
+    lightningBolt   = { en = "Lightning Bolt",       ids = { 403, 529, 548, 915, 943, 6041, 10391, 10392, 15207, 15208 } },
+    chainLightning  = { en = "Chain Lightning",      ids = { 421, 930, 2860, 10605 } },
+    fireNova        = { en = "Fire Nova",            ids = { 408341 } },  -- a spell on Forever, not a totem
+    rageFarseer     = { en = "Rage of the Farseer",  ids = { 425336 } },
     shamanisticRage = { en = "Shamanistic Rage",     ids = { 30823 } },
-    elementalMastery = { en = "Elemental Mastery",   ids = { 16166 } },
-    purge           = { en = "Purge",                ids = { 370 } },
-    totemicCall     = { en = "Totemic Call",         ids = { 36936 } },
-    maelstrom       = { en = "Maelstrom Weapon",     ids = { 53817, 344179, 51530, 187880 } },
+    elementalMastery = { en = "Lightning Mastery",   ids = { 16166 } },   -- Elemental Mastery, renamed on Forever
+    purge           = { en = "Purge",                ids = { 370, 8012, 27626 } },
+    totemicCall     = { en = "Totemic Call",         ids = { 437009, 36936 } },
+    maelstrom       = { en = "Maelstrom Weapon",     ids = { 408498, 408505, 53817, 344179, 51530, 187880 },
+                        aura = { 408505, 53817, 344179 } },               -- talent and buff IDs differ
+    flurry          = { en = "Flurry",               ids = { 16256 }, aura = { 16257, 16277, 16278, 16279, 16280 } },
 
     -- Self buffs / forms
-    lightningShield = { en = "Lightning Shield",     ids = { 324 } },
-    waterShield     = { en = "Water Shield",         ids = { 24398, 52127 } },
+    lightningShield = { en = "Lightning Shield",     ids = { 324, 325, 905, 945, 8134, 10431, 10432 } },
+    waterShield     = { en = "Water Shield",         ids = { 408510, 24398, 52127 }, aura = { 408510, 408511 } },
     ghostWolf       = { en = "Ghost Wolf",           ids = { 2645 } },
     reincarnation   = { en = "Reincarnation",        ids = { 20608 } },
 
@@ -172,6 +178,22 @@ function Spells:Resolve()
 end
 
 function Spells:Get(key) return DEFS[key] end
+
+-- Every ID an aura of this spell may carry (all ranks, buff IDs, the
+-- resolved one), as an array for the native aura filters.
+function Spells:AuraIDs(...)
+    local out, seen = {}, {}
+    local function add(id) if id and not seen[id] then seen[id] = true; out[#out + 1] = id end end
+    for i = 1, select("#", ...) do
+        local def = DEFS[select(i, ...)]
+        if def then
+            for _, id in ipairs(def.aura or def.ids) do add(id) end
+            if not def.aura then add(def.id) end
+        end
+    end
+    if NS.db and NS.db.learned.maelstromBuffID and select(1, ...) == "maelstrom" then add(NS.db.learned.maelstromBuffID) end
+    return out
+end
 function Spells:Known(key) return DEFS[key] and DEFS[key].known or false end
 
 -- Key for a spell ID or name we saw (own casts, readable auras), or nil.

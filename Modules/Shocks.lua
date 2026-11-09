@@ -18,7 +18,7 @@ local Shocks = NS:NewModule("shocks", {
     icon = "Interface\\Icons\\Ability_Shaman_Stormstrike",
 })
 
-local COOLDOWNS = { "stormstrike", "earthShock", "rageFarseer", "shamanisticRage", "elementalMastery" }
+local COOLDOWNS = { "stormstrike", "earthShock", "fireNova", "rageFarseer", "shamanisticRage", "elementalMastery" }
 local SHOCKS = { earthShock = true, flameShock = true, frostShock = true }
 
 local prompt, fsBar, cdRow
@@ -74,8 +74,45 @@ local function buildFlameShock()
     fsBar.time:SetPoint("RIGHT", -4, 0)
     fsBar.time:SetJustifyH("RIGHT")
     fsBar:Hide()
+    UI:NativeHost(fsBar)
     fsBar:SetScript("OnUpdate", function() Shocks:DrawFlameShock() end)
     NS.Movers:Register(fsBar, "flameshock", "Flame Shock", { "CENTER", "CENTER", 0, -205 })
+
+    -- native slot: your own Flame Shock on the target, real time left even in combat
+    Shocks.native = NS.Native:Slot({
+        key = "flameshock", parent = fsBar, unit = "target", filter = "HARMFUL|PLAYER",
+        ids = function() return Spells:AuraIDs("flameShock") end,
+        init = function(b)
+            local w = NS.db.shocks.barWidth
+            b:SetSize(w, 18)
+            local iconFrame = CreateFrame("Frame", nil, b)
+            iconFrame:SetSize(18, 18)
+            iconFrame:SetPoint("LEFT")
+            UI:Skin(iconFrame, UI.palette.track, UI.palette.border)
+            local tex = iconFrame:CreateTexture(nil, "ARTWORK")
+            tex:SetPoint("TOPLEFT", 1, -1)
+            tex:SetPoint("BOTTOMRIGHT", -1, 1)
+            tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            b:SetIcon(tex)
+            local bar = CreateFrame("StatusBar", nil, b)
+            bar:SetPoint("LEFT", iconFrame, "RIGHT", 2, 0)
+            bar:SetSize(w - 20, 18)
+            UI:Skin(bar, UI.palette.track, UI.palette.border, "sm")
+            bar:SetStatusBarTexture(UI:BarTexture())
+            bar:SetStatusBarColor(1, 0.45, 0.16)
+            b:SetDurationBar(bar, { direction = Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.RemainingTime or 1 })
+            local name = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
+            name:SetPoint("LEFT", 4, 0)
+            local def = Spells:Get("flameShock")
+            name:SetText(def and def.name or "Flame Shock")
+            local time = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
+            time:SetPoint("RIGHT", -4, 0)
+            time:SetJustifyH("RIGHT")
+            b:SetDurationText(time)
+            Shocks.nativeBar = bar
+        end,
+        onBuilt = function() Shocks:Apply() end,
+    })
 end
 
 local function flameShockDuration()
@@ -101,13 +138,17 @@ local function readTargetFlameShock()
 end
 
 function Shocks:DrawFlameShock()
+    local native = Shocks.native and Shocks.native:Active() and not NS.editing
+    fsBar.iconFrame:SetShown(not native)
+    fsBar.bar:SetShown(not native)
+    if native then return end   -- the client draws it
     local now = GetTime()
     local left = fs.ends - now
     if NS.editing and left <= 0 then
         fsBar.bar:SetValue(0.6); fsBar.time:SetText("7.2"); fsBar.name:SetText("Flame Shock")
         return
     end
-    if left <= 0 then fsBar:Hide() return end
+    if left <= 0 then UI:SafeShow(fsBar, false) return end
     local total = math.max(fs.ends - fs.start, 0.1)
     fsBar.bar:SetValue(left / total)
     fsBar.time:SetText(string.format("%.1f", left))
@@ -122,7 +163,8 @@ function Shocks:StartFlameShock()
     -- the name may be secret: SetText accepts it, but a boolean test would error
     local target = UnitName("target")
     if NS.IsSecret(target) or target then fsBar.name:SetText(target) else fsBar.name:SetText(def and def.name or "Flame Shock") end
-    if NS:IsEnabled("shocks") and NS.db.shocks.flameShock then fsBar:Show() end
+    if NS:IsEnabled("shocks") and NS.db.shocks.flameShock then UI:SafeShow(fsBar, true) end
+    if Shocks.native then Shocks.native:Refresh() end
 end
 
 ---------------------------------------------------------------------------
@@ -206,7 +248,9 @@ function Shocks:Init()
     NS:OnUnit("UNIT_AURA", "target", readTargetFlameShock)
     NS:On("PLAYER_TARGET_CHANGED", function()
         readTargetFlameShock()
+        if self.native then self.native:Refresh() end
     end)
+    self.native:Build()
     NS:On("PLAYER_REGEN_ENABLED", function()
         promptUntil = 0
         self:ShowPrompt(false)
@@ -224,6 +268,13 @@ function Shocks:Apply()
     fsBar:SetWidth(db.barWidth)
     fsBar.bar:SetWidth(db.barWidth - 20)
     prompt:SetShown(on and db.prompt and (NS.editing or GetTime() < promptUntil) or false)
-    fsBar:SetShown(on and db.flameShock and (NS.editing or fs.ends > GetTime()) or false)
+    local native = self.native and self.native:Active()
+    UI:SafeShow(fsBar, on and db.flameShock and (native or NS.editing or fs.ends > GetTime()))
+    if native then
+        self.native:Restyle(function(b)
+            b:SetSize(db.barWidth, 18)
+            if Shocks.nativeBar then Shocks.nativeBar:SetSize(db.barWidth - 20, 18) end
+        end)
+    end
     self:UpdateCooldowns()
 end

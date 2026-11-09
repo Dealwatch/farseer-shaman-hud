@@ -154,6 +154,18 @@ local function probe()
         "| cast count:", C_Spell.GetSpellCastCount and try(C_Spell.GetSpellCastCount, lb.id) or "-")
 
     add("")
+    add("== Native aura slots (Blizzard_AuraContainer)")
+    for key, h in pairs(NS.Native.slots) do
+        add("  " .. key .. ":", h.status, h.err and ("| " .. h.err) or "")
+    end
+    if C_Secrets then
+        for _, id in ipairs({ 408505, 324, 10432, 408510, 8050, 16257 }) do
+            add("  aura secrecy", id, v(Spells.NameOf(id)), ":", try(C_Secrets.GetSpellAuraSecrecy, id),
+                "| secret now:", try(C_Secrets.ShouldSpellAuraBeSecret, id))
+        end
+    end
+
+    add("")
     add("== Cooldowns")
     for _, key in ipairs({ "stormstrike", "earthShock", "rageFarseer", "shamanisticRage" }) do
         local d = Spells:Get(key)

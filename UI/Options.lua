@@ -273,12 +273,13 @@ local function buildPages()
         c:Add(W.Toggle(c, "Glow at five stacks", nil, bind("maelstrom", "glow")))
         c:Add(W.Toggle(c, "Sound at five stacks", nil, bind("maelstrom", "sound")))
         c:Add(W.Toggle(c, "Hide at zero stacks out of combat", nil, bind("maelstrom", "hideEmpty")))
-        local info = c:Add(W.ButtonRow(c, "Detection", "Exact stacks if Forever lets addons read the buff in combat, otherwise the five-stack glow. Run /sham probe in combat to check.", "Run probe", function() NS.commands.probe() end))
+        local info = c:Add(W.ButtonRow(c, "Detection", "The client fills the stack bar itself (native aura slot), also in combat. Glow and sound need the buff or the Lightning Bolt glow to be readable.", "Run probe", function() NS.commands.probe() end))
         local base = info.Refresh
         function info:Refresh()
             base(self)
             local st = NS.modules.maelstrom.state
-            self.label:SetText("Detection: " .. (st.source == "aura" and "exact stacks" or st.source == "proc" and "five-stack glow" or "not seen yet"))
+            local native = NS.Native.slots.maelstrom and NS.Native.slots.maelstrom:Active()
+            self.label:SetText("Detection: " .. (native and "native stack bar" or st.source == "aura" and "exact stacks" or st.source == "proc" and "five-stack glow" or "not seen yet"))
         end
     end
 
@@ -297,6 +298,8 @@ local function buildPages()
     p = newPage("reminders", "Reminders", "Alerts stack in one place. Right-click an alert to snooze it.", "Interface\\Icons\\Spell_Nature_LightningShield")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Reminders", self.icon, bindModule("reminders")))
+        c:Add(W.Toggle(c, "Shield icon with charges", "Charges and time left come straight from the client, also in combat.", bind("reminders", "shieldIcon")))
+        c:Add(W.Slider(c, "Shield icon size", nil, 20, 60, 1, bind("reminders", "shieldSize"), px))
         c:Add(W.Toggle(c, "Lightning Shield missing", nil, bind("reminders", "shield")))
         c:Add(W.Toggle(c, "Shield reminder in combat too", nil, bind("reminders", "shieldInCombat")))
         c:Add(W.Toggle(c, "Ghost Wolf on in combat", nil, bind("reminders", "ghostWolf")))

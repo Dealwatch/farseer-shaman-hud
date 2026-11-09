@@ -81,7 +81,61 @@ function R:Update()
     end
 end
 
+-- Shield icon: the client shows the charges and time left of your shield,
+-- even in combat; our own dimmed icon underneath means "no shield".
+function R:BuildShield()
+    local size = NS.db.reminders.shieldSize
+    local f = UI:Icon(UIParent, size)
+    f:Hide()
+    UI:NativeHost(f)
+    f.icon:SetDesaturated(true)
+    f.icon:SetAlpha(0.35)
+    self.shieldFrame = f
+    NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 110, -230 })
+    self.shieldNative = NS.Native:Slot({
+        key = "shield", parent = f, unit = "player", filter = "HELPFUL", level = 3,
+        ids = function() return Spells:AuraIDs("lightningShield", "waterShield") end,
+        init = function(b)
+            b:SetSize(NS.db.reminders.shieldSize, NS.db.reminders.shieldSize)
+            UI:Skin(b, UI.palette.track, UI.palette.border)
+            local tex = b:CreateTexture(nil, "ARTWORK")
+            tex:SetPoint("TOPLEFT", 1, -1)
+            tex:SetPoint("BOTTOMRIGHT", -1, 1)
+            tex:SetTexCoord(0.08, 0.92, 0.08, 0.92)
+            b:SetIcon(tex)
+            local cd = CreateFrame("Cooldown", nil, b, "CooldownFrameTemplate")
+            cd:SetAllPoints(tex)
+            cd:SetDrawEdge(false)
+            cd:SetReverse(true)
+            cd:SetHideCountdownNumbers(true)
+            b:SetDurationCooldown(cd)
+            local count = UI:Text(b, 15, UI.palette.text, "OUTLINE")
+            count:SetPoint("BOTTOMRIGHT", -2, 2)
+            b:SetApplicationCount(count)
+        end,
+        onBuilt = function() R:Apply() end,
+    })
+    self.shieldNative:Build()
+end
+
+function R:DrawShield()
+    local f = self.shieldFrame
+    if not f then return end
+    local db = NS.db.reminders
+    local hasShield = Spells:Known("lightningShield") or Spells:Known("waterShield")
+    local show = NS:IsEnabled("reminders") and db.shieldIcon and (hasShield or NS.editing)
+    UI:SafeShow(f, show)
+    if not show then return end
+    local def = Spells:Get(Spells:Known("waterShield") and not Spells:Known("lightningShield") and "waterShield" or "lightningShield")
+    f.icon:SetTexture(def and def.icon or "Interface\\Icons\\Spell_Nature_LightningShield")
+    f:SetSize(db.shieldSize, db.shieldSize)
+    if self.shieldNative:Active() then
+        self.shieldNative:Restyle(function(b) b:SetSize(db.shieldSize, db.shieldSize) end)
+    end
+end
+
 function R:Init()
+    self:BuildShield()
     local function update() self:Update() end
     NS:OnUnit("UNIT_AURA", "player", update)
     NS:On("UPDATE_SHAPESHIFT_FORM", update)
@@ -93,12 +147,13 @@ function R:Init()
     NS:On("PLAYER_DEAD", update)
     NS:On("PLAYER_ALIVE", update)
     NS:On("PLAYER_UNGHOST", update)
+    NS:On("SF_SPELLS", function() self:DrawShield() end)
     NS:OnUnit("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, _, spellID)
         local key = Spells:KeyFor(spellID)
         if key == "lightningShield" or key == "waterShield" then shieldUp = true; update() end
     end)
 end
 
-function R:Apply() self:Update() end
+function R:Apply() self:Update(); self:DrawShield() end
 
 function R.ShieldState() return shieldUp end

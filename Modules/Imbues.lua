@@ -34,9 +34,17 @@ local function dualWielding()
     return false
 end
 
+-- no imbue nagging while a fishing pole is in hand
+local function isFishingPole(itemID)
+    if not (itemID and C_Item and C_Item.GetItemInfoInstant) then return false end
+    local ok, _, _, _, _, _, classID, subclassID = pcall(C_Item.GetItemInfoInstant, itemID)
+    return ok and classID == 2 and subclassID == 20 or false
+end
+
 local function hasWeapon(hand)
     if hand.key == "oh" then return dualWielding() end
-    return GetInventoryItemID("player", hand.inv) ~= nil
+    local item = GetInventoryItemID("player", hand.inv)
+    return item ~= nil and not isFishingPole(item)
 end
 
 -- Returns hasImbue, secondsLeft (nil when unknown).
@@ -48,9 +56,10 @@ function Imbues.Read(hand)
             local list = res.hasEnchant ~= nil and { res } or res
             local IMBUE = Enum.ItemEnchantType and Enum.ItemEnchantType.Imbue or 3
             local TEMP = Enum.ItemEnchantType and Enum.ItemEnchantType.Temporary or 2
-            local best
+            local best, hidden
             for _, e in ipairs(list) do
                 local has, kind = NS.Readable(e.hasEnchant), NS.Readable(e.enchantType)
+                if has == nil or kind == nil then hidden = true end
                 if has and kind == IMBUE then best = e break end
                 if has and kind == TEMP and not best then best = e end
             end
@@ -58,7 +67,8 @@ function Imbues.Read(hand)
                 local ms = NS.Readable(best.timeLeft)
                 return true, ms and ms / 1000, NS.Readable(best.enchantIconID)
             end
-            if #list > 0 then return false end
+            if hidden then return nil end   -- unknown is not missing
+            return false   -- readable list without an imbue (also: empty list)
         end
     end
     if GetWeaponEnchantInfo then
@@ -96,7 +106,7 @@ local function setSecure(b)
 end
 
 local function makeButton(hand)
-    local b = UI:Icon(frame, NS.db.imbues.size, "SecureActionButtonTemplate")
+    local b = UI:Icon(frame, NS.db.imbues.size, "SecureActionButtonTemplate", "ShammyForeverImbue" .. hand.key:upper())
     b.hand = hand
     b:RegisterForClicks("AnyUp", "AnyDown")
     b.time = UI:Text(b, 12, UI.palette.text, "OUTLINE")

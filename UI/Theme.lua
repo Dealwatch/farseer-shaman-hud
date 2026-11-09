@@ -206,8 +206,8 @@ end
 -- Icons
 ---------------------------------------------------------------------------
 
-function UI:Icon(parent, size, template)
-    local f = CreateFrame(template and "Button" or "Frame", nil, parent, template)
+function UI:Icon(parent, size, template, name)
+    local f = CreateFrame(template and "Button" or "Frame", name, parent, template)
     f:SetSize(size, size)
     self:Skin(f, self.palette.track, self.palette.border)
     f.icon = f:CreateTexture(nil, "ARTWORK")
@@ -264,6 +264,35 @@ function UI:Glow(frame, r, g, b)
         glow:Hide()
     end
 end
+
+---------------------------------------------------------------------------
+-- Frames that host a native aura container: never Show/Hide them in combat
+-- (the container may count as protected), fade them instead.
+---------------------------------------------------------------------------
+
+UI.nativeHosts = {}
+
+function UI:NativeHost(frame)
+    self.nativeHosts[#self.nativeHosts + 1] = frame
+end
+
+function UI:SafeShow(frame, show)
+    show = show and true or false
+    if InCombatLockdown() then
+        frame:SetAlpha(show and 1 or 0)
+    else
+        frame:SetAlpha(1)
+        frame:SetShown(show)
+    end
+end
+
+-- right before combat locks down: hidden hosts become shown but invisible,
+-- so they can still appear in combat by alpha alone
+NS:On("PLAYER_REGEN_DISABLED", function()
+    for _, f in ipairs(UI.nativeHosts) do
+        if not f:IsShown() then f:SetAlpha(0); f:Show() end
+    end
+end)
 
 ---------------------------------------------------------------------------
 -- Sounds

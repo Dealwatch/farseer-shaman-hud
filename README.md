@@ -29,6 +29,10 @@ Enhancement Shaman toolkit for **WoW Forever** (interface 16001). Working title,
 - **Stormstrike & shocks** – "Shock now!" right after Stormstrike, Flame Shock timer, cooldown icons.
 - **Reminders** – Lightning Shield missing, Ghost Wolf in combat, low on Ankhs.
 
+## Key bindings
+
+Options > Key Bindings > AddOns > Shammy Forever: recast the earth/fire/water/air totem, apply the main/off hand imbue.
+
 ## How it copes with Forever's addon limits
 
 Forever runs the modern engine: no combat log, and in combat many values reach addons as *secret values*
@@ -36,6 +40,7 @@ that can be shown but not compared. Shammy Forever therefore
 
 - uses native events that are never secret (swing timer, your own casts, spell glows),
 - feeds secret values straight into widgets (duration objects for totem and cooldown timers),
+- uses Blizzard's native aura container for Maelstrom stacks, shield charges and the Flame Shock on your target, so the client fills them in even while the values are secret,
 - re-reads exact state the moment combat ends,
 - finds spells by your spellbook, not by hard-coded IDs, so Forever-only spell IDs and any client language work.
 
