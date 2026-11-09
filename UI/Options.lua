@@ -315,7 +315,7 @@ local function buildPages()
     p = newPage("procs", "Procs", "Only what is up right now, centred above the Maelstrom bar.", "Interface\\Icons\\Ability_GhoulFrenzy")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Procs", self.icon, bindModule("procs")))
-        c:Add(W.Slider(c, "Icon size", "Applies after /reload: the client lays out this row.", 20, 48, 1, px, bind("procs", "size")))
+        c:Add(W.Slider(c, "Icon size", nil, 20, 48, 1, px, bind("procs", "size")))
         c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness - whichever you have.", "Reload UI", function() ReloadUI() end))
     end
 

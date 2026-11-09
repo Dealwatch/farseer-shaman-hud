@@ -42,13 +42,21 @@ Object.__index = function(self, k)
     local m = Object[k]
     if m ~= nil then return m end
     if type(k) == "string" and k:match("^%u") then
+        if k:match("^Set") then
+            -- unknown setter: remember the last arguments so tests can see what changed
+            return function(o, ...)
+                local key = k == "SetPoint" and k .. tostring((...)) or k
+                rawget(o, "_calls")[key] = { ... }
+            end
+        end
         return function() end   -- unknown widget method: no-op
     end
 end
 
 local function newObject(kind, parent)
-    local o = setmetatable({ _kind = kind, _shown = true, _w = 0, _h = 0, _parent = parent, _scripts = {}, _attr = {}, _alpha = 1, _min = 0, _max = 1, _val = 0, _scroll = 0 }, Object)
+    local o = setmetatable({ _kind = kind, _shown = true, _w = 0, _h = 0, _parent = parent, _scripts = {}, _attr = {}, _calls = {}, _alpha = 1, _min = 0, _max = 1, _val = 0, _scroll = 0 }, Object)
     allFrames[#allFrames + 1] = o
+    o._id = #allFrames
     return o
 end
 
@@ -89,7 +97,7 @@ end
 function Object:GetValue() return self._val end
 function Object:SetText(t) self._text = t end
 function Object:GetText() return self._text end
-function Object:SetFont() return true end
+function Object:SetFont(...) self._calls.SetFont = { ... }; return true end
 function Object:GetVerticalScroll() return self._scroll end
 function Object:SetVerticalScroll(v) self._scroll = v end
 function Object:SetScrollChild(c) self._child = c end
@@ -586,6 +594,159 @@ run("regression: every settings slider saves and applies", function()
     local icon = NS.modules.shocks.cdIcons[1]
     assert(icon:GetWidth() == 44, "cooldown icons resized")
     _G.FarseerHUDOptions:Hide()
+end)
+
+run("every setting changes something on screen", function()
+    local function upv(fn, name)
+        for i = 1, 60 do
+            local n, v = debug.getupvalue(fn, i)
+            if not n then return end
+            if n == name then return v end
+        end
+    end
+    local function ser(v)
+        if issecretvalue(v) then return "secret" end
+        if type(v) ~= "table" then return tostring(v) end
+        if v._id then return "#" .. v._id end
+        return table.concat({ tostring(v[1] or v.r), tostring(v[2] or v.g), tostring(v[3] or v.b), tostring(v[4] or v.a) }, ",")
+    end
+    local opts = _G.FarseerHUDOptions
+    local function hud(o)
+        local p = o
+        while p do
+            if p == opts then return false end
+            p = p._parent
+        end
+        return true
+    end
+    local function snap()
+        local out = {}
+        for _, o in ipairs(allFrames) do
+            if hud(o) then
+                local parts = { ser(o._w), ser(o._h), tostring(o._shown), ser(o._alpha), ser(o._val), ser(o._text), ser(o._min), ser(o._max) }
+                local keys = {}
+                for k in pairs(o._calls) do keys[#keys + 1] = k end
+                table.sort(keys)
+                for _, k in ipairs(keys) do
+                    local a = {}
+                    for i, v in ipairs(o._calls[k]) do a[i] = ser(v) end
+                    parts[#parts + 1] = k .. "(" .. table.concat(a, ",") .. ")"
+                end
+                out[o._id] = table.concat(parts, "|")
+            end
+        end
+        return out
+    end
+    local function changed(a, b)
+        local n = 0
+        for id, v in pairs(b) do if a[id] ~= v then n = n + 1 end end
+        return n
+    end
+
+    local pages
+    for i = 1, 20 do
+        local name, v = debug.getupvalue(NS.Options.Show, i)
+        if name == "pages" then pages = v end
+    end
+    local controls = {}
+    local function add(label, get, set, alt)
+        controls[#controls + 1] = { label = label, get = get, set = set, alt = alt }
+    end
+    for _, p in ipairs(pages) do
+        NS.Options:Show(p.key)
+        for _, card in ipairs(p.blocks) do
+            if card.switch and card.title then
+                local click = card.switch._scripts.OnClick
+                add(p.key .. ": [" .. card.title:GetText() .. "]", upv(click, "get"), upv(click, "set"))
+            end
+            for _, r in ipairs(card.rows or {}) do
+                local label = p.key .. ": " .. (r.label and r.label:GetText() or "?")
+                if r.slider then
+                    local fn = r.slider._scripts.OnValueChanged
+                    local lo, hi = r.slider:GetMinMaxValues()
+                    add(label, upv(fn, "get"), upv(fn, "set"), function(v) return v == hi and lo or hi end)
+                elseif r.switch then
+                    local click = r.switch._scripts.OnClick
+                    add(label, upv(click, "get"), upv(click, "set"))
+                elseif r.buttons then
+                    local click = r.buttons[1]._scripts.OnClick
+                    local set = upv(click, "set")
+                    local get = upv(r.Refresh, "get")
+                    local values = {}
+                    for _, b in ipairs(r.buttons) do values[#values + 1] = b.value end
+                    add(label, get, set, function(v) for _, x in ipairs(values) do if x ~= v then return x end end end)
+                end
+            end
+        end
+    end
+    -- dropdowns are rows with a Button child whose OnClick opens the menu
+    _G.FarseerHUDOptions:Hide()
+
+    local function sweep()
+        local silent = {}
+        for _, c in ipairs(controls) do
+            assert(c.get and c.set, c.label .. ": no get/set found")
+            local before = c.get()
+            local v
+            if c.alt then v = c.alt(before) else v = not before end
+            local a = snap()
+            c.set(v)
+            if changed(a, snap()) == 0 then silent[c.label] = tostring(v) end
+            c.set(before)
+        end
+        return silent
+    end
+
+    -- 1) out of combat, enemy targeted, low mana
+    mana = 100
+    local idle = sweep()
+    -- 2) in combat: swinging, Stormstrike + Flame Shock just cast
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    fire("PLAYER_ENTER_COMBAT")
+    fire("PLAYER_SWING", 2.6, 0)
+    fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 17364)
+    fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 8050)
+    local fight = sweep()
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    -- 3) edit mode
+    NS.Movers:Toggle()
+    local edit = sweep()
+    NS.Movers:Toggle()
+    mana = 900
+
+    -- settings that only act on a later event (a sound, an alert, a timer, a cast, a state the
+    -- test character is not in); each one was checked by hand to read its value at that moment
+    local eventOnly = {
+        ["shocks: Flash when a spell is ready again"] = true,      -- OnCooldownDone
+        ["shocks: Shock prompt after Stormstrike"] = true,         -- next Stormstrike cast
+        ["shocks: Prompt stays for"] = true,                       -- next Stormstrike cast
+        ["shocks: Flame Shock duration"] = true,                   -- next Flame Shock cast
+        ["swing: Project casts onto the bar"] = true,              -- next cast
+        ["swing: Grey out when out of melee range"] = true,        -- out of range
+        ["swing: Hide Blizzard's own swing timer"] = true,         -- a CVar, not our frame
+        ["mana: Show percentage"] = true,                          -- needs height >= 9 (said in the option)
+        ["mana: Hide at full mana out of combat"] = true,          -- full mana
+        ["mana: Red below"] = true,                                -- mana between old and new threshold
+        ["imbues: Warn when less than"] = true,                    -- imbue running low
+        ["totems: Alert when a totem dies or expires"] = true,     -- totem dies
+        ["totems: Totemic Recall reminder after combat"] = true,   -- leaving combat with totems
+        ["maelstrom: Glow at five stacks"] = true,                 -- five stacks
+        ["maelstrom: Sound at five stacks"] = true,                -- five stacks
+        ["reminders: Shield reminder in combat too"] = true,       -- shield missing in combat
+        ["reminders: Ghost Wolf on in combat"] = true,             -- wolf form in combat
+        ["reminders: Warn below"] = true,                          -- Reincarnation known
+        ["reminders: Snooze on right-click"] = true,               -- right-click on an alert
+        ["appearance: Play sounds"] = true,                        -- next sound
+        ["appearance: Out of combat"] = true,                      -- no enemy targeted
+    }
+    print("  " .. #controls .. " settings checked")
+    for label in pairs(idle) do
+        if fight[label] and edit[label] then
+            assert(eventOnly[label], "setting has no visible effect: " .. label)
+        end
+    end
 end)
 
 run("reset", function()
