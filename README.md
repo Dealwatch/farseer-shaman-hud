@@ -64,7 +64,7 @@ Alerts stack at the top of the screen. All positions are saved per account.
 |---|---|---|
 | **Swing Timer** | Main hand bar with time to the next swing, thin off hand line. Casts are projected onto the bar and turn red when they delay your swing. Grey when the target is out of melee range. | width, height, off hand, cast projection, range tint, text, hide when not fighting |
 | **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
-| **Totem Bar** | Earth, Fire, Water, Air with time left. Left-click recasts the last totem of that element, right-click destroys it. Alert when a totem dies or expires. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert |
+| **Totem Bar** | Earth, Fire, Water, Air with time left (only elements you have a totem for). Left-click recasts the last totem of that element, right-click destroys it. Totems from Call of the Elements/Ancestors/Spirits show up too. Alerts when a totem dies, and a Totemic Recall reminder after combat. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert, recall reminder |
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size (after /reload) |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
@@ -113,6 +113,11 @@ need IDs, so the addon also carries the known IDs, including the Forever-only on
 | Totemic Call | 437009 |
 | Totemic Recall | 36936 |
 | Call of the Elements / Ancestors / Spirits | 66842 / 66843 / 66844 |
+| Improved Stormstrike (buff) | 1238931 |
+| Lightning Mastery | 16166 |
+
+All of these except the Maelstrom buff are confirmed on the [Warcraft Wiki](https://warcraft.wiki.gg/wiki/Shaman_abilities_(Forever));
+the buff ID 408505 comes from two independent addon sources, and the addon learns the real one in game anyway.
 | Stormstrike | 17364 |
 
 ### What Forever changes (and what the addon does with it)
@@ -130,15 +135,19 @@ it shows what is in your spellbook, so this table is only what to expect while l
 | 22 | **Totemic Call** (teleports your totems to you, 30 s cooldown) | |
 | 25 | **Stormstrike** (talent, row 4; was 40), Flurry | Earth Shock glow after Stormstrike, Flurry in the proc row |
 | 26 / 28 | Magma, Mana Spring / Flametongue Totem | |
-| 30 | Windfury Weapon, Reincarnation (needs an Ankh), a second totem set | imbue switches to Windfury, Ankh reminder |
+| 30 | Windfury Weapon, Reincarnation (needs an Ankh), Call of the Ancestors (second totem set) | imbue switches to Windfury, Ankh reminder |
 | 32 | Chain Lightning, Windfury Totem | |
 | 35 | **Maelstrom Weapon** (talent, row 6) | Maelstrom bar appears |
-| 40 | **Rage of the Farseer** (talent, row 7: +30% attack speed for 25 s), a third totem set | cooldown row and proc row |
+| 40 | **Rage of the Farseer** (talent, row 7: +30% attack speed for 25 s, 3 min cooldown), Call of the Spirits (third totem set) | cooldown row and proc row |
 | 42 | Grace of Air Totem | |
 
 Other Forever facts the addon is built on:
 - Weapon imbues last **60 minutes** (Classic: 5); Lightning Shield 10 minutes with 3 charges; Flame Shock 12 s.
-- Stormstrike: 150% weapon damage, **6 s cooldown**, its debuff boosts your next Nature spell (Earth Shock).
+- Stormstrike: 150% weapon damage, **6 s cooldown**, and your next Earth Shock, Lightning Bolt or Chain Lightning
+  within 12 s deals 20% more.
+- Enhancement has **no dual wield** on Forever: a slow two-hander with Windfury Weapon. The off hand parts
+  of the addon simply never show.
+- Totemic Recall refunds 25% of the totems' mana: the addon reminds you for 10 s after a fight.
 - Maelstrom Weapon: stacks up to 5, 20% faster and cheaper Lightning Bolt per stack, lasts 30 s.
 - Improved Stormstrike: mana regeneration while casting, and Stormstrike's cooldown resets on dodge or parry.
 - Totems: 1 s global cooldown; buff totems last 5 minutes.

@@ -454,8 +454,10 @@ run("leave combat", function()
     fire("PLAYER_REGEN_ENABLED")
     tick(2)
     assert(NS.db.probe.combat and NS.db.probe.outOfCombat and NS.db.probe.spells, "probe saved")
+    assert(NS.Alerts.active.recall, "Totemic Recall reminder after combat with totems down")
     totems[2] = nil
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 36936)   -- Totemic Recall
+    assert(not NS.Alerts.active.recall, "reminder cleared by the recall")
     fire("PLAYER_TOTEM_UPDATE", 2)
     assert(not NS.Alerts.active.totem2, "no 'totem is gone' alert after Totemic Recall")
     _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD visible

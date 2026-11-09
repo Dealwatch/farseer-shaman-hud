@@ -10,6 +10,9 @@
 - Imbue buttons default to "When needed"; invisible buttons no longer catch clicks
 - Low levels: if your chosen imbue is not learned yet, the best imbue you know is used (e.g. Rockbiter)
 - Off hand weapon detection falls back to the item in the off hand slot
+- Totemic Recall reminder after combat while totems are down (Forever tip: refunds 25% of their mana)
+- Stormstrike texts: on Forever it boosts the next Earth Shock, Lightning Bolt or Chain Lightning
+- Spell IDs verified on the Warcraft Wiki (Forever pages); Call of the Ancestors is 66843
 - Researched against Forever client data (build 1.60.1.70862): removed spells that do not exist on
   Forever (Shamanistic Rage, Fire Nova Totem, Tranquil Air Totem); README has a Forever level table
 - Forever totem tools: totems dropped by Call of the Elements / Ancestors / Spirits show up (icon

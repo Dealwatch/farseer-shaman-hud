@@ -170,6 +170,7 @@ NS.defaults = {
         showEmpty = true,       -- show empty element slots (dimmed)
         hideIdle = false,       -- hide the whole bar out of combat when no totem is down
         expireAlert = true,
+        recallReminder = true,  -- after combat: "Totemic Recall" (refunds 25% of the totems' mana)
     },
     imbues = {
         mh = "windfury",

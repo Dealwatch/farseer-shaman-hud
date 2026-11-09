@@ -1,7 +1,8 @@
 --[[
     ShammyForever - Stormstrike, shocks and cooldowns
-      * Shock prompt right after Stormstrike: its bonus applies to the next
-        Nature hit, so Earth Shock should follow immediately. The Earth Shock
+      * Shock prompt right after Stormstrike: on Forever it boosts your next
+        Earth Shock, Lightning Bolt or Chain Lightning by 20% for 12 s, so
+        Earth Shock (or an instant Bolt at five Maelstrom) should follow. The Earth Shock
         icon in the cooldown row glows (optionally also a big card).
       * Flame Shock timer for your target, started from your own cast (target
         debuffs are secret in combat) and corrected from the real aura

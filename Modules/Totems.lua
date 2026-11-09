@@ -90,7 +90,10 @@ function Totems:Init()
 
     NS:On("PLAYER_TOTEM_UPDATE", function(_, slot) self:UpdateSlot(slot) end)
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
-    NS:On("PLAYER_REGEN_ENABLED", function() self:UpdateAll() end)
+    NS:On("PLAYER_REGEN_ENABLED", function()
+        self:UpdateAll()
+        self:RecallReminder()
+    end)
     NS:On("PLAYER_REGEN_DISABLED", function() self:Refresh(true) end)
     NS:On("SF_SPELLS", function() self:Apply() end)   -- new totem learned: re-layout (after combat)
     NS:OnUnit("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, _, spellID)
@@ -105,6 +108,7 @@ function Totems:OnCast(spellID)
     local name = Spells.NameOf(spellID)
     local key = Spells:KeyFor(spellID)
     if key == "totemicRecall" then
+        NS.Alerts:Clear("recall")
         -- you took them back on purpose: no "totem is gone" alerts
         for s, st in pairs(slotState) do st.destroyed = true; NS.Alerts:Clear("totem" .. s) end
         return
@@ -160,6 +164,18 @@ function Totems:UpdateSlot(slot)
         if not have then st.destroyed = false end
     end
     self:Draw(slot, start, dur)
+end
+
+-- Forever tip: Totemic Recall after every fight gives 25% of the totems' mana back.
+-- A short reminder right after combat while totems are still down.
+function Totems:RecallReminder()
+    local any = false
+    for _, st in pairs(slotState) do if st.active then any = true end end
+    if not (any and NS.db.totems.recallReminder and NS:IsEnabled("totems") and Spells:Known("totemicRecall")) then return end
+    local def = Spells:Get("totemicRecall")
+    NS.Alerts:Set("recall", { title = def.name or "Totemic Recall", text = "Recall your totems: 25% of their mana back",
+        icon = def.icon, color = { 0.25, 0.60, 1.00 }, priority = 1 })
+    C_Timer.After(10, function() NS.Alerts:Clear("recall") end)
 end
 
 function Totems:UpdateAll()
