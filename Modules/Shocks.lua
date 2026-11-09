@@ -26,6 +26,7 @@ local SHOCKS = { earthShock = true, flameShock = true, frostShock = true }
 local FS_H = 16            -- Flame Shock bar height (icon is square)
 local prompt, fsBar, cdRow
 local cdIcons = {}
+Shocks.cdIcons = cdIcons
 local fs = { start = 0, ends = 0 }
 local promptUntil = 0
 
@@ -187,6 +188,11 @@ local function buildCooldowns()
         local f = UI:Icon(cdRow, NS.db.shocks.iconSize)
         f.cd = UI:Cooldown(f)
         f.key = key
+        -- flash once when the cooldown that your own cast started runs out
+        f.cd:SetScript("OnCooldownDone", function()
+            if f.armed and NS.db.shocks.readyFlash and f:IsShown() then UI:Flash(f) end
+            f.armed = false
+        end)
         cdIcons[#cdIcons + 1] = f
     end
     NS.Movers:Register(cdRow, "cooldowns", "Cooldowns", { "CENTER", "CENTER", 0, -210 })
@@ -241,6 +247,8 @@ function Shocks:Init()
     NS:OnUnit("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, _, spellID)
         local key = Spells:KeyFor(spellID)
         if not key or not NS:IsEnabled("shocks") then return end
+        local iconKey = SHOCKS[key] and "earthShock" or key   -- shocks share one cooldown
+        for _, f in ipairs(cdIcons) do if f.key == iconKey then f.armed = true end end
         if key == "stormstrike" and NS.db.shocks.prompt then
             promptUntil = GetTime() + NS.db.shocks.promptWindow
             self:ShowPrompt(true)

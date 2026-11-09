@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.5.2
+First in-game test (level 15): 29 of 31 checks passed, native aura slots confirmed in the real client.
+- New: cooldown icons flash once when the cooldown your cast started is over (Stormstrike, shocks,
+  Fire Nova, Rage of the Farseer). Setting: Stormstrike & Shocks > "Flash when a spell is ready again".
+- Fix: mana bar now turns red in combat too. The mana value is secret there, so the client colours
+  the bar through a colour curve.
+- Fix: overview imbue tile showed "MH on" instead of the time left, and an off hand entry with a two-hander.
+- Cleaner settings window: hero text no longer runs under the buttons, module descriptions use two
+  lines instead of being cut off; edit-mode header text no longer runs under its buttons.
+- /sham probe also reports mana values.
+
 ## 0.5.1
 - Fix: pulling with 0 Maelstrom stacks hid the Maelstrom bar for the whole fight. PLAYER_REGEN_DISABLED
   fires before the combat lockdown starts, so visibility now uses a combat flag set first thing at the pull.

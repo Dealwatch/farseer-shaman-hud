@@ -205,6 +205,7 @@ NS.defaults = {
         flameShock = true,      -- Flame Shock timer bar
         flameShockDuration = 12,
         cooldowns = true,       -- cooldown icon row
+        readyFlash = true,      -- an icon flashes when its cooldown is ready again
         iconSize = 30,
         barWidth = 240,
     },

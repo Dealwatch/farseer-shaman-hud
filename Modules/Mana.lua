@@ -15,7 +15,7 @@ local Mana = NS:NewModule("mana", {
     icon = "Interface\\Icons\\Spell_Nature_ManaRegenTotem",
 })
 
-local frame, bar
+local frame, bar, curve
 local MANA = Enum and Enum.PowerType and Enum.PowerType.Mana or 0
 local COLOR = { 0.25, 0.55, 1.0 }
 
@@ -41,6 +41,27 @@ function Mana:Init()
     NS:On("PLAYER_ENTERING_WORLD", update)
 end
 
+-- In combat the mana value can be secret: then the client colours the bar
+-- itself through a step colour curve (red below the threshold, blue above).
+local function buildCurve(lowPct)
+    if not (C_CurveUtil and C_CurveUtil.CreateColorCurve and CreateColor) then return nil end
+    local ok, c = pcall(C_CurveUtil.CreateColorCurve)
+    if not ok or not c then return nil end
+    local d = UI.palette.danger
+    local okType = pcall(c.SetType, c, Enum.LuaCurveType and Enum.LuaCurveType.Step or 1)
+    local ok1 = pcall(c.AddPoint, c, 0, CreateColor(d[1], d[2], d[3], 1))
+    local ok2 = pcall(c.AddPoint, c, lowPct / 100, CreateColor(COLOR[1], COLOR[2], COLOR[3], 1))
+    return (okType and ok1 and ok2) and c or nil
+end
+
+local function colourFromCurve()
+    if not (curve and UnitPowerPercent) then return false end
+    return pcall(function()
+        local col = UnitPowerPercent("player", MANA, false, curve)
+        if col.GetRGB then bar:SetStatusBarColor(col:GetRGB()) else bar:SetStatusBarColor(col.r, col.g, col.b) end
+    end)
+end
+
 -- Returns the readable fraction (0..1) or nil.
 function Mana.Fraction()
     local cur, max = UnitPower("player", MANA), UnitPowerMax("player", MANA)
@@ -63,9 +84,13 @@ function Mana:Update(enteringCombat)
     frame:SetShown(show and true or false)
     if not show then return end
 
-    if frac and frac * 100 < db.lowPct then
-        bar:SetStatusBarColor(UI.palette.danger[1], UI.palette.danger[2], UI.palette.danger[3])
-    else
+    if frac then
+        if frac * 100 < db.lowPct then
+            bar:SetStatusBarColor(UI.palette.danger[1], UI.palette.danger[2], UI.palette.danger[3])
+        else
+            bar:SetStatusBarColor(COLOR[1], COLOR[2], COLOR[3])
+        end
+    elseif not colourFromCurve() then
         bar:SetStatusBarColor(COLOR[1], COLOR[2], COLOR[3])
     end
     bar.text:SetShown(db.showText and db.height >= 9)
@@ -77,5 +102,6 @@ function Mana:Apply()
     local db = NS.db.mana
     frame:SetSize(db.width, db.height)
     bar.spark:SetHeight(db.height)
+    curve = buildCurve(db.lowPct)
     self:Update()
 end

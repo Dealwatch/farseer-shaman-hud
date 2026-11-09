@@ -82,29 +82,33 @@ end
 local function heroBlock(parent)
     local h = CreateFrame("Frame", nil, parent)
     UI:Skin(h, P.surface2, P.border, "lg")
-    h.logo = UI:Icon(h, 84)
-    h.logo:SetPoint("LEFT", 24, 0)
+    h.logo = UI:Icon(h, 72)
+    h.logo:SetPoint("TOPLEFT", 20, -20)
     h.logo.icon:SetTexture("Interface\\Icons\\Spell_Nature_LightningShield")
-    h.title = UI:Text(h, 26)
-    h.title:SetPoint("TOPLEFT", h.logo, "TOPRIGHT", 20, -6)
-    h.ver = UI:Text(h, 14, P.textDim)
+    h.edit = W.Button(h, "Edit layout", true, function() NS.Movers:Toggle(true) end, 140)
+    h.edit:SetPoint("TOPRIGHT", -20, -20)
+    h.test = W.Button(h, "Test alerts", false, function() NS.Alerts:Test() end, 140)
+    h.test:SetPoint("TOPRIGHT", h.edit, "BOTTOMRIGHT", 0, -8)
+    -- text column between the logo and the buttons, so nothing runs under them
+    h.title = UI:Text(h, 24)
+    h.title:SetPoint("TOPLEFT", h.logo, "TOPRIGHT", 18, -2)
+    h.ver = UI:Text(h, 13, P.textDim)
     h.ver:SetPoint("BOTTOMLEFT", h.title, "BOTTOMRIGHT", 10, 3)
     h.line1 = UI:Text(h, 13)
     h.line1:SetPoint("TOPLEFT", h.title, "BOTTOMLEFT", 0, -8)
+    h.line1:SetPoint("RIGHT", h.edit, "LEFT", -16, 0)
     h.line2 = UI:Text(h, 12, P.textDim)
     h.line2:SetPoint("TOPLEFT", h.line1, "BOTTOMLEFT", 0, -6)
-    h.line2:SetText("/sham opens this window  -  /sham edit moves frames  -  /sham probe tests the client")
-    h.edit = W.Button(h, "Edit layout", true, function() NS.Movers:Toggle(true) end, 160)
-    h.edit:SetPoint("TOPRIGHT", -20, -24)
-    h.test = W.Button(h, "Test alerts", false, function() NS.Alerts:Test() end, 160)
-    h.test:SetPoint("TOPRIGHT", h.edit, "BOTTOMRIGHT", 0, -10)
-    function h:Layout(width) self:SetSize(width, 130) return 130 end
+    h.line2:SetPoint("RIGHT", h.edit, "LEFT", -16, 0)
+    h.line2:SetWordWrap(true)
+    h.line2:SetText("/farseer opens this window, /sham edit moves frames, /sham probe tests the client")
+    function h:Layout(width) self:SetSize(width, 116) return 116 end
     function h:Refresh()
         local r, g, b = UI:Accent()
         self.title:SetText(string.format("|cff%02x%02x%02xFarseer|r", r * 255, g * 255, b * 255))
         self.ver:SetText("Shaman HUD  v" .. NS.VERSION)
         local build, iface, forever = buildInfo()
-        self.line1:SetText(string.format("%s  -  build %s  -  interface %s", forever and "WoW Forever" or "WoW", tostring(build), tostring(iface)))
+        self.line1:SetText(string.format("%s  |  build %s  |  interface %s", forever and "WoW Forever" or "WoW", tostring(build), tostring(iface)))
         self.edit:Refresh(); self.test:Refresh()
     end
     return h
@@ -113,12 +117,15 @@ end
 local function imbueText()
     local mod = NS.modules.imbues
     local function one(key, label)
-        local has, left = mod.Read and mod.Read({ key = key, inv = key == "mh" and 16 or 17, slot = key == "mh" and 0 or 1 })
+        if not mod.Read then return label .. " ?" end
+        local has, left = mod.Read({ key = key, inv = key == "mh" and 16 or 17, slot = key == "mh" and 0 or 1 })
         if has == nil then return label .. " ?" end
         if not has then return label .. " |cffff5555none|r" end
         return label .. " " .. (left and math.floor(left / 60) .. "m" or "on")
     end
-    return one("mh", "MH") .. "   " .. one("oh", "OH")
+    local text = one("mh", "MH")
+    if mod.HasWeapon and mod.HasWeapon({ key = "oh", inv = 17 }) then text = text .. "   " .. one("oh", "OH") end
+    return text
 end
 
 local function tilesBlock(parent)
@@ -182,14 +189,16 @@ local function modulesBlock(parent)
         local c = CreateFrame("Frame", nil, m)
         UI:Skin(c, P.surface2, P.border, "lg")
         c.iconFrame = UI:Icon(c, 36)
-        c.iconFrame:SetPoint("LEFT", 14, 0)
+        c.iconFrame:SetPoint("TOPLEFT", 14, -14)
         c.iconFrame.icon:SetTexture(mod.icon)
         c.title = UI:Text(c, 14)
-        c.title:SetPoint("TOPLEFT", c.iconFrame, "TOPRIGHT", 12, -1)
-        c.title:SetText(mod.title)
+        c.title:SetPoint("TOPLEFT", c.iconFrame, "TOPRIGHT", 12, 0)
         c.desc = UI:Text(c, 11, P.textDim)
-        c.desc:SetPoint("BOTTOMLEFT", c.iconFrame, "BOTTOMRIGHT", 12, 1)
+        c.desc:SetPoint("TOPLEFT", c.title, "BOTTOMLEFT", 0, -3)
         c.desc:SetPoint("RIGHT", -70, 0)
+        c.desc:SetWordWrap(true)
+        if c.desc.SetMaxLines then c.desc:SetMaxLines(2) end
+        c.title:SetText(mod.title)
         c.desc:SetText(mod.desc)
         local get, set = bindModule(key)
         c.switch = W.Switch(c, get, set)
@@ -321,6 +330,7 @@ local function buildPages()
         c:Add(W.Slider(c, "Flame Shock bar width", nil, 120, 360, 10, bind("shocks", "barWidth"), px))
         c:Add(W.Toggle(c, "Cooldown icons", "Stormstrike, shocks, Rage of the Farseer and other cooldowns you know.", bind("shocks", "cooldowns")))
         c:Add(W.Slider(c, "Cooldown icon size", nil, 20, 56, 1, bind("shocks", "iconSize"), px))
+        c:Add(W.Toggle(c, "Flash when a spell is ready again", "The icon lights up once when the cooldown your cast started is over. Shocks share one cooldown: the Earth Shock icon stands for all of them.", bind("shocks", "readyFlash")))
     end
 
     p = newPage("reminders", "Reminders", "Alerts stack in one place. Right-click an alert to snooze it.", "Interface\\Icons\\Spell_Nature_LightningShield")

@@ -179,7 +179,7 @@ end
 
 local function buildHeader()
     header = CreateFrame("Frame", nil, UIParent)
-    header:SetSize(560, 52)
+    header:SetSize(640, 56)
     header:SetPoint("TOP", 0, -40)
     header:SetFrameStrata("DIALOG")
     UI:Skin(header, UI.palette.surface, UI.palette.border, "lg")
@@ -190,7 +190,7 @@ local function buildHeader()
     title:SetText("Edit Mode")
     local sub = UI:Text(header, 11, UI.palette.textDim)
     sub:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -3)
-    sub:SetText("Drag frames - arrows nudge - right-click resets - Shift = free")
+    sub:SetText("Drag to move. Arrow keys nudge, right-click resets a frame.")
 
     local done = headerButton(header, "Done", true, function() Movers:Toggle(false) end)
     done:SetPoint("RIGHT", -12, 0)
@@ -206,6 +206,9 @@ local function buildHeader()
         Movers:DrawGrid()
     end)
     gridBtn:SetPoint("RIGHT", reset, "LEFT", -8, 0)
+    title:SetPoint("RIGHT", gridBtn, "LEFT", -12, 0)
+    sub:SetPoint("RIGHT", gridBtn, "LEFT", -12, 0)
+    sub:SetWordWrap(true)
 
     -- arrow-key nudging of the selected frame
     header:EnableKeyboard(true)

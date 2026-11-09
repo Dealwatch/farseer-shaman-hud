@@ -52,6 +52,7 @@ local function hasWeapon(hand)
     local item = GetInventoryItemID("player", hand.inv)
     return item ~= nil and not isFishingPole(item)
 end
+Imbues.HasWeapon = hasWeapon
 
 -- Returns hasImbue, secondsLeft (nil when unknown).
 function Imbues.Read(hand)

@@ -512,6 +512,40 @@ run("regression: auras secret out of combat (BG / encounter)", function()
     C_Secrets.ShouldAurasBeSecret = old
 end)
 
+run("mana red below threshold with secret values (colour curve)", function()
+    local colour
+    C_CurveUtil = { CreateColorCurve = function()
+        local pts = {}
+        return { SetType = function() end, AddPoint = function(self, x, c) pts[#pts + 1] = { x, c } end, _pts = pts }
+    end }
+    CreateColor = function(r, g, b, a) return { r = r, g = g, b = b, GetRGB = function(self) return self.r, self.g, self.b end } end
+    UnitPowerPercent = function(_, _, _, crv) local p = mana / 1000; local pick = crv._pts[1][2]
+        for _, pt in ipairs(crv._pts) do if p >= pt[1] then pick = pt[2] end end; return pick end
+    local bar = NS.modules.mana.bar
+    local orig = bar.SetStatusBarColor
+    bar.SetStatusBarColor = function(self, r, g, b) colour = { r, g, b } end
+    NS.modules.mana:Apply()
+    combat = true
+    mana = 100
+    NS.modules.mana:Update()
+    assert(colour and colour[1] > 0.9 and colour[3] < 0.5, "red in combat below 25% via the curve")
+    mana = 900
+    NS.modules.mana:Update()
+    assert(colour[3] > 0.9, "blue above the threshold")
+    combat = false
+    bar.SetStatusBarColor = orig
+end)
+
+run("cooldown ready flash", function()
+    fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 8050)   -- Flame Shock arms the shared shock icon
+    local icon
+    for _, f in ipairs(NS.modules.shocks.cdIcons) do if f.key == "earthShock" then icon = f end end
+    assert(icon.armed, "shock icon armed by Flame Shock")
+    icon.cd._scripts.OnCooldownDone(icon.cd)
+    assert(icon.sfFlash and icon.sfFlash:IsShown(), "icon flashes when ready")
+    assert(not icon.armed, "flashes only once")
+end)
+
 run("reset", function()
     SlashCmdList.FARSEERHUD("reset confirm")
 end)

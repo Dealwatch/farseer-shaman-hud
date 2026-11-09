@@ -298,6 +298,44 @@ NS:On("PLAYER_REGEN_DISABLED", function()
 end)
 
 ---------------------------------------------------------------------------
+-- One-shot flash (a spell is ready again)
+---------------------------------------------------------------------------
+
+function UI:Flash(frame)
+    if not frame.sfFlash then
+        local f = CreateFrame("Frame", nil, frame)
+        f:SetPoint("TOPLEFT", -4, 4)
+        f:SetPoint("BOTTOMRIGHT", 4, -4)
+        f:SetFrameLevel(frame:GetFrameLevel() + 6)
+        f.ring = f:CreateTexture(nil, "OVERLAY")
+        f.ring:SetAllPoints()
+        if not UI.Sliced(f.ring, "Glow", frame.sfShape == "lg" and "lg" or "sm") then f.ring:SetTexture(self.WHITE) end
+        f.fill = f:CreateTexture(nil, "OVERLAY")
+        f.fill:SetPoint("TOPLEFT", 5, -5)
+        f.fill:SetPoint("BOTTOMRIGHT", -5, 5)
+        f.fill:SetTexture(self.WHITE)
+        f.fill:SetBlendMode("ADD")
+        local ag = f:CreateAnimationGroup()
+        local a = ag:CreateAnimation("Alpha")
+        a:SetFromAlpha(1)
+        a:SetToAlpha(0)
+        a:SetDuration(0.9)
+        ag:SetScript("OnFinished", function() f:Hide() end)
+        f.anim = ag
+        f:Hide()
+        frame.sfFlash = f
+    end
+    local f = frame.sfFlash
+    local r, g, b = self:Accent()
+    f.ring:SetVertexColor(r, g, b, 1)
+    f.fill:SetVertexColor(1, 1, 1, 0.45)
+    f.anim:Stop()
+    f:SetAlpha(1)
+    f:Show()
+    f.anim:Play()
+end
+
+---------------------------------------------------------------------------
 -- Sounds
 ---------------------------------------------------------------------------
 
