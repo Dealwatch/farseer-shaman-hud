@@ -236,6 +236,12 @@ local function buildPages()
         c:Add(W.Toggle(c, "Grey out when out of melee range", nil, bind("swing", "rangeTint")))
         c:Add(W.Toggle(c, "Time to next swing", nil, bind("swing", "showText")))
         c:Add(W.Toggle(c, "Hide when not fighting", nil, bind("swing", "hideIdle")))
+        -- Forever has its own swing timer (CVar showSwingTimer): offer to switch it off
+        if C_CVar and C_CVar.GetCVar and C_CVar.GetCVar("showSwingTimer") ~= nil then
+            c:Add(W.Toggle(c, "Hide Blizzard's own swing timer", "Forever has a built-in swing timer. Same as /console showSwingTimer 0.",
+                function() return not C_CVar.GetCVarBool("showSwingTimer") end,
+                function(v) C_CVar.SetCVar("showSwingTimer", v and "0" or "1") end))
+        end
     end
 
     p = newPage("mana", "Mana Bar", "A thin mana bar in the HUD column.", "Interface\\Icons\\Spell_Nature_ManaRegenTotem")

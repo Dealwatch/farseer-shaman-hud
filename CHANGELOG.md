@@ -3,6 +3,8 @@
 ## 0.5.0
 - New name: **Farseer – Shaman HUD** (addon folder `FarseerShamanHUD`, `/farseer`; `/sham` still works).
   Settings and positions start fresh once (new saved-variables name).
+- Swing Timer page: switch off Blizzard's own swing timer (CVar showSwingTimer)
+- MIT license
 
 ## 0.4.0
 - New: proc row above the Maelstrom bar, showing only what is up (Flurry, Clearcasting,

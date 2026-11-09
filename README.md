@@ -87,6 +87,17 @@ for an element you have no totem for, and the imbue buttons use the best imbue y
 **Out of combat** the HUD is hidden. What stays: alerts (missing imbue or shield, a totem that died,
 Ankhs) and the imbue buttons that need a click.
 
+## Blizzard's own displays
+
+Forever has a few built-in displays that overlap with this HUD. None of them is needed alongside it:
+
+| Blizzard display | What to do |
+|---|---|
+| Swing timer | Swing Timer page: *Hide Blizzard's own swing timer* (same as `/console showSwingTimer 0`) |
+| Totem icons next to your portrait | Harmless; they stay (hiding Blizzard frames from an addon can break their buttons in combat) |
+| Totem bar from Call of the Elements (level 20) | Keep it: that is where you set up and cast your totem sets |
+| Cooldown Manager | Off unless you turned it on (Options > Gameplay Enhancements) |
+
 ## Key bindings
 
 Options > Key Bindings > AddOns > Farseer - Shaman HUD:
@@ -216,5 +227,12 @@ tests/run.lua       offline test client
 aura container) and drives login, every settings page, edit mode, the mana bar, the fade and a combat sequence.
 Any Lua error fails the run.
 
+When Blizzard patches Forever, bump `## Interface` in the TOC to the new number and release, so the addon
+never shows as out of date.
+
 Releases: write the notes in `CHANGELOG.md`, push a tag `vX.Y.Z`; the GitHub Action runs the test and builds
 the release zip (`.pkgmeta` leaves out `tests` and `.github`).
+
+## License
+
+MIT, see [LICENSE](LICENSE).

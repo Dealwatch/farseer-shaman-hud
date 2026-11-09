@@ -241,6 +241,12 @@ C_Item = {
 C_PaperDollInfo = { OffhandHasWeapon = function() return true end }
 C_SwingTimer = { EnableRangeCheck = function() end, IsTargetWithinSwingRange = function() return S(true) end }
 C_SpellActivationOverlay = { IsSpellOverlayed = function() return false end }
+local cvars = { showSwingTimer = "1" }
+C_CVar = {
+    GetCVar = function(k) return cvars[k] end,
+    GetCVarBool = function(k) return cvars[k] == "1" end,
+    SetCVar = function(k, v) cvars[k] = v end,
+}
 C_AddOns = { GetAddOnMetadata = function() return "0.1.0-test" end }
 local timers = {}
 C_Timer = {
