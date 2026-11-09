@@ -4,8 +4,8 @@
 - Fix: no shield warning in combat. Buffs are secret to addons in combat, so the text alert can't see
   the shield drop. The shield icon now turns red and pulses as soon as the shield is gone; the client
   covers it while the shield is up.
-- Fix: settings sliders (icon size, width, height, ...) could not be dragged, only changed with the
-  mouse wheel.
+- Fix: dragging a settings slider (icon sizes, widths, heights, ...) moved it but neither applied nor
+  saved the value; only the mouse wheel did.
 
 ## 0.5.2
 First in-game test (level 15): 29 of 31 checks passed, native aura slots confirmed in the real client.

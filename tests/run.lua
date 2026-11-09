@@ -546,6 +546,17 @@ run("cooldown ready flash", function()
     assert(not icon.armed, "flashes only once")
 end)
 
+run("regression: slider drag saves and applies (no userInput flag)", function()
+    local db = NS.db.shocks
+    local row = NS.Widgets.Slider(UIParent, "Cooldown icon size", nil, 20, 56, 1,
+        function() return db.iconSize end,
+        function(v) db.iconSize = v; NS:ApplyAll() end)
+    row.slider._scripts.OnValueChanged(row.slider, 44)   -- what the client sends while dragging
+    assert(db.iconSize == 44, "slider value saved")
+    local icon = NS.modules.shocks.cdIcons[1]
+    assert(icon:GetWidth() == 44, "cooldown icons resized")
+end)
+
 run("reset", function()
     SlashCmdList.FARSEERHUD("reset confirm")
 end)
