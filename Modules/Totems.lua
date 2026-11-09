@@ -22,12 +22,16 @@ local frame
 local buttons = {}          -- slot -> button
 local slotState = {}        -- slot -> { active, name, icon, destroyed }
 
+-- Readable values, plus the raw icon: a secret icon can still go straight
+-- into Texture:SetTexture (needed for totems dropped by a Call spell in combat).
 local function totemInfo(slot)
     if not GetTotemInfo then return end
     local ok, have, name, start, dur, icon = pcall(GetTotemInfo, slot)
     if not ok then return end
-    return NS.Readable(have), NS.Readable(name), NS.Readable(start), NS.Readable(dur), NS.Readable(icon)
+    return NS.Readable(have), NS.Readable(name), NS.Readable(start), NS.Readable(dur), NS.Readable(icon), icon
 end
+
+local CALLS = { callElements = true, callAncestors = true, callSpirits = true }
 
 local function setSecureSpell(btn)
     local db = NS.db.totems
@@ -100,11 +104,22 @@ function Totems:OnCast(spellID)
     if not spellID then return end
     local name = Spells.NameOf(spellID)
     local key = Spells:KeyFor(spellID)
+    if key == "totemicRecall" then
+        -- you took them back on purpose: no "totem is gone" alerts
+        for s, st in pairs(slotState) do st.destroyed = true; NS.Alerts:Clear("totem" .. s) end
+        return
+    end
+    if key and CALLS[key] then
+        -- several totems at once: each slot reports itself via PLAYER_TOTEM_UPDATE
+        for s, st in pairs(slotState) do st.calledAt = GetTime(); st.destroyed = false end
+        return
+    end
     local def = key and Spells:Get(key)
     local slot = (def and def.element) or (name and NS.db.learned.totemSlots[name])
     if not slot then return end
     local st = slotState[slot]
     st.active, st.name, st.icon, st.destroyed = true, name, Spells.TextureOf(spellID), false
+    st.rawIcon, st.hasRaw = nil, false
     if key then
         NS.db.totems.last[slot] = key
     else
@@ -120,8 +135,14 @@ end
 function Totems:UpdateSlot(slot)
     local b, st = buttons[slot], slotState[slot]
     if not b then return end
-    local have, name, start, dur, icon = totemInfo(slot)
+    local have, name, start, dur, icon, rawIcon = totemInfo(slot)
+    if have == nil and st.calledAt and GetTime() - st.calledAt < 2 then
+        -- secret, right after a Call spell: show what the client put there
+        -- kept apart and only ever handed to SetTexture: a secret must not be tested
+        st.active, st.rawIcon, st.hasRaw = true, rawIcon, true
+    end
     if have ~= nil then
+        st.rawIcon, st.hasRaw = nil, false
         local wasActive = st.active
         st.active = have
         if have then
@@ -152,7 +173,7 @@ function Totems:Draw(slot, start, dur)
     local b, st = buttons[slot], slotState[slot]
     local db = NS.db.totems
     local preview = NS.editing and not st.active
-    b.icon:SetTexture(st.icon or b.el.icon)
+    if st.hasRaw then b.icon:SetTexture(st.rawIcon) else b.icon:SetTexture(st.icon or b.el.icon) end
     b.icon:SetDesaturated(not st.active and not preview)
     b:SetAlpha((st.active or preview) and 1 or (db.showEmpty and 0.4 or 0))
 

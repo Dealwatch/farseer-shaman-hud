@@ -10,6 +10,8 @@
 - Imbue buttons default to "When needed"; invisible buttons no longer catch clicks
 - Low levels: if your chosen imbue is not learned yet, the best imbue you know is used (e.g. Rockbiter)
 - Off hand weapon detection falls back to the item in the off hand slot
+- Forever totem tools: totems dropped by Call of the Elements / Ancestors / Spirits show up (icon
+  from the client, also in combat); Totemic Recall no longer raises "totem is gone" alerts
 - Low levels: the Maelstrom bar stays hidden until you have the talent; the totem bar only shows
   elements you have a totem for (no empty Water/Air slots), and re-lays itself out as you learn more
 - Overview: the Maelstrom tile shows "native stack bar" when the client draws it

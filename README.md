@@ -111,7 +111,14 @@ need IDs, so the addon also carries the known IDs, including the Forever-only on
 | Rage of the Farseer | 425336 |
 | Fire Nova | 408341 |
 | Totemic Call | 437009 |
+| Totemic Recall | 36936 |
+| Call of the Elements / Ancestors / Spirits | 66842 / 66843 / 66844 |
 | Stormstrike | 17364 |
+
+Forever is not Classic: Fire Nova is a spell (level 12), Call of the Elements and Totemic Recall come at 20,
+Call of the Ancestors at 30 and Call of the Spirits at 40, Elemental Mastery is now Lightning Mastery, and
+Stormstrike, Maelstrom Weapon and Rage of the Farseer work differently. The addon never relies on a level
+table: it shows what is in your spellbook.
 
 Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning Bolt, Chain Lightning and Purge
 (see `Spells.lua`). `/sham spells` prints the IDs your client really uses.

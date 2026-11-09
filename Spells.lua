@@ -31,7 +31,14 @@ local DEFS = {
     shamanisticRage = { en = "Shamanistic Rage",     ids = { 30823 } },
     elementalMastery = { en = "Lightning Mastery",   ids = { 16166 } },   -- Elemental Mastery, renamed on Forever
     purge           = { en = "Purge",                ids = { 370, 8012, 27626 } },
-    totemicCall     = { en = "Totemic Call",         ids = { 437009, 36936 } },
+    -- Forever totem tools: Call of the Elements / Ancestors / Spirits (levels 20/30/40) drop
+    -- several totems at once, Totemic Recall (20) takes them all back, Totemic Call (22) pulls
+    -- them to you.
+    totemicCall     = { en = "Totemic Call",         ids = { 437009 } },
+    totemicRecall   = { en = "Totemic Recall",       ids = { 36936 } },
+    callElements    = { en = "Call of the Elements", ids = { 66842 } },
+    callAncestors   = { en = "Call of the Ancestors", ids = { 66843 } },
+    callSpirits     = { en = "Call of the Spirits",  ids = { 66844 } },
     maelstrom       = { en = "Maelstrom Weapon",     ids = { 408498, 408505, 53817, 344179, 51530, 187880 },
                         aura = { 408505, 53817, 344179 } },               -- talent and buff IDs differ
     flurry          = { en = "Flurry",               ids = { 16256 }, aura = { 16257, 16277, 16278, 16279, 16280 } },

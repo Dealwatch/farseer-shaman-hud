@@ -194,9 +194,10 @@ local SPELLS = {
     [403] = "Lightning Bolt", [324] = "Lightning Shield", [8232] = "Windfury Weapon", [8024] = "Flametongue Weapon",
     [2645] = "Ghost Wolf", [20608] = "Reincarnation", [3599] = "Searing Totem", [8075] = "Strength of Earth Totem",
     [53817] = "Maelstrom Weapon", [90001] = "Rage of the Farseer",
+    [66842] = "Call of the Elements", [36936] = "Totemic Recall",
 }
 -- player knows these (spellbook, Forever-style unknown ID for Rage of the Farseer)
-local BOOK = { 17364, 8042, 8050, 403, 324, 8232, 8024, 2645, 20608, 3599, 8075, 90001 }
+local BOOK = { 17364, 8042, 8050, 403, 324, 8232, 8024, 2645, 20608, 3599, 8075, 90001, 66842, 36936 }
 
 C_Spell = {
     GetSpellName = function(id) return SPELLS[id] end,
@@ -421,6 +422,9 @@ run("combat with secrets", function()
     assert(_G.ShammyForeverFlameShock:IsShown() and _G.ShammyForeverFlameShock:GetAlpha() == 1, "flame shock bar")
     assert(NS.UI.root:GetAlpha() == 1, "HUD not faded in combat")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 3599)    -- Searing Totem
+    fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 66842)   -- Call of the Elements (secret totem info)
+    fire("PLAYER_TOTEM_UPDATE", 3)
+    fire("PLAYER_TOTEM_UPDATE", 4)
     fire("PLAYER_TOTEM_UPDATE", 1)
     fire("SPELL_UPDATE_COOLDOWN")
     fire("UNIT_AURA", "player", {})
@@ -450,6 +454,10 @@ run("leave combat", function()
     fire("PLAYER_REGEN_ENABLED")
     tick(2)
     assert(NS.db.probe.combat and NS.db.probe.outOfCombat and NS.db.probe.spells, "probe saved")
+    totems[2] = nil
+    fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 36936)   -- Totemic Recall
+    fire("PLAYER_TOTEM_UPDATE", 2)
+    assert(not NS.Alerts.active.totem2, "no 'totem is gone' alert after Totemic Recall")
     _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD visible
     UnitCanAttack = function() return false end
     fire("PLAYER_TARGET_CHANGED")
