@@ -296,6 +296,13 @@ local function buildPages()
         end
     end
 
+    p = newPage("procs", "Procs", "Only what is up right now, centred above the Maelstrom bar.", "Interface\\Icons\\Ability_GhoulFrenzy")
+    p.build = function(self, parent)
+        local c = self:Add(W.Card(parent, "Procs", self.icon, bindModule("procs")))
+        c:Add(W.Slider(c, "Icon size", "Applies after /reload: the client lays out this row.", 20, 48, 1, bind("procs", "size"), px))
+        c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, Shamanistic Rage - whichever you have.", "Reload UI", function() ReloadUI() end))
+    end
+
     p = newPage("shocks", "Stormstrike & Shocks", "Shock-now prompt, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Stormstrike & shocks", self.icon, bindModule("shocks")))
@@ -336,7 +343,8 @@ local function buildPages()
         look:Add(W.Slider(look, "Text size", nil, 0.7, 1.5, 0.05, bindAppearance("fontScale"), mult))
         look:Add(W.Dropdown(look, "Bar texture", nil, textures, bindAppearance("texture")))
         look:Add(W.Toggle(look, "Play sounds", nil, bind("appearance", "sounds")))
-        look:Add(W.Slider(look, "Fade out of combat", "HUD opacity without combat or an enemy target. 100% = never fade.", 0.1, 1.0, 0.05, bind("appearance", "idleAlpha"), function(v) return math.floor(v * 100 + 0.5) .. "%" end))
+        look:Add(W.Slider(look, "Out of combat", "HUD opacity out of combat. 0% = hidden: only alerts and imbue buttons that need you stay.", 0, 1.0, 0.05, bind("appearance", "idleAlpha"), function(v) return v < 0.01 and "hidden" or (math.floor(v * 100 + 0.5) .. "%") end))
+        look:Add(W.Toggle(look, "Show the HUD when an enemy is targeted", "Out of combat too, so you see stacks and cooldowns before the pull.", bind("appearance", "showOnTarget")))
 
         local layout = self:Add(W.Card(parent, "Layout", "Interface\\Icons\\INV_Misc_Map_01"))
         layout:Add(W.Slider(layout, "HUD scale", nil, 0.5, 2.0, 0.05, bindAppearance("scale"), mult))

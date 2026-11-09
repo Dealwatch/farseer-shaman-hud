@@ -135,7 +135,7 @@ end)
 NS.defaults = {
     modules = {
         swing = true, mana = true, totems = true, imbues = true,
-        maelstrom = true, shocks = true, reminders = true,
+        maelstrom = true, procs = true, shocks = true, reminders = true,
     },
     positions = {},
     appearance = {
@@ -146,7 +146,8 @@ NS.defaults = {
         texture = "smooth",
         sounds = true,
         grid = 16,
-        idleAlpha = 0.5,        -- HUD opacity out of combat without an enemy target (1 = never fade)
+        idleAlpha = 0,          -- HUD opacity out of combat (0 = hidden; alerts and needed imbues stay)
+        showOnTarget = true,    -- out of combat, show the HUD while an enemy is targeted (pre-pull)
     },
     swing = {
         width = 240, height = 12,
@@ -174,9 +175,12 @@ NS.defaults = {
         mh = "windfury",
         oh = "flametongue",
         warnMinutes = 3,
-        show = "always",        -- "always" | "missing"
+        show = "missing",       -- "missing" (only when an imbue is missing / running out) | "always"
         inCombat = true,        -- also warn in combat
         size = 30,
+    },
+    procs = {
+        size = 30,              -- icon size (applies after /reload: the client lays the row out)
     },
     maelstrom = {
         width = 240, height = 10,

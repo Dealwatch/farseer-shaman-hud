@@ -129,7 +129,8 @@ function Imbues:Init()
     frame:Hide()
     self.frame = frame
     for _, hand in ipairs(HANDS) do makeButton(hand) end
-    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 114, -210 })
+    -- outside the HUD root: a missing imbue must stay clickable out of combat
+    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 114, -210 }, true)
 
     local function update() self:Update() end
     NS:On("WEAPON_ENCHANT_CHANGED", update)
@@ -159,6 +160,8 @@ function Imbues:Update()
         b.time:SetText(has and fmt(left) or (wanted and "|cffff5555none|r" or ""))
         local visible = wanted and (db.show == "always" or bad) or (NS.editing and enabled)
         b:SetAlpha(visible and 1 or 0)
+        -- invisible buttons must not catch clicks (mouse can only change out of combat)
+        NS.AfterCombat("imbuemouse" .. hand.key, function() b:EnableMouse(visible and true or false) end)
         if bad then UI:Glow(b, UI.palette.danger[1], UI.palette.danger[2], UI.palette.danger[3]) else UI:Glow(b) end
 
         local alertKey = "imbue" .. hand.key

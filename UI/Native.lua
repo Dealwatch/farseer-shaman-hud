@@ -34,7 +34,9 @@ local function idMap(list)
     return map, n
 end
 
--- spec = { key, parent, unit, filter, ids = function() -> array, init = function(button), level }
+-- spec = { key, parent, unit, filter, ids = function() -> array, init = function(button), level,
+--          group = { size, spacing } }   -- group: any number of matching auras, laid out
+--                                          by the client and centred on the parent
 -- Returns a handle: :Build() :Refilter() :Refresh() :Active() .status .err
 function Native:Slot(spec)
     local h = { spec = spec, status = "not built" }
@@ -51,10 +53,25 @@ function Native:Slot(spec)
         local ok, err = pcall(function()
             local c = CreateFrame("AuraContainer", nil, spec.parent, "CustomAuraContainerTemplate")
             self.container = c
-            c:SetPoint("TOPLEFT", spec.parent, "TOPLEFT", 0, 0)
             c:SetFrameLevel(spec.parent:GetFrameLevel() + (spec.level or 2))
             c:SetUnit(spec.unit)
             pcall(c.EnableMouse, c, false)
+            if spec.group then
+                -- the container sizes itself to the active auras; a single CENTER point keeps it centred
+                c:SetPoint("CENTER", spec.parent, "CENTER", 0, 0)
+                pcall(c.SetFlowLayoutPadding, c, 0, 0, 0, 0)
+                c:AddAuraGroup(spec.key, spec.filter, {
+                    candidateFilters = { includeSpellIDs = map },
+                    layout = { elementSpacing = spec.group.spacing, elementWidth = spec.group.size, elementHeight = spec.group.size },
+                    initializeFrame = function(button)
+                        pcall(button.EnableMouse, button, false)
+                        spec.init(button)
+                    end,
+                })
+                self.button = c
+                return
+            end
+            c:SetPoint("TOPLEFT", spec.parent, "TOPLEFT", 0, 0)
             local b = c:AddAuraSlot(spec.key, spec.filter, {
                 candidateFilters = { includeSpellIDs = map },
                 initializeFrame = function(button)
@@ -87,7 +104,8 @@ function Native:Slot(spec)
             return
         end
         local map = idMap(spec.ids())
-        pcall(self.container.SetAuraSlotCandidateFilters, self.container, spec.key, { includeSpellIDs = map })
+        local fn = spec.group and self.container.SetAuraGroupCandidateFilters or self.container.SetAuraSlotCandidateFilters
+        pcall(fn, self.container, spec.key, { includeSpellIDs = map })
     end
 
     function h:Refresh()

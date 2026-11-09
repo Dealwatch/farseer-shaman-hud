@@ -1,5 +1,15 @@
 # Changelog
 
+## 0.4.0
+- New: proc row above the Maelstrom bar, showing only what is up (Flurry, Clearcasting,
+  Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, Shamanistic Rage)
+  with time-left swipe and stacks; filled by the client (native aura group), also in combat
+- Out of combat the HUD is now hidden (was 50%). What stays: alerts, and the imbue buttons when an
+  imbue is missing or running out. Targeting an enemy shows the HUD before the pull.
+  Appearance: "Out of combat" opacity (0% = hidden) and "Show the HUD when an enemy is targeted"
+- Imbue buttons default to "When needed"; invisible buttons no longer catch clicks
+- Overview: the Maelstrom tile shows "native stack bar" when the client draws it
+
 ## 0.3.0
 - New: mana bar (thin, red when low, hides at full mana out of combat)
 - Cleaner HUD: one 240px column under the character (Maelstrom, swing, mana, Flame Shock) and one

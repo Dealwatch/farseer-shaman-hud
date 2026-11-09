@@ -126,6 +126,14 @@ function Object:AddAuraSlot(key, filter, opts)
     if opts.initializeFrame then opts.initializeFrame(b) end
     return b
 end
+function Object:AddAuraGroup(key, filter, opts)
+    assert(type(key) == "string" and type(filter) == "string", "group key/filter")
+    local ids = opts and opts.candidateFilters and opts.candidateFilters.includeSpellIDs
+    assert(type(ids) == "table" and next(ids), "group includeSpellIDs map")
+    assert(opts.layout and opts.layout.elementWidth, "group layout")
+    self._ids = ids
+    for _ = 1, 2 do opts.initializeFrame(newObject("Button", self)) end
+end
 function Object:SetApplicationBar(bar, o) assert(kindIs(bar, "StatusBar") and o and o.maxApplications, "application bar") end
 function Object:SetApplicationCount(fs) assert(kindIs(fs, "FontString"), "application count") end
 function Object:SetDurationBar(bar) assert(kindIs(bar, "StatusBar"), "duration bar") end
@@ -320,11 +328,13 @@ run("login", function()
     assert(NS.Spells:Get("stormstrike").known, "stormstrike resolved")
     assert(NS.Spells:Get("rageFarseer").known and NS.Spells:Get("rageFarseer").id == 90001, "resolved by name from spellbook")
     assert(not NS.Spells:Get("chainLightning").known, "unknown spell stays unknown")
-    for _, key in ipairs({ "maelstrom", "flameshock", "shield" }) do
+    for _, key in ipairs({ "maelstrom", "flameshock", "shield", "procs" }) do
         assert(NS.Native.slots[key]:Active(), "native slot " .. key)
     end
     assert(NS.Native.slots.maelstrom.container._ids[408505], "maelstrom buff id in filter")
     assert(NS.Native.slots.flameshock.container._ids[10448], "flame shock ranks in filter")
+    assert(NS.Native.slots.procs.container._ids[16257] and NS.Native.slots.procs.container._ids[425336], "proc ids in filter")
+    assert(_G.ShammyForeverImbues:GetParent() == UIParent, "imbues stay outside the HUD root")
 end)
 
 run("settings window, every page", function()
@@ -430,10 +440,13 @@ run("leave combat", function()
     fire("PLAYER_REGEN_ENABLED")
     tick(2)
     assert(NS.db.probe.combat and NS.db.probe.outOfCombat and NS.db.probe.spells, "probe saved")
-    _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD bright
+    _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD visible
     UnitCanAttack = function() return false end
     fire("PLAYER_TARGET_CHANGED")
-    assert(NS.UI.root:GetAlpha() == NS.db.appearance.idleAlpha, "HUD fades out of combat without an enemy")
+    assert(not NS.UI.root:IsShown(), "HUD hidden out of combat without an enemy")
+    UnitCanAttack = function() return true end
+    fire("PLAYER_TARGET_CHANGED")
+    assert(NS.UI.root:IsShown() and NS.UI.root:GetAlpha() == 1, "enemy targeted out of combat: HUD shown")
 end)
 
 run("reset", function()

@@ -35,6 +35,9 @@ local DEFS = {
     maelstrom       = { en = "Maelstrom Weapon",     ids = { 408498, 408505, 53817, 344179, 51530, 187880 },
                         aura = { 408505, 53817, 344179 } },               -- talent and buff IDs differ
     flurry          = { en = "Flurry",               ids = { 16256 }, aura = { 16257, 16277, 16278, 16279, 16280 } },
+    clearcasting    = { en = "Clearcasting",         ids = { 16246 } },    -- Elemental Focus proc, buff has this ID
+    impStormstrike  = { en = "Improved Stormstrike", ids = { 1223031 }, aura = { 1238931 } },
+    naturesSwiftness = { en = "Nature's Swiftness",  ids = { 16188 } },    -- buff has the same ID
 
     -- Self buffs / forms
     lightningShield = { en = "Lightning Shield",     ids = { 324, 325, 905, 945, 8134, 10431, 10432 } },

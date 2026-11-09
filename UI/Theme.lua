@@ -305,8 +305,10 @@ function UI:Sound(kit)
 end
 
 ---------------------------------------------------------------------------
--- HUD root: every HUD frame hangs from it, so the whole HUD fades as one
--- out of combat. Alpha is not protected, so this also works in combat.
+-- HUD root: every HUD frame hangs from it, so out of combat the whole HUD
+-- hides (or fades) as one. Alerts and the imbue buttons live outside it:
+-- they are the basics that stay. Only shown/hidden out of combat (it holds
+-- secure buttons); in combat it is always shown.
 ---------------------------------------------------------------------------
 
 UI.root = CreateFrame("Frame", "ShammyForeverHUD", UIParent)
@@ -322,9 +324,18 @@ end
 
 function UI:UpdateFade(forceActive)
     if not NS.db then return end
+    local a = NS.db.appearance
     local active = forceActive or InCombatLockdown() or NS.editing
-        or (NS.Options and NS.Options:IsShown()) or hostileTarget()
-    self.root:SetAlpha(active and 1 or NS.db.appearance.idleAlpha)
+        or (NS.Options and NS.Options:IsShown()) or (a.showOnTarget and hostileTarget())
+    if active then
+        self.root:Show()
+        self.root:SetAlpha(1)
+    else
+        -- only reached out of combat, where hiding secure children is allowed;
+        -- hiding (not alpha 0) also keeps invisible buttons from catching clicks
+        self.root:SetShown(a.idleAlpha > 0.01)
+        self.root:SetAlpha(a.idleAlpha)
+    end
 end
 
 NS:On("PLAYER_REGEN_DISABLED", function() UI:UpdateFade(true) end)
