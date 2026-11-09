@@ -100,6 +100,7 @@ function W.Slider(parent, label, desc, min, max, step, get, set, fmt)
     s:SetMinMaxValues(min, max)
     s:SetValueStep(step)
     s:SetObeyStepOnDrag(true)
+    s:EnableMouse(true) -- sliders made in Lua ignore the mouse until told otherwise
     s.track = s:CreateTexture(nil, "BACKGROUND")
     if not UI.Sliced(s.track, "Fill", "xs") then s.track:SetTexture(UI.WHITE) end
     s.track:SetVertexColor(P.surface3[1], P.surface3[2], P.surface3[3], 1)
