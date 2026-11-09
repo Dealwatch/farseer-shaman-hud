@@ -263,3 +263,6 @@ NS:On("PLAYER_REGEN_DISABLED", function()
         NS.Print("left edit mode (combat).")
     end
 end)
+
+-- grid size changed in the settings while edit mode is open
+NS:On("SF_APPLIED", function() if NS.editing and grid then Movers:DrawGrid() end end)

@@ -1,11 +1,21 @@
 # Changelog
 
+## 0.5.4
+- Fix: settings sliders (icon sizes, widths, heights, timers, text size, scale, ...) still did not save or
+  apply. Root cause: every slider got its format function where the save function belonged, so 0.5.3
+  fixed the wrong thing. All 23 sliders are now covered by a test that drives the real settings pages.
+- Procs icon size now applies right away (out of combat), no /reload; the edit-mode preview and the
+  mover box follow the size too.
+- Edit mode grid redraws when you change its size while edit mode is open.
+- New test: every one of the 61 settings is changed out of combat, in combat and in edit mode and must
+  visibly change the HUD; the few that only act on a later event (sounds, alerts, timers) are listed
+  and were checked by hand.
+
 ## 0.5.3
 - Fix: no shield warning in combat. Buffs are secret to addons in combat, so the text alert can't see
   the shield drop. The shield icon now turns red and pulses as soon as the shield is gone; the client
   covers it while the shield is up.
-- Fix: dragging a settings slider (icon sizes, widths, heights, ...) moved it but neither applied nor
-  saved the value; only the mouse wheel did.
+- Attempted fix for settings sliders not saving; the real cause was fixed in 0.5.4.
 
 ## 0.5.2
 First in-game test (level 15): 29 of 31 checks passed, native aura slots confirmed in the real client.

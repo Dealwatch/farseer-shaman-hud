@@ -50,7 +50,7 @@ function Procs:Init()
         group = { size = size, spacing = 4 },
         ids = function() return Spells:AuraIDs(unpack(PROCS)) end,
         init = function(b)
-            b:SetSize(size, size)
+            b:SetSize(NS.db.procs.size, NS.db.procs.size)
             UI:Skin(b, UI.palette.track, UI.palette.border)
             local tex = b:CreateTexture(nil, "ARTWORK")
             tex:SetPoint("TOPLEFT", 1, -1)
@@ -75,6 +75,24 @@ end
 function Procs:Apply()
     if not frame then return end
     local on = NS:IsEnabled("procs")
+    local size = NS.db.procs.size
+    NS.AfterCombat("procslayout", function()
+        frame:SetSize(4 * size + 12, size)
+        for i, f in ipairs(preview) do
+            f:SetSize(size, size)
+            f:SetPoint("CENTER", frame, "CENTER", (i - 2) * (size + 4), 0)
+        end
+    end)
     UI:SafeShow(frame, on)
     for _, f in ipairs(preview) do f:SetShown(on and NS.editing or false) end
+    if self.native and self.native:Active() then
+        -- the client lays out the row: give it the new size and resize the frames it already made
+        self.native:Restyle(function(c)
+            c:SetAuraGroupLayout("procs", { elementSpacing = 4, elementWidth = size, elementHeight = size })
+            for i = 1, c:GetAuraGroupFrameCount("procs") or 0 do
+                local b = c:GetAuraGroupFrame("procs", i)
+                if b then b:SetSize(size, size) end
+            end
+        end)
+    end
 end
