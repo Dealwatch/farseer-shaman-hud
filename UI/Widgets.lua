@@ -122,10 +122,11 @@ function W.Slider(parent, label, desc, min, max, step, get, set, fmt)
         local r, g, b = accent()
         s.fill:SetVertexColor(r, g, b, 1)
     end
-    s:SetScript("OnValueChanged", function(_, v, user)
+    -- Forever doesn't pass a userInput flag on drag: save whatever differs from the setting
+    s:SetScript("OnValueChanged", function(_, v)
         v = math.floor(v / step + 0.5) * step
         show(v)
-        if user then set(v) end
+        if v ~= get() then set(v) end
     end)
     function f:Refresh()
         local v = get()

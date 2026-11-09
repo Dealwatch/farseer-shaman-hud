@@ -6,8 +6,8 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, M
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.5.2, first in-game test done (level 15).** Everything below is built against Blizzard's Forever UI code
-> and an offline test client, not yet confirmed in the real game.
+> Status: **0.5.3, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
+> Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client, not yet confirmed in game.
 
 ## Install
 
@@ -74,7 +74,7 @@ Alerts stack at the top of the screen. All positions are saved per account.
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size (after /reload) |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
 | **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
-| **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing, Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
+| **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
 **Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, text size, bar texture, sounds,
 out of combat opacity (0% = hidden), show the HUD when an enemy is targeted, HUD scale, edit mode grid,
