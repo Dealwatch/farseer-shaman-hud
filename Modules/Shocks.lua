@@ -33,7 +33,7 @@ local promptUntil = 0
 local function buildPrompt()
     prompt = CreateFrame("Frame", "ShammyForeverShockPrompt", UIParent)
     prompt:SetSize(170, 40)
-    UI:Skin(prompt, UI.palette.surface, UI.palette.border)
+    UI:Skin(prompt, UI.palette.surface, UI.palette.border, "lg")
     prompt.iconFrame = UI:Icon(prompt, 32)
     prompt.iconFrame:SetPoint("LEFT", 4, 0)
     prompt.text = UI:Text(prompt, 15, { 1, 0.82, 0.25, 1 }, "OUTLINE")

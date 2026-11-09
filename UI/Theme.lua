@@ -95,25 +95,66 @@ end
 -- Surfaces
 ---------------------------------------------------------------------------
 
--- Flat background plus a 1px border. Returns the border textures so callers
--- can recolor them (accent highlights, glows).
-function UI:Skin(frame, bg, border)
+-- Rounded corners come from small white textures drawn as nine-slices
+-- (Texture:SetTextureSliceMargins). Shapes, by the smallest size they fit:
+--   lg  radius 10 - windows, cards, buttons, alerts (needs >= 24px)
+--   sm  radius 4  - icons, normal bars            (needs >= 12px)
+--   xs  radius 2  - thin bars, pips               (needs >= 6px)
+--   flat          - square, for anything thinner
+UI.SHAPE_MARGIN = { lg = 12, sm = 6, xs = 3 }
+local canSlice = nil
+
+local function sliced(tex, base, shape)
+    local m = UI.SHAPE_MARGIN[shape]
+    if canSlice == nil then canSlice = tex.SetTextureSliceMargins ~= nil end
+    if not (m and canSlice) then return false end
+    tex:SetTexture(NS.MEDIA .. "Media\\" .. base .. "_" .. shape)
+    tex:SetTextureSliceMargins(m, m, m, m)
+    if tex.SetTextureSliceMode then
+        tex:SetTextureSliceMode(Enum.UITextureSliceMode and Enum.UITextureSliceMode.Stretched or 0)
+    end
+    return true
+end
+UI.Sliced = sliced
+
+-- Filled texture of a shape (for highlights inside rounded frames).
+function UI:ShapeTexture(parent, shape, layer, sub)
+    local t = parent:CreateTexture(nil, layer or "BACKGROUND", nil, sub)
+    if not sliced(t, "Fill", shape) then t:SetTexture(self.WHITE) end
+    return t
+end
+
+local function flatEdges(frame, thickness)
+    local b = {}
+    for i = 1, 4 do
+        b[i] = frame:CreateTexture(nil, "BORDER", nil, 7)
+        b[i]:SetTexture(UI.WHITE)
+    end
+    b[1]:SetPoint("TOPLEFT"); b[1]:SetPoint("TOPRIGHT"); b[1]:SetHeight(thickness)
+    b[2]:SetPoint("BOTTOMLEFT"); b[2]:SetPoint("BOTTOMRIGHT"); b[2]:SetHeight(thickness)
+    b[3]:SetPoint("TOPLEFT"); b[3]:SetPoint("BOTTOMLEFT"); b[3]:SetWidth(thickness)
+    b[4]:SetPoint("TOPRIGHT"); b[4]:SetPoint("BOTTOMRIGHT"); b[4]:SetWidth(thickness)
+    return b
+end
+
+-- Background plus a 1px border in the given shape (default "sm").
+function UI:Skin(frame, bg, border, shape)
     bg = bg or self.palette.surface
     border = border or self.palette.border
     if not frame.sfBg then
+        shape = shape or "sm"
+        frame.sfShape = shape
         frame.sfBg = frame:CreateTexture(nil, "BACKGROUND", nil, -7)
-        frame.sfBg:SetTexture(self.WHITE)
         frame.sfBg:SetAllPoints()
-        local b = {}
-        for i = 1, 4 do
-            b[i] = frame:CreateTexture(nil, "BORDER", nil, 7)
-            b[i]:SetTexture(self.WHITE)
+        if not sliced(frame.sfBg, "Fill", shape) then frame.sfBg:SetTexture(self.WHITE) end
+        local edge = frame:CreateTexture(nil, "BORDER", nil, 7)
+        edge:SetAllPoints()
+        if sliced(edge, "Border", shape) then
+            frame.sfBorder = { edge }
+        else
+            edge:Hide()
+            frame.sfBorder = flatEdges(frame, 1)
         end
-        b[1]:SetPoint("TOPLEFT"); b[1]:SetPoint("TOPRIGHT"); b[1]:SetHeight(1)
-        b[2]:SetPoint("BOTTOMLEFT"); b[2]:SetPoint("BOTTOMRIGHT"); b[2]:SetHeight(1)
-        b[3]:SetPoint("TOPLEFT"); b[3]:SetPoint("BOTTOMLEFT"); b[3]:SetWidth(1)
-        b[4]:SetPoint("TOPRIGHT"); b[4]:SetPoint("BOTTOMRIGHT"); b[4]:SetWidth(1)
-        frame.sfBorder = b
     end
     frame.sfBg:SetVertexColor(bg[1], bg[2], bg[3], bg[4] or 1)
     self:SetBorderColor(frame, border[1], border[2], border[3], border[4] or 1)
@@ -122,16 +163,16 @@ end
 
 function UI:SetBorderColor(frame, r, g, b, a)
     if not frame.sfBorder then return end
-    for i = 1, 4 do frame.sfBorder[i]:SetVertexColor(r, g, b, a or 1) end
+    for _, t in ipairs(frame.sfBorder) do t:SetVertexColor(r, g, b, a or 1) end
 end
 
--- Soft drop shadow around a frame (a few stacked translucent rects).
+-- Soft drop shadow around a frame (a few stacked translucent rounded rects).
 function UI:Shadow(frame)
     if frame.sfShadow then return end
     frame.sfShadow = {}
     for i = 1, 3 do
         local t = frame:CreateTexture(nil, "BACKGROUND", nil, -8)
-        t:SetTexture(self.WHITE)
+        if not sliced(t, "Fill", "lg") then t:SetTexture(self.WHITE) end
         t:SetVertexColor(0, 0, 0, 0.16)
         t:SetPoint("TOPLEFT", -i * 2, i * 2)
         t:SetPoint("BOTTOMRIGHT", i * 2, -i * 2)
@@ -151,7 +192,7 @@ function UI:Bar(parent, w, h)
     bar:SetStatusBarTexture(self:BarTexture())
     bar:SetMinMaxValues(0, 1)
     bar:SetValue(0)
-    self:Skin(bar, self.palette.track, self.palette.border)
+    self:Skin(bar, self.palette.track, self.palette.border, h >= 12 and "sm" or h >= 6 and "xs" or "flat")
     bar.spark = bar:CreateTexture(nil, "OVERLAY")
     bar.spark:SetTexture(self.WHITE)
     bar.spark:SetVertexColor(1, 1, 1, 0.9)
@@ -195,9 +236,13 @@ function UI:Glow(frame, r, g, b)
         glow:SetPoint("TOPLEFT", -3, 3)
         glow:SetPoint("BOTTOMRIGHT", 3, -3)
         glow:SetFrameLevel(frame:GetFrameLevel() + 5)
-        self:Skin(glow, { 0, 0, 0, 0 }, { 1, 1, 1, 1 })
-        for i = 1, 4 do
-            if i <= 2 then glow.sfBorder[i]:SetHeight(2) else glow.sfBorder[i]:SetWidth(2) end
+        local ring = glow:CreateTexture(nil, "OVERLAY")
+        ring:SetAllPoints()
+        if sliced(ring, "Glow", frame.sfShape == "lg" and "lg" or "sm") then
+            glow.sfBorder = { ring }
+        else
+            ring:Hide()
+            glow.sfBorder = flatEdges(glow, 2)
         end
         local ag = glow:CreateAnimationGroup()
         ag:SetLooping("BOUNCE")

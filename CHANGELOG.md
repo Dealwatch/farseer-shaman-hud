@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.1.1
+- Rounded corners everywhere (windows, cards, buttons, alerts, icons, bars), round switch knobs and slider thumbs
+
 ## 0.1.0
 First test build for WoW Forever.
 - Swing timer (main and off hand), cast projection, melee range tint

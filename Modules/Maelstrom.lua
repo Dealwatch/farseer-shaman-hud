@@ -64,9 +64,9 @@ function MW:Init()
     self.frame = frame
     for i = 1, MAX do
         local p = CreateFrame("Frame", nil, frame)
-        UI:Skin(p, UI.palette.track, UI.palette.border)
+        UI:Skin(p, UI.palette.track, UI.palette.border, "xs")
         p.fill = p:CreateTexture(nil, "ARTWORK")
-        p.fill:SetTexture(UI.WHITE)
+        if not UI.Sliced(p.fill, "Fill", "xs") then p.fill:SetTexture(UI.WHITE) end
         p.fill:SetPoint("TOPLEFT", 1, -1)
         p.fill:SetPoint("BOTTOMRIGHT", -1, 1)
         pips[i] = p

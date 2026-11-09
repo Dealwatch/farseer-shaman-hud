@@ -2,7 +2,7 @@
 ## Title: |cff0070ddShammy|r|cffe8eaedForever|r
 ## Notes: Enhancement Shaman toolkit for WoW Forever: swing timer, totems, weapon imbues, Maelstrom Weapon, Stormstrike/shock prompts and reminders.
 ## Author: Dealwatch
-## Version: 0.1.0
+## Version: 0.1.1
 ## SavedVariables: ShammyForeverDB
 ## IconTexture: Interface\Icons\Spell_Nature_LightningShield
 ## Category: Combat
