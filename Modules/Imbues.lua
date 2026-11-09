@@ -31,6 +31,12 @@ local function dualWielding()
         local ok, has = pcall(C_PaperDollInfo.OffhandHasWeapon)
         if ok then return has and true or false end
     end
+    -- fallback: a weapon (item class 2) in the off hand slot; shields are armour
+    local item = GetInventoryItemID("player", 17)
+    if item and C_Item and C_Item.GetItemInfoInstant then
+        local ok, _, _, _, _, _, classID = pcall(C_Item.GetItemInfoInstant, item)
+        return ok and classID == 2 or false
+    end
     return false
 end
 
