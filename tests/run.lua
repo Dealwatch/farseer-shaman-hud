@@ -546,15 +546,46 @@ run("cooldown ready flash", function()
     assert(not icon.armed, "flashes only once")
 end)
 
-run("regression: slider drag saves and applies (no userInput flag)", function()
-    local db = NS.db.shocks
-    local row = NS.Widgets.Slider(UIParent, "Cooldown icon size", nil, 20, 56, 1,
-        function() return db.iconSize end,
-        function(v) db.iconSize = v; NS:ApplyAll() end)
-    row.slider._scripts.OnValueChanged(row.slider, 44)   -- what the client sends while dragging
-    assert(db.iconSize == 44, "slider value saved")
+run("regression: every settings slider saves and applies", function()
+    -- drive the real settings page, not a stand-in widget
+    NS.Options:Show("shocks")
+    local pages
+    for i = 1, 20 do
+        local name, v = debug.getupvalue(NS.Options.Show, i)
+        if name == "pages" then pages = v end
+    end
+    local slider
+    for _, p in ipairs(pages) do
+        if p.key == "shocks" then
+            for _, card in ipairs(p.blocks) do
+                for _, r in ipairs(card.rows or {}) do
+                    if r.label and r.label:GetText() == "Cooldown icon size" then slider = r.slider end
+                end
+            end
+        end
+    end
+    assert(slider, "cooldown icon size slider found")
+    for _, p in ipairs(pages) do
+        NS.Options:Show(p.key)
+        for _, card in ipairs(p.blocks) do
+            for _, r in ipairs(card.rows or {}) do
+                if r.slider then
+                    local lo, hi = r.slider:GetMinMaxValues()
+                    local before = r.slider:GetValue()
+                    local v = before == hi and lo or hi
+                    r.slider._scripts.OnValueChanged(r.slider, v)
+                    assert(r.slider:GetValue() == v, "slider '" .. r.label:GetText() .. "' on " .. p.key .. " saves")
+                    r.slider._scripts.OnValueChanged(r.slider, before)
+                end
+            end
+        end
+    end
+    NS.Options:Show("shocks")
+    slider._scripts.OnValueChanged(slider, 44)   -- what the client sends while dragging
+    assert(NS.db.shocks.iconSize == 44, "slider value saved")
     local icon = NS.modules.shocks.cdIcons[1]
     assert(icon:GetWidth() == 44, "cooldown icons resized")
+    _G.FarseerHUDOptions:Hide()
 end)
 
 run("reset", function()

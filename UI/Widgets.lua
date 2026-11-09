@@ -91,7 +91,8 @@ end
 -- Slider
 ---------------------------------------------------------------------------
 
-function W.Slider(parent, label, desc, min, max, step, get, set, fmt)
+-- fmt comes before get/set: bind() returns both and must be the last argument
+function W.Slider(parent, label, desc, min, max, step, fmt, get, set)
     local f = row(parent, label, desc)
     local s = CreateFrame("Slider", nil, f)
     s:SetOrientation("HORIZONTAL")
@@ -122,7 +123,7 @@ function W.Slider(parent, label, desc, min, max, step, get, set, fmt)
         local r, g, b = accent()
         s.fill:SetVertexColor(r, g, b, 1)
     end
-    -- Forever doesn't pass a userInput flag on drag: save whatever differs from the setting
+    -- save whatever differs from the setting (SetValue from Refresh lands here too)
     s:SetScript("OnValueChanged", function(_, v)
         v = math.floor(v / step + 0.5) * step
         show(v)
