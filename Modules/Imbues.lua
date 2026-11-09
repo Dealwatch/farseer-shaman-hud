@@ -109,12 +109,9 @@ local function makeButton(hand)
     local b = UI:Icon(frame, NS.db.imbues.size, "SecureActionButtonTemplate", "ShammyForeverImbue" .. hand.key:upper())
     b.hand = hand
     b:RegisterForClicks("AnyUp", "AnyDown")
-    b.time = UI:Text(b, 12, UI.palette.text, "OUTLINE")
+    b.time = UI:Text(b, 11, UI.palette.text, "OUTLINE")
     b.time:SetPoint("BOTTOM", 0, 2)
     b.time:SetJustifyH("CENTER")
-    b.tag = UI:Text(b, 9, UI.palette.textDim, "OUTLINE")
-    b.tag:SetPoint("TOPLEFT", 2, -2)
-    b.tag:SetText(hand.key == "mh" and "MH" or "OH")
     b:SetScript("OnEnter", function(self)
         local def = chosenSpell(hand)
         GameTooltip:SetOwner(self, "ANCHOR_TOP")
@@ -132,7 +129,7 @@ function Imbues:Init()
     frame:Hide()
     self.frame = frame
     for _, hand in ipairs(HANDS) do makeButton(hand) end
-    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 180, -230 })
+    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 114, -210 })
 
     local function update() self:Update() end
     NS:On("WEAPON_ENCHANT_CHANGED", update)

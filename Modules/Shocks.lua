@@ -1,7 +1,8 @@
 --[[
     ShammyForever - Stormstrike, shocks and cooldowns
-      * "Shock now!" prompt right after Stormstrike: its bonus applies to the
-        next Nature hit, so Earth Shock should follow immediately.
+      * Shock prompt right after Stormstrike: its bonus applies to the next
+        Nature hit, so Earth Shock should follow immediately. The Earth Shock
+        icon in the cooldown row glows (optionally also a big card).
       * Flame Shock timer for your target, started from your own cast (target
         debuffs are secret in combat) and corrected from the real aura
         whenever the client lets us read it.
@@ -14,13 +15,14 @@ local UI, Spells = NS.UI, NS.Spells
 
 local Shocks = NS:NewModule("shocks", {
     title = "Stormstrike & Shocks",
-    desc = "Shock-now prompt, Flame Shock timer, cooldown row",
+    desc = "Shock prompt, Flame Shock timer, cooldown row",
     icon = "Interface\\Icons\\Ability_Shaman_Stormstrike",
 })
 
 local COOLDOWNS = { "stormstrike", "earthShock", "fireNova", "rageFarseer", "shamanisticRage", "elementalMastery" }
 local SHOCKS = { earthShock = true, flameShock = true, frostShock = true }
 
+local FS_H = 16            -- Flame Shock bar height (icon is square)
 local prompt, fsBar, cdRow
 local cdIcons = {}
 local fs = { start = 0, ends = 0 }
@@ -40,18 +42,32 @@ local function buildPrompt()
     prompt.text:SetPoint("LEFT", prompt.iconFrame, "RIGHT", 8, 0)
     prompt.text:SetText("Shock now!")
     prompt:Hide()
-    NS.Movers:Register(prompt, "shockprompt", "Shock prompt", { "CENTER", "CENTER", 0, -80 })
+    NS.Movers:Register(prompt, "shockprompt", "Shock card", { "CENTER", "CENTER", 0, -70 })
+end
+
+local function shockIcon()
+    for _, f in ipairs(cdIcons) do
+        if f.key == "earthShock" and f:IsShown() and cdRow:IsShown() then return f end
+    end
 end
 
 function Shocks:ShowPrompt(on)
+    local db = NS.db.shocks
+    local icon = shockIcon()
+    -- the card is used when asked for, or when there is no icon to light up
+    local card = db.promptCard or not icon
     if on then
-        local def = Spells:Get("earthShock")
-        prompt.iconFrame.icon:SetTexture(def and def.icon or "Interface\\Icons\\Spell_Nature_EarthShock")
-        prompt:Show()
-        UI:Glow(prompt.iconFrame, 1, 0.82, 0.25)
+        if icon then UI:Glow(icon, 1, 0.82, 0.25) end
+        if card then
+            local def = Spells:Get("earthShock")
+            prompt.iconFrame.icon:SetTexture(def and def.icon or "Interface\\Icons\\Spell_Nature_EarthShock")
+            prompt:Show()
+            UI:Glow(prompt.iconFrame, 1, 0.82, 0.25)
+        end
     else
+        if icon then UI:Glow(icon) end
         UI:Glow(prompt.iconFrame)
-        prompt:SetShown(NS.editing and NS:IsEnabled("shocks") and NS.db.shocks.prompt or false)
+        prompt:SetShown(NS.editing and NS:IsEnabled("shocks") and db.prompt and db.promptCard or false)
     end
 end
 
@@ -60,33 +76,31 @@ end
 ---------------------------------------------------------------------------
 
 local function buildFlameShock()
+    local w = NS.db.shocks.barWidth
     fsBar = CreateFrame("Frame", "ShammyForeverFlameShock", UIParent)
-    fsBar:SetSize(NS.db.shocks.barWidth, 18)
-    fsBar.iconFrame = UI:Icon(fsBar, 18)
+    fsBar:SetSize(w, FS_H)
+    fsBar.iconFrame = UI:Icon(fsBar, FS_H)
     fsBar.iconFrame:SetPoint("LEFT")
-    fsBar.bar = UI:Bar(fsBar, NS.db.shocks.barWidth - 20, 18)
+    fsBar.bar = UI:Bar(fsBar, w - FS_H - 2, FS_H)
     fsBar.bar:SetPoint("LEFT", fsBar.iconFrame, "RIGHT", 2, 0)
     fsBar.bar:SetStatusBarColor(1, 0.45, 0.16)
-    fsBar.name = UI:Text(fsBar.bar, 11, UI.palette.text, "OUTLINE")
-    fsBar.name:SetPoint("LEFT", 4, 0)
-    fsBar.name:SetPoint("RIGHT", -36, 0)
-    fsBar.time = UI:Text(fsBar.bar, 11, UI.palette.text, "OUTLINE")
+    fsBar.time = UI:Text(fsBar.bar, 10, UI.palette.text, "OUTLINE")
     fsBar.time:SetPoint("RIGHT", -4, 0)
     fsBar.time:SetJustifyH("RIGHT")
     fsBar:Hide()
     UI:NativeHost(fsBar)
     fsBar:SetScript("OnUpdate", function() Shocks:DrawFlameShock() end)
-    NS.Movers:Register(fsBar, "flameshock", "Flame Shock", { "CENTER", "CENTER", 0, -205 })
+    NS.Movers:Register(fsBar, "flameshock", "Flame Shock", { "CENTER", "CENTER", 0, -178 })
 
     -- native slot: your own Flame Shock on the target, real time left even in combat
     Shocks.native = NS.Native:Slot({
         key = "flameshock", parent = fsBar, unit = "target", filter = "HARMFUL|PLAYER",
         ids = function() return Spells:AuraIDs("flameShock") end,
         init = function(b)
-            local w = NS.db.shocks.barWidth
-            b:SetSize(w, 18)
+            local bw = NS.db.shocks.barWidth
+            b:SetSize(bw, FS_H)
             local iconFrame = CreateFrame("Frame", nil, b)
-            iconFrame:SetSize(18, 18)
+            iconFrame:SetSize(FS_H, FS_H)
             iconFrame:SetPoint("LEFT")
             UI:Skin(iconFrame, UI.palette.track, UI.palette.border)
             local tex = iconFrame:CreateTexture(nil, "ARTWORK")
@@ -96,16 +110,12 @@ local function buildFlameShock()
             b:SetIcon(tex)
             local bar = CreateFrame("StatusBar", nil, b)
             bar:SetPoint("LEFT", iconFrame, "RIGHT", 2, 0)
-            bar:SetSize(w - 20, 18)
+            bar:SetSize(bw - FS_H - 2, FS_H)
             UI:Skin(bar, UI.palette.track, UI.palette.border, "sm")
             bar:SetStatusBarTexture(UI:BarTexture())
             bar:SetStatusBarColor(1, 0.45, 0.16)
             b:SetDurationBar(bar, { direction = Enum.StatusBarTimerDirection and Enum.StatusBarTimerDirection.RemainingTime or 1 })
-            local name = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
-            name:SetPoint("LEFT", 4, 0)
-            local def = Spells:Get("flameShock")
-            name:SetText(def and def.name or "Flame Shock")
-            local time = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
+            local time = UI:Text(bar, 10, UI.palette.text, "OUTLINE")
             time:SetPoint("RIGHT", -4, 0)
             time:SetJustifyH("RIGHT")
             b:SetDurationText(time)
@@ -145,7 +155,7 @@ function Shocks:DrawFlameShock()
     local now = GetTime()
     local left = fs.ends - now
     if NS.editing and left <= 0 then
-        fsBar.bar:SetValue(0.6); fsBar.time:SetText("7.2"); fsBar.name:SetText("Flame Shock")
+        fsBar.bar:SetValue(0.6); fsBar.time:SetText("7.2")
         return
     end
     if left <= 0 then UI:SafeShow(fsBar, false) return end
@@ -160,9 +170,6 @@ function Shocks:StartFlameShock()
     fs.start = GetTime()
     fs.ends = fs.start + flameShockDuration()
     fsBar.iconFrame.icon:SetTexture(def and def.icon or "Interface\\Icons\\Spell_Fire_FlameShock")
-    -- the name may be secret: SetText accepts it, but a boolean test would error
-    local target = UnitName("target")
-    if NS.IsSecret(target) or target then fsBar.name:SetText(target) else fsBar.name:SetText(def and def.name or "Flame Shock") end
     if NS:IsEnabled("shocks") and NS.db.shocks.flameShock then UI:SafeShow(fsBar, true) end
     if Shocks.native then Shocks.native:Refresh() end
 end
@@ -181,18 +188,18 @@ local function buildCooldowns()
         f.key = key
         cdIcons[#cdIcons + 1] = f
     end
-    NS.Movers:Register(cdRow, "cooldowns", "Cooldowns", { "CENTER", "CENTER", 0, -265 })
+    NS.Movers:Register(cdRow, "cooldowns", "Cooldowns", { "CENTER", "CENTER", 0, -210 })
 end
 
 local function setCooldown(f, def)
     if C_Spell.GetSpellCooldownDuration then
-        local ok, d = pcall(C_Spell.GetSpellCooldownDuration, def.id)
+        local ok, d = pcall(C_Spell.GetSpellCooldownDuration, def.id, true)   -- true: ignore the GCD
         if ok and d and pcall(f.cd.SetCooldownFromDurationObject, f.cd, d, true) then return end
     end
     local ok, info = pcall(C_Spell.GetSpellCooldown, def.id)
     if ok and info then
         local start, dur = NS.Readable(info.startTime), NS.Readable(info.duration)
-        if start and dur and dur > 0 then f.cd:SetCooldown(start, dur) else f.cd:Clear() end
+        if start and dur and dur > 1.5 then f.cd:SetCooldown(start, dur) else f.cd:Clear() end   -- 1.5: skip the GCD
     end
 end
 
@@ -266,14 +273,14 @@ function Shocks:Apply()
     local db = NS.db.shocks
     local on = NS:IsEnabled("shocks")
     fsBar:SetWidth(db.barWidth)
-    fsBar.bar:SetWidth(db.barWidth - 20)
-    prompt:SetShown(on and db.prompt and (NS.editing or GetTime() < promptUntil) or false)
+    fsBar.bar:SetWidth(db.barWidth - FS_H - 2)
+    prompt:SetShown(on and db.prompt and db.promptCard and (NS.editing or GetTime() < promptUntil) or false)
     local native = self.native and self.native:Active()
     UI:SafeShow(fsBar, on and db.flameShock and (native or NS.editing or fs.ends > GetTime()))
     if native then
         self.native:Restyle(function(b)
-            b:SetSize(db.barWidth, 18)
-            if Shocks.nativeBar then Shocks.nativeBar:SetSize(db.barWidth - 20, 18) end
+            b:SetSize(db.barWidth, FS_H)
+            if Shocks.nativeBar then Shocks.nativeBar:SetSize(db.barWidth - FS_H - 2, FS_H) end
         end)
     end
     self:UpdateCooldowns()

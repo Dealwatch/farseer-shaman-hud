@@ -12,7 +12,7 @@ local UI, Spells = NS.UI, NS.Spells
 
 local R = NS:NewModule("reminders", {
     title = "Reminders",
-    desc = "Lightning Shield, Ghost Wolf in combat, Ankhs",
+    desc = "Shield icon with charges, missing shield, Ghost Wolf, Ankhs",
     icon = "Interface\\Icons\\Spell_Nature_LightningShield",
 })
 
@@ -91,7 +91,7 @@ function R:BuildShield()
     f.icon:SetDesaturated(true)
     f.icon:SetAlpha(0.35)
     self.shieldFrame = f
-    NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 110, -230 })
+    NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 165, -210 })
     self.shieldNative = NS.Native:Slot({
         key = "shield", parent = f, unit = "player", filter = "HELPFUL", level = 3,
         ids = function() return Spells:AuraIDs("lightningShield", "waterShield") end,

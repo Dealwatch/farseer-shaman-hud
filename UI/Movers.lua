@@ -90,8 +90,10 @@ function Movers:Select(entry)
 end
 
 -- frame: the HUD frame; key: saved position key; label: overlay text;
--- default: { point, relativePoint, x, y } on UIParent.
-function Movers:Register(frame, key, label, default)
+-- default: { point, relativePoint, x, y } on UIParent. HUD frames join the
+-- fading HUD root unless keepParent is set (alerts must never fade).
+function Movers:Register(frame, key, label, default, keepParent)
+    if not keepParent then frame:SetParent(UI.root) end
     local entry = { frame = frame, key = key, label = label, default = default }
     self.list[#self.list + 1] = entry
     self.byKey[key] = entry

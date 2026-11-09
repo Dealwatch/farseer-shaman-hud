@@ -229,11 +229,21 @@ local function buildPages()
         local c = self:Add(W.Card(parent, "Swing timer", self.icon, bindModule("swing")))
         c:Add(W.Slider(c, "Width", nil, 120, 420, 10, bind("swing", "width"), px))
         c:Add(W.Slider(c, "Height", nil, 6, 30, 1, bind("swing", "height"), px))
-        c:Add(W.Toggle(c, "Off hand bar", "A second, thinner bar while dual wielding.", bind("swing", "offhand")))
+        c:Add(W.Toggle(c, "Off hand bar", "A thin second line while dual wielding.", bind("swing", "offhand")))
         c:Add(W.Toggle(c, "Project casts onto the bar", "Turns red when a cast runs past your next main hand swing.", bind("swing", "showCast")))
         c:Add(W.Toggle(c, "Grey out when out of melee range", nil, bind("swing", "rangeTint")))
-        c:Add(W.Toggle(c, "Show text", nil, bind("swing", "showText")))
+        c:Add(W.Toggle(c, "Time to next swing", nil, bind("swing", "showText")))
         c:Add(W.Toggle(c, "Hide when not fighting", nil, bind("swing", "hideIdle")))
+    end
+
+    p = newPage("mana", "Mana Bar", "A thin mana bar in the HUD column.", "Interface\\Icons\\Spell_Nature_ManaRegenTotem")
+    p.build = function(self, parent)
+        local c = self:Add(W.Card(parent, "Mana bar", self.icon, bindModule("mana")))
+        c:Add(W.Slider(c, "Width", nil, 120, 420, 10, bind("mana", "width"), px))
+        c:Add(W.Slider(c, "Height", nil, 3, 24, 1, bind("mana", "height"), px))
+        c:Add(W.Slider(c, "Red below", nil, 5, 60, 5, bind("mana", "lowPct"), function(v) return v .. "%" end))
+        c:Add(W.Toggle(c, "Show percentage", "Needs a height of 9 or more.", bind("mana", "showText")))
+        c:Add(W.Toggle(c, "Hide at full mana out of combat", nil, bind("mana", "hideFull")))
     end
 
     p = newPage("totems", "Totems", "One button per element. Left-click recasts, right-click destroys.", "Interface\\Icons\\Spell_Nature_StoneSkinTotem")
@@ -266,10 +276,11 @@ local function buildPages()
         c:Add(W.Slider(c, "Icon size", nil, 24, 60, 1, bind("imbues", "size"), px))
     end
 
-    p = newPage("maelstrom", "Maelstrom Weapon", "Stack pips that light up at five: time for an instant Lightning Bolt.", "Interface\\Icons\\Spell_Shaman_MaelstromWeapon")
+    p = newPage("maelstrom", "Maelstrom Weapon", "A five-segment bar that turns gold at five stacks: time for an instant Lightning Bolt.", "Interface\\Icons\\Spell_Shaman_MaelstromWeapon")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Maelstrom Weapon", self.icon, bindModule("maelstrom")))
-        c:Add(W.Slider(c, "Pip size", nil, 12, 44, 1, bind("maelstrom", "size"), px))
+        c:Add(W.Slider(c, "Width", nil, 100, 420, 10, bind("maelstrom", "width"), px))
+        c:Add(W.Slider(c, "Height", nil, 4, 30, 1, bind("maelstrom", "height"), px))
         c:Add(W.Toggle(c, "Glow at five stacks", nil, bind("maelstrom", "glow")))
         c:Add(W.Toggle(c, "Sound at five stacks", nil, bind("maelstrom", "sound")))
         c:Add(W.Toggle(c, "Hide at zero stacks out of combat", nil, bind("maelstrom", "hideEmpty")))
@@ -286,7 +297,8 @@ local function buildPages()
     p = newPage("shocks", "Stormstrike & Shocks", "Shock-now prompt, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Stormstrike & shocks", self.icon, bindModule("shocks")))
-        c:Add(W.Toggle(c, "\"Shock now!\" after Stormstrike", "Stormstrike boosts your next Nature damage - follow with Earth Shock.", bind("shocks", "prompt")))
+        c:Add(W.Toggle(c, "Shock prompt after Stormstrike", "Stormstrike boosts your next Nature damage: the Earth Shock icon glows.", bind("shocks", "prompt")))
+        c:Add(W.Toggle(c, "Also show a big \"Shock now!\" card", "Used anyway when the cooldown row is off.", bind("shocks", "promptCard")))
         c:Add(W.Slider(c, "Prompt stays for", nil, 2, 12, 1, bind("shocks", "promptWindow"), function(v) return v .. "s" end))
         c:Add(W.Toggle(c, "Flame Shock timer", "Starts from your cast; corrected from the real debuff when readable.", bind("shocks", "flameShock")))
         c:Add(W.Slider(c, "Flame Shock duration", "Used until the addon has read the real duration once.", 6, 30, 1, bind("shocks", "flameShockDuration"), function(v) return v .. "s" end))
@@ -322,6 +334,7 @@ local function buildPages()
         look:Add(W.Slider(look, "Text size", nil, 0.7, 1.5, 0.05, bindAppearance("fontScale"), mult))
         look:Add(W.Dropdown(look, "Bar texture", nil, textures, bindAppearance("texture")))
         look:Add(W.Toggle(look, "Play sounds", nil, bind("appearance", "sounds")))
+        look:Add(W.Slider(look, "Fade out of combat", "HUD opacity without combat or an enemy target. 100% = never fade.", 0.1, 1.0, 0.05, bind("appearance", "idleAlpha"), function(v) return math.floor(v * 100 + 0.5) .. "%" end))
 
         local layout = self:Add(W.Card(parent, "Layout", "Interface\\Icons\\INV_Misc_Map_01"))
         layout:Add(W.Slider(layout, "HUD scale", nil, 0.5, 2.0, 0.05, bindAppearance("scale"), mult))
@@ -451,7 +464,8 @@ local function build()
         page:build(page.content)
         page.content:Hide()
     end
-    win:SetScript("OnHide", function() W.CloseMenu() end)
+    win:SetScript("OnHide", function() W.CloseMenu(); UI:UpdateFade() end)
+    win:SetScript("OnShow", function() UI:UpdateFade() end)
     win:Hide()
 end
 
@@ -494,6 +508,8 @@ function Options:Show(key)
     page:Layout()
     self:Restyle()
 end
+
+function Options:IsShown() return win ~= nil and win:IsShown() end
 
 function Options:Toggle()
     if win and win:IsShown() then win:Hide() else self:Show(current and current.key or "overview") end

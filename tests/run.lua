@@ -172,6 +172,10 @@ function UnitCastingInfo() return nil end
 function GetShapeshiftForm() return S(0) end
 function GetInventoryItemID(_, slot) return 1000 + slot end
 GetBindingKey = function() return nil end
+local mana = 1000
+function UnitPower() return S(mana) end
+function UnitPowerMax() return S(1000) end
+function UnitCanAttack() return S(true) end
 function PlaySound() end
 function wipe(t) for k in pairs(t) do t[k] = nil end return t end
 tinsert = table.insert
@@ -373,6 +377,16 @@ run("fishing pole: no main hand imbue warning", function()
     NS.modules.imbues:Update()
 end)
 
+run("mana bar", function()
+    mana = 1000
+    NS.modules.mana:Update()
+    assert(not _G.ShammyForeverMana:IsShown(), "hidden at full mana out of combat")
+    mana = 200
+    NS.modules.mana:Update()
+    assert(_G.ShammyForeverMana:IsShown(), "shown when not full")
+    assert(NS.modules.mana.Fraction() == 0.2, "fraction")
+end)
+
 run("combat with secrets", function()
     fire("PLAYER_REGEN_DISABLED")
     combat = true
@@ -381,10 +395,11 @@ run("combat with secrets", function()
     fire("PLAYER_SWING", 1.8, 1)
     tick(0.5)
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 17364)   -- Stormstrike
-    assert(NS.modules.shocks and _G.ShammyForeverShockPrompt:IsShown(), "shock prompt shown")
+    assert(not _G.ShammyForeverShockPrompt:IsShown(), "no card by default: the icon glows")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 8050)    -- Flame Shock
-    assert(not _G.ShammyForeverShockPrompt:IsShown(), "prompt cleared by shock")
-    assert(_G.ShammyForeverFlameShock:IsShown(), "flame shock bar")
+    fire("UNIT_POWER_FREQUENT", "player", "MANA")               -- secret mana in combat
+    assert(_G.ShammyForeverFlameShock:IsShown() and _G.ShammyForeverFlameShock:GetAlpha() == 1, "flame shock bar")
+    assert(NS.UI.root:GetAlpha() == 1, "HUD not faded in combat")
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 3599)    -- Searing Totem
     fire("PLAYER_TOTEM_UPDATE", 1)
     fire("SPELL_UPDATE_COOLDOWN")
@@ -415,6 +430,10 @@ run("leave combat", function()
     fire("PLAYER_REGEN_ENABLED")
     tick(2)
     assert(NS.db.probe.combat and NS.db.probe.outOfCombat and NS.db.probe.spells, "probe saved")
+    _G.ShammyForeverOptions:Hide()   -- an open settings window keeps the HUD bright
+    UnitCanAttack = function() return false end
+    fire("PLAYER_TARGET_CHANGED")
+    assert(NS.UI.root:GetAlpha() == NS.db.appearance.idleAlpha, "HUD fades out of combat without an enemy")
 end)
 
 run("reset", function()

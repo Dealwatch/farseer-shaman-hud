@@ -305,6 +305,34 @@ function UI:Sound(kit)
 end
 
 ---------------------------------------------------------------------------
+-- HUD root: every HUD frame hangs from it, so the whole HUD fades as one
+-- out of combat. Alpha is not protected, so this also works in combat.
+---------------------------------------------------------------------------
+
+UI.root = CreateFrame("Frame", "ShammyForeverHUD", UIParent)
+UI.root:SetAllPoints(UIParent)
+
+local function hostileTarget()
+    if not UnitExists("target") then return false end
+    local ok, can = pcall(UnitCanAttack, "player", "target")
+    if not ok then return false end
+    if NS.IsSecret(can) then return true end
+    return can and true or false
+end
+
+function UI:UpdateFade(forceActive)
+    if not NS.db then return end
+    local active = forceActive or InCombatLockdown() or NS.editing
+        or (NS.Options and NS.Options:IsShown()) or hostileTarget()
+    self.root:SetAlpha(active and 1 or NS.db.appearance.idleAlpha)
+end
+
+NS:On("PLAYER_REGEN_DISABLED", function() UI:UpdateFade(true) end)
+NS:On("PLAYER_REGEN_ENABLED", function() UI:UpdateFade() end)
+NS:On("PLAYER_TARGET_CHANGED", function() UI:UpdateFade() end)
+NS:On("SF_APPLIED", function() UI:UpdateFade() end)
+
+---------------------------------------------------------------------------
 -- HUD frames (scaled together, re-skinned on appearance changes)
 ---------------------------------------------------------------------------
 

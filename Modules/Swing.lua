@@ -38,13 +38,12 @@ local function hasOffhand()
     return state[OH].dur > 0 and GetTime() - state[OH].start < 10
 end
 
-local function makeBar(label, h)
+local function ohHeight() return math.max(4, math.floor(NS.db.swing.height * 0.5)) end
+
+local function makeBar(h)
     local db = NS.db.swing
     local bar = UI:Bar(frame, db.width, h)
-    bar.label = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
-    bar.label:SetPoint("LEFT", 4, 0)
-    bar.label:SetText(label)
-    bar.time = UI:Text(bar, 11, UI.palette.text, "OUTLINE")
+    bar.time = UI:Text(bar, 10, UI.palette.text, "OUTLINE")
     bar.time:SetPoint("RIGHT", -4, 0)
     bar.time:SetJustifyH("RIGHT")
     return bar
@@ -57,22 +56,18 @@ function Swing:Init()
     self.frame = frame
     self.color = { UI:Accent() }
 
-    self.mh = makeBar("Main Hand", NS.db.swing.height)
+    self.mh = makeBar(NS.db.swing.height)
     self.mh:SetPoint("TOP")
-    self.oh = makeBar("Off Hand", math.max(6, math.floor(NS.db.swing.height * 0.7)))
-    self.oh:SetPoint("TOP", self.mh, "BOTTOM", 0, -3)
+    self.oh = makeBar(ohHeight())
+    self.oh:SetPoint("TOP", self.mh, "BOTTOM", 0, -2)
+    self.oh.time:Hide()   -- the off hand bar stays a thin line
 
     -- cast projection on the main hand bar
     self.cast = self.mh:CreateTexture(nil, "OVERLAY")
     self.cast:SetTexture(UI.WHITE)
     self.cast:Hide()
 
-    self.range = UI:Text(frame, 11, UI.palette.danger, "OUTLINE")
-    self.range:SetPoint("BOTTOM", self.mh, "TOP", 0, 3)
-    self.range:SetText("Out of range")
-    self.range:Hide()
-
-    NS.Movers:Register(frame, "swing", "Swing Timer", { "CENTER", "CENTER", 0, -170 })
+    NS.Movers:Register(frame, "swing", "Swing Timer", { "CENTER", "CENTER", 0, -140 })
 
     NS:On("PLAYER_SWING", function(_, duration, swingType)
         local hand = state[swingType]
@@ -127,13 +122,10 @@ function Swing:Apply()
     local db = NS.db.swing
     frame:SetWidth(db.width)
     self.mh:SetSize(db.width, db.height)
-    self.oh:SetSize(db.width, math.max(6, math.floor(db.height * 0.7)))
+    self.oh:SetSize(db.width, ohHeight())
     self.mh.spark:SetHeight(db.height)
-    self.oh.spark:SetHeight(self.oh:GetHeight())
-    self.mh.time:SetShown(db.showText)
-    self.oh.time:SetShown(db.showText)
-    self.mh.label:SetShown(db.showText and db.height >= 10)
-    self.oh.label:SetShown(db.showText and db.height >= 14)
+    self.oh.spark:SetHeight(ohHeight())
+    self.mh.time:SetShown(db.showText and db.height >= 9)
     local r, g, b = UI:Accent()
     self.color = { r, g, b }
     self:Refresh()
@@ -152,8 +144,7 @@ function Swing:Refresh()
     if not show then return end
     local oh = NS.db.swing.offhand and (hasOffhand() or NS.editing)
     self.oh:SetShown(oh and true or false)
-    frame:SetHeight(oh and (self.mh:GetHeight() + self.oh:GetHeight() + 3) or self.mh:GetHeight())
-    self.range:SetShown(NS.db.swing.rangeTint and state.outOfRange)
+    frame:SetHeight(oh and (self.mh:GetHeight() + self.oh:GetHeight() + 2) or self.mh:GetHeight())
 end
 
 local function drawHand(bar, hand, now, color, dim)

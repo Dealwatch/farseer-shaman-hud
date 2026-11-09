@@ -5,8 +5,8 @@
     (both are secure actions, so they work in combat).
 
     In combat GetTotemInfo is secret on Forever. The time left still works:
-    GetTotemDuration hands back a duration object the cooldown swirl and the
-    bar take directly. Which totem is down we know from your own casts.
+    GetTotemDuration hands back a duration object the cooldown swirl takes
+    directly. Which totem is down we know from your own casts.
 ]]
 
 local _, NS = ...
@@ -53,9 +53,6 @@ local function makeButton(el)
     end)
 
     b.cd = UI:Cooldown(b)
-    b.bar = UI:Bar(b, db.size, 4)
-    b.bar:SetPoint("TOP", b, "BOTTOM", 0, -2)
-    b.bar:SetStatusBarColor(el.color[1], el.color[2], el.color[3])
     b.strip = b:CreateTexture(nil, "OVERLAY")
     b.strip:SetTexture(UI.WHITE)
     b.strip:SetPoint("BOTTOMLEFT", 1, 1)
@@ -85,7 +82,7 @@ function Totems:Init()
     frame:Hide()
     self.frame = frame
     for _, el in ipairs(Spells.ELEMENTS) do makeButton(el) end
-    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -180, -230 })
+    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -148, -210 })
 
     NS:On("PLAYER_TOTEM_UPDATE", function(_, slot) self:UpdateSlot(slot) end)
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
@@ -160,24 +157,9 @@ function Totems:Draw(slot, start, dur)
     b:SetAlpha((st.active or preview) and 1 or (db.showEmpty and 0.4 or 0))
 
     local durObj = GetTotemDuration and NS.Try(GetTotemDuration, slot)
-    local shown = false
-    if durObj then
-        shown = pcall(b.cd.SetCooldownFromDurationObject, b.cd, durObj, true)
-        if b.bar.SetTimerDuration and Enum.StatusBarTimerDirection then
-            pcall(b.bar.SetTimerDuration, b.bar, durObj, Enum.StatusBarInterpolation and Enum.StatusBarInterpolation.Immediate or 0,
-                Enum.StatusBarTimerDirection.RemainingTime)
-        end
-    end
+    local shown = durObj and pcall(b.cd.SetCooldownFromDurationObject, b.cd, durObj, true)
     if not shown then
-        if st.active and start and dur and dur > 0 then
-            b.cd:SetCooldown(start, dur)
-            b.bar:SetMinMaxValues(0, dur)
-            b.barEnd = start + dur
-        else
-            b.cd:Clear()
-            b.bar:SetValue(0)
-            b.barEnd = nil
-        end
+        if st.active and start and dur and dur > 0 then b.cd:SetCooldown(start, dur) else b.cd:Clear() end
     end
     b.cd:SetHideCountdownNumbers(not db.showTimers)
 end
@@ -199,30 +181,13 @@ function Totems:Apply()
         for i, el in ipairs(Spells.ELEMENTS) do
             local b = buttons[el.slot]
             b:SetSize(db.size, db.size)
-            b.bar:SetSize(db.size, 4)
             b:ClearAllPoints()
             b:SetPoint("TOPLEFT", frame, "TOPLEFT", x, 0)
             x = x + db.size + db.spacing
             setSecureSpell(b)
         end
-        frame:SetSize(x - db.spacing, db.size + 6)
+        frame:SetSize(x - db.spacing, db.size)
     end)
     for slot in pairs(buttons) do self:Draw(slot) end
     self:Refresh()
 end
-
--- manual bar fallback when no duration object exists
-NS:On("SF_APPLIED", function()
-    if not frame or Totems.ticker then return end
-    Totems.ticker = C_Timer.NewTicker(0.1, function()
-        local now = GetTime()
-        for _, b in pairs(buttons) do
-            if b.barEnd then
-                local _, max = b.bar:GetMinMaxValues()
-                b.bar:SetValue(math.max(b.barEnd - now, 0))
-                if now >= b.barEnd then b.barEnd = nil end
-                if max == 0 then b.barEnd = nil end
-            end
-        end
-    end)
-end)

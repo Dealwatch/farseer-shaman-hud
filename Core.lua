@@ -130,9 +130,11 @@ end)
 -- Settings
 ---------------------------------------------------------------------------
 
+-- One clean HUD column (240 wide) under your character, one icon size (30)
+-- for every icon row. Positions are CENTER offsets on UIParent.
 NS.defaults = {
     modules = {
-        swing = true, totems = true, imbues = true,
+        swing = true, mana = true, totems = true, imbues = true,
         maelstrom = true, shocks = true, reminders = true,
     },
     positions = {},
@@ -144,17 +146,24 @@ NS.defaults = {
         texture = "smooth",
         sounds = true,
         grid = 16,
+        idleAlpha = 0.5,        -- HUD opacity out of combat without an enemy target (1 = never fade)
     },
     swing = {
-        width = 260, height = 14,
-        offhand = true,         -- second bar when dual wielding
+        width = 240, height = 12,
+        offhand = true,         -- second, thinner bar while dual wielding
         showCast = true,        -- project casts onto the main hand swing
         hideIdle = true,        -- hide when not in combat / not swinging
         rangeTint = true,       -- grey the bar when the target is out of melee range
-        showText = true,
+        showText = true,        -- time to the next swing
+    },
+    mana = {
+        width = 240, height = 6,
+        showText = false,       -- percentage on the bar
+        hideFull = true,        -- hide out of combat at full mana
+        lowPct = 25,            -- bar turns red below this
     },
     totems = {
-        size = 34,
+        size = 30,
         spacing = 4,
         showTimers = true,
         showEmpty = true,       -- show empty element slots (dimmed)
@@ -167,22 +176,23 @@ NS.defaults = {
         warnMinutes = 3,
         show = "always",        -- "always" | "missing"
         inCombat = true,        -- also warn in combat
-        size = 34,
+        size = 30,
     },
     maelstrom = {
-        size = 20,
+        width = 240, height = 10,
         glow = true,
         sound = true,
         hideEmpty = true,       -- hide out of combat at 0 stacks
     },
     shocks = {
-        prompt = true,          -- "Shock now!" after Stormstrike
+        prompt = true,          -- after Stormstrike: Earth Shock icon glows
+        promptCard = false,     -- also a big "Shock now!" card
         promptWindow = 6,       -- seconds the prompt stays up
         flameShock = true,      -- Flame Shock timer bar
         flameShockDuration = 12,
         cooldowns = true,       -- cooldown icon row
-        iconSize = 32,
-        barWidth = 200,
+        iconSize = 30,
+        barWidth = 240,
     },
     reminders = {
         shield = true,
@@ -192,7 +202,7 @@ NS.defaults = {
         ankhMin = 1,
         snooze = 60,
         shieldIcon = true,      -- shield icon with charges (native aura slot)
-        shieldSize = 34,
+        shieldSize = 30,
     },
     learned = {
         maelstromBuffID = nil,  -- learned from a readable aura

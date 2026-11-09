@@ -113,7 +113,7 @@ function Alerts:Test()
 end
 
 NS:On("PLAYER_LOGIN", function()
-    NS.Movers:Register(anchor, "alerts", "Alerts", { "TOP", "TOP", 0, -180 })
+    NS.Movers:Register(anchor, "alerts", "Alerts", { "TOP", "TOP", 0, -180 }, true)
 end)
 
 -- keep the anchor visible in edit mode so it can be placed

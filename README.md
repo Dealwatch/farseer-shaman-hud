@@ -22,12 +22,17 @@ Enhancement Shaman toolkit for **WoW Forever** (interface 16001). Working title,
 
 ## Modules
 
-- **Swing timer** – main and off hand from Forever's native swing events, casts projected onto the bar (red = the cast delays your swing), grey when out of melee range.
+The default layout is one 240px column under your character (Maelstrom, swing, mana, Flame Shock) and one
+icon row (totems | cooldowns | imbues + shield). Everything can be moved, resized or switched off, and the
+HUD fades to 50% out of combat when you have no enemy targeted.
+
+- **Swing timer** – main hand bar with time to the next swing, thin off hand line, casts projected onto the bar (red = the cast delays your swing), grey when out of melee range.
+- **Mana bar** – thin bar, red when low, hidden at full mana out of combat.
 - **Totem bar** – Earth, Fire, Water, Air with time left. Left-click recasts the last totem of that element, right-click destroys it.
 - **Weapon imbues** – time left per hand, click to apply your chosen imbue, warnings when missing or running out.
-- **Maelstrom Weapon** – five pips; glow and sound at five stacks (instant Lightning Bolt).
-- **Stormstrike & shocks** – "Shock now!" right after Stormstrike, Flame Shock timer, cooldown icons.
-- **Reminders** – Lightning Shield missing, Ghost Wolf in combat, low on Ankhs.
+- **Maelstrom Weapon** – five-segment bar, gold with glow and sound at five stacks (instant Lightning Bolt).
+- **Stormstrike & shocks** – the Earth Shock icon glows right after Stormstrike, Flame Shock timer with the real time left, cooldown icons (Stormstrike, shocks, Fire Nova, Rage of the Farseer).
+- **Reminders** – shield icon with charges, Lightning Shield missing, Ghost Wolf in combat, low on Ankhs.
 
 ## Key bindings
 

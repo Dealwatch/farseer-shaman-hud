@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.0
+- New: mana bar (thin, red when low, hides at full mana out of combat)
+- Cleaner HUD: one 240px column under the character (Maelstrom, swing, mana, Flame Shock) and one
+  icon row (totems | cooldowns | imbues + shield), all icons 30px
+- HUD fades to 50% out of combat without an enemy target (Appearance > Fade out of combat)
+- Shock prompt: the Earth Shock icon in the cooldown row glows; the big card is optional
+- Maelstrom: one five-segment bar (width/height settings), no extra labels
+- Less text: no hand labels on the swing bars, no range text (grey tint instead),
+  no MH/OH tags, no name on the Flame Shock bar, no mini bars under totems
+- Cooldown icons ignore the global cooldown
+
 ## 0.2.0
 - Native aura slots (Blizzard_AuraContainer): the client itself fills
   - the Maelstrom Weapon stack bar (also in combat, even when the buff is secret)
