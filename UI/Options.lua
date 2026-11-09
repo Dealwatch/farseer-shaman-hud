@@ -133,6 +133,8 @@ local function tilesBlock(parent)
         end },
         { label = "MAELSTROM", icon = "Interface\\Icons\\Spell_Shaman_MaelstromWeapon", value = function()
             local st = NS.modules.maelstrom.state
+            local native = NS.Native.slots.maelstrom and NS.Native.slots.maelstrom:Active()
+            if native then return "native stack bar" end
             if st.source == "aura" then return st.readableInCombat and "exact stacks" or "exact (out of combat)" end
             if st.source == "proc" then return "5-stack glow" end
             return "not seen yet"
