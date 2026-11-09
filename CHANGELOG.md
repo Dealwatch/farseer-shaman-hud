@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.5.3
+- Fix: no shield warning in combat. Buffs are secret to addons in combat, so the text alert can't see
+  the shield drop. The shield icon now turns red and pulses as soon as the shield is gone; the client
+  covers it while the shield is up.
+
 ## 0.5.2
 First in-game test (level 15): 29 of 31 checks passed, native aura slots confirmed in the real client.
 - New: cooldown icons flash once when the cooldown your cast started is over (Stormstrike, shocks,

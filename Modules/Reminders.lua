@@ -90,6 +90,15 @@ function R:BuildShield()
     UI:NativeHost(f)
     f.icon:SetDesaturated(true)
     f.icon:SetAlpha(0.35)
+    -- The client covers this icon with the live shield and its visibility is
+    -- secret to us, so whatever shows through is the in-combat "no shield" alert.
+    local ag = f.icon:CreateAnimationGroup()
+    ag:SetLooping("BOUNCE")
+    local a = ag:CreateAnimation("Alpha")
+    a:SetFromAlpha(0.9)
+    a:SetToAlpha(0.3)
+    a:SetDuration(0.6)
+    f.pulse = ag
     self.shieldFrame = f
     NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 165, -210 })
     self.shieldNative = NS.Native:Slot({
@@ -129,6 +138,10 @@ function R:DrawShield()
     local def = Spells:Get(Spells:Known("waterShield") and not Spells:Known("lightningShield") and "waterShield" or "lightningShield")
     f.icon:SetTexture(def and def.icon or "Interface\\Icons\\Spell_Nature_LightningShield")
     f:SetSize(db.shieldSize, db.shieldSize)
+    local warn = db.shield and self.shieldNative:Active()
+    local c = warn and UI.palette.danger or UI.palette.border
+    UI:SetBorderColor(f, c[1], c[2], c[3], 1)
+    if warn then f.pulse:Play() else f.pulse:Stop() end
     if self.shieldNative:Active() then
         self.shieldNative:Restyle(function(b) b:SetSize(db.shieldSize, db.shieldSize) end)
     end
