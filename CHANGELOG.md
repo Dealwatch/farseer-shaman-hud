@@ -8,6 +8,10 @@
   imbue is missing or running out. Targeting an enemy shows the HUD before the pull.
   Appearance: "Out of combat" opacity (0% = hidden) and "Show the HUD when an enemy is targeted"
 - Imbue buttons default to "When needed"; invisible buttons no longer catch clicks
+- Low levels: if your chosen imbue is not learned yet, the best imbue you know is used (e.g. Rockbiter)
+- Off hand weapon detection falls back to the item in the off hand slot
+- Low levels: the Maelstrom bar stays hidden until you have the talent; the totem bar only shows
+  elements you have a totem for (no empty Water/Air slots), and re-lays itself out as you learn more
 - Overview: the Maelstrom tile shows "native stack bar" when the client draws it
 
 ## 0.3.0

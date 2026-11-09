@@ -94,9 +94,17 @@ local function fmt(secs)
     return string.format("%ds", math.floor(secs))
 end
 
+-- Your pick, or while it is not learned yet (low level) the best imbue you
+-- do know, in the order of Spells.IMBUES.
 local function chosenSpell(hand)
-    return Spells:Get(NS.db.imbues[hand.key])
+    local def = Spells:Get(NS.db.imbues[hand.key])
+    if def and def.known then return def end
+    for _, key in ipairs(Spells.IMBUES) do
+        if Spells:Known(key) then return Spells:Get(key) end
+    end
+    return def
 end
+Imbues.ChosenSpell = chosenSpell
 
 local function setSecure(b)
     local def = chosenSpell(b.hand)

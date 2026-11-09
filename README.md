@@ -75,6 +75,10 @@ Alerts stack at the top of the screen. All positions are saved per account.
 out of combat opacity (0% = hidden), show the HUD when an enemy is targeted, HUD scale, edit mode grid,
 reset positions.
 
+**Low levels:** only what you have learned shows up. No Maelstrom bar before the talent, no totem slot
+for an element you have no totem for, and the imbue buttons use the best imbue you know until your pick
+(e.g. Windfury) is learned.
+
 **Out of combat** the HUD is hidden. What stays: alerts (missing imbue or shield, a totem that died,
 Ankhs) and the imbue buttons that need a click.
 

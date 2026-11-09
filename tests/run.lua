@@ -374,6 +374,16 @@ run("out of combat events", function()
     SlashCmdList.SHAMMYFOREVER("test")
 end)
 
+run("low level: unknown imbue falls back to a known one", function()
+    NS.db.imbues.mh = "frostbrand"   -- not in the test spellbook
+    local def = NS.modules.imbues.ChosenSpell({ key = "mh" })
+    assert(def and def.key == "windfury", "falls back to the first known imbue")
+    NS.db.imbues.mh = "windfury"
+    assert(_G.ShammyForeverTotemEarth:IsShown() and _G.ShammyForeverTotemFire:IsShown(), "known elements shown")
+    assert(not _G.ShammyForeverTotemWater:IsShown() and not _G.ShammyForeverTotemAir:IsShown(), "unknown elements hidden")
+    assert(not _G.ShammyForeverMaelstrom:IsShown(), "no Maelstrom bar before the talent")
+end)
+
 run("fishing pole: no main hand imbue warning", function()
     local old = C_Item.GetWeaponEnchantInfo
     C_Item.GetWeaponEnchantInfo = function() return {} end

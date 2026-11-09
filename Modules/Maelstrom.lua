@@ -172,8 +172,10 @@ function MW:Draw()
     local db = NS.db.maelstrom
     local stacks = state.stacks
     if NS.editing and not stacks then stacks = 3 end
-    local show = NS:IsEnabled("maelstrom") and (NS.editing or not db.hideEmpty or InCombatLockdown()
-        or (stacks or 0) > 0 or state.full)
+    -- not before you have the talent (or the client showed us stacks once)
+    local have = Spells:Known("maelstrom") or NS.db.learned.maelstromBuffID ~= nil
+    local show = NS:IsEnabled("maelstrom") and (NS.editing or have and (not db.hideEmpty or InCombatLockdown()
+        or (stacks or 0) > 0 or state.full))
     UI:SafeShow(frame, show)
     if not show then return end
 

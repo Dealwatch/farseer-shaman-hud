@@ -88,7 +88,7 @@ function Totems:Init()
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
     NS:On("PLAYER_REGEN_ENABLED", function() self:UpdateAll() end)
     NS:On("PLAYER_REGEN_DISABLED", function() self:Refresh(true) end)
-    NS:On("SF_SPELLS", function() for _, b in pairs(buttons) do setSecureSpell(b) end end)
+    NS:On("SF_SPELLS", function() self:Apply() end)   -- new totem learned: re-layout (after combat)
     NS:OnUnit("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, _, spellID)
         self:OnCast(spellID)
     end)
@@ -173,20 +173,32 @@ function Totems:Refresh(forceShow)
     NS.AfterCombat("totemframe", function() frame:SetShown(show and true or false) end)
 end
 
+-- Only elements you have a totem for get a button (no empty Water/Air at low level).
+local function elementKnown(slot)
+    for _, def in pairs(Spells.DEFS) do
+        if def.element == slot and def.known then return true end
+    end
+    return slotState[slot] and slotState[slot].active or false
+end
+
 function Totems:Apply()
     if not frame then return end
     local db = NS.db.totems
     NS.AfterCombat("totemlayout", function()
         local x = 0
-        for i, el in ipairs(Spells.ELEMENTS) do
+        for _, el in ipairs(Spells.ELEMENTS) do
             local b = buttons[el.slot]
-            b:SetSize(db.size, db.size)
-            b:ClearAllPoints()
-            b:SetPoint("TOPLEFT", frame, "TOPLEFT", x, 0)
-            x = x + db.size + db.spacing
+            local shown = elementKnown(el.slot) or NS.editing
+            b:SetShown(shown)
+            if shown then
+                b:SetSize(db.size, db.size)
+                b:ClearAllPoints()
+                b:SetPoint("TOPLEFT", frame, "TOPLEFT", x, 0)
+                x = x + db.size + db.spacing
+            end
             setSecureSpell(b)
         end
-        frame:SetSize(x - db.spacing, db.size)
+        frame:SetSize(math.max(x - db.spacing, 1), db.size)
     end)
     for slot in pairs(buttons) do self:Draw(slot) end
     self:Refresh()
