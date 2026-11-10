@@ -36,7 +36,7 @@ local promptUntil = 0
 
 local function buildPrompt()
     prompt = CreateFrame("Frame", "FarseerHUDShockPrompt", UIParent)
-    prompt:SetSize(170, 40)
+    prompt:SetSize(190, 40)
     UI:Skin(prompt, UI.palette.surface, UI.palette.border, "lg")
     prompt.iconFrame = UI:Icon(prompt, 32)
     prompt.iconFrame:SetPoint("LEFT", 4, 0)
@@ -44,7 +44,7 @@ local function buildPrompt()
     prompt.text:SetPoint("LEFT", prompt.iconFrame, "RIGHT", 8, 0)
     prompt.text:SetText("Shock now!")
     prompt:Hide()
-    NS.Movers:Register(prompt, "shockprompt", "Shock card", { "CENTER", "CENTER", 0, -70 })
+    NS.Movers:Register(prompt, "shockprompt", "Shock card", { "CENTER", "CENTER", 0, -36 })
 end
 
 local function shockIcon()
