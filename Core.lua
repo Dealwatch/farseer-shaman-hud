@@ -139,8 +139,9 @@ end)
 -- Settings
 ---------------------------------------------------------------------------
 
--- One clean HUD column (240 wide) under your character, one icon size (30)
--- for every icon row. Positions are CENTER offsets on UIParent.
+-- One clean HUD column (240 wide) under your character: bars, then the icons you
+-- press alone on their line. Upkeep (totems left, shield and imbues right) flanks
+-- the bars. One icon size (30). Positions are CENTER offsets on UIParent.
 NS.defaults = {
     modules = {
         swing = true, castbar = true, mana = true, totems = true, imbues = true,

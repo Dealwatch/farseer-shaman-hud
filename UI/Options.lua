@@ -251,6 +251,27 @@ local function step(parent, n, key, text)
     return f
 end
 
+-- A note across the full width of a card (two lines of small text under a title).
+local function note(parent, title, text)
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetHeight(58)
+    f.label = UI:Label(f, 13)
+    f.label:SetPoint("TOPLEFT", 16, -9)
+    f.label:SetText(title)
+    f.desc = UI:Label(f, 11, P.textDim)
+    f.desc:SetPoint("TOPLEFT", f.label, "BOTTOMLEFT", 0, -4)
+    f.desc:SetPoint("RIGHT", f, "RIGHT", -16, 0)
+    f.desc:SetWordWrap(true)
+    f.desc:SetText(text)
+    f.sep = f:CreateTexture(nil, "ARTWORK")
+    f.sep:SetTexture(UI.WHITE)
+    f.sep:SetVertexColor(1, 1, 1, 0.06)
+    f.sep:SetPoint("TOPLEFT", 16, 0)
+    f.sep:SetPoint("TOPRIGHT", -16, 0)
+    f.sep:SetHeight(1)
+    return f
+end
+
 ---------------------------------------------------------------------------
 -- Pages
 ---------------------------------------------------------------------------
@@ -271,11 +292,11 @@ local function buildPages()
         local c = self:Add(W.Card(parent, "What to press, top to bottom", "Interface\\Icons\\Ability_Shaman_Stormstrike"))
         c:Add(step(c, "1", "fireNova", "Only while your Magma Totem is down (a group): first, every time it is ready."))
         c:Add(step(c, "2", "flameShock", "Keep it on your target. Refresh it when its bar turns red."))
-        c:Add(step(c, "3", "stormstrike", "On cooldown. The gold line: your next Earth Shock or Bolt hits 20% harder."))
+        c:Add(step(c, "3", "stormstrike", "On cooldown. Then your next Earth Shock or Bolt hits 20% harder (gold underline)."))
         c:Add(step(c, "4", "lightningBolt", "At five Maelstrom Weapon it is instant: the bar turns gold."))
         c:Add(step(c, "5", "earthShock", "Filler: whenever your shock is ready and Flame Shock still runs."))
+        c:Add(note(c, "Reading the icons", "|cffffd140Gold ring|r: press now.  |cffecf0f3Bright|r: ready.  Dark with a number: on cooldown.  Dimmed: not possible right now (mana, Maelstrom stacks, no fire totem).  |cffff5959Red|r: out of melee range."))
         local a = self:Add(W.Card(parent, "Around the fight", "Interface\\Icons\\Spell_Nature_LightningShield"))
-        a:Add(step(a, nil, "lightningShield", "Shield and weapon imbue: the HUD warns you when one is missing."))
         a:Add(step(a, nil, "rageFarseer", "Burst: 30% attack speed for 25 s. Press it when you can stay on the target."))
         a:Add(step(a, nil, "totemicRecall", "After the fight: takes your totems back and refunds 25% of their mana."))
     end
@@ -380,7 +401,7 @@ local function buildPages()
         c:Add(W.Toggle(c, "Flame Shock timer", "Starts from your cast; corrected from the real debuff when readable.", bind("shocks", "flameShock")))
         c:Add(W.Slider(c, "Flame Shock duration", "Used until the addon has read the real duration once.", 6, 30, 1, function(v) return v .. "s" end, bind("shocks", "flameShockDuration")))
         c:Add(W.Slider(c, "Flame Shock bar width", nil, 120, 360, 10, px, bind("shocks", "barWidth")))
-        c:Add(W.Toggle(c, "Cooldown icons", "Stormstrike, shocks, Rage of the Farseer and other cooldowns you know.", bind("shocks", "cooldowns")))
+        c:Add(W.Toggle(c, "Cooldown icons", "Your rotation spells and burst cooldowns. Dimmed: not possible right now. Red: out of range.", bind("shocks", "cooldowns")))
         c:Add(W.Slider(c, "Cooldown icon size", nil, 20, 56, 1, px, bind("shocks", "iconSize")))
         c:Add(W.Toggle(c, "Flash when a spell is ready again", "The icon lights up once when the cooldown your cast started is over. Shocks share one cooldown: the Earth Shock icon stands for all of them.", bind("shocks", "readyFlash")))
     end

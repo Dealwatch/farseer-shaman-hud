@@ -47,22 +47,27 @@ The addon also has an entry in the minimap's addon compartment.
 
 ## Default layout
 
-One 240px column under your character and one row of 30px icons below it:
+One 240px column under your character. The icons you press stand alone on their own line; upkeep
+(totems on the left, shield and imbue buttons on the right) sits beside the bars:
 
 ```
-        [Fl][CC][RF]                  Procs: only what is up right now (centred)
-                 Instant Bolt!        <- only at five stacks
-[====|====|====|    |    ]            Maelstrom Weapon (5 segments)
-[=========|           1.1]            Swing timer, main hand
-[====                    ]            Off hand (thin line, dual wield only)
-[==============          ]            Mana
-[F][=============     8.3]            Flame Shock on your target
+                    [Fl][CC][RF]                       Procs: only what is up right now
+                             Instant Bolt!             <- only at five stacks
+                [====|====|====|    |    ]             Maelstrom Weapon (5 segments)
+[E][F][W][A]    [=========|           1.1]    [LS][MH] Swing timer | totems left, shield + imbue right
+                [==============          ]             Mana
+                [F][=============     8.3]             Flame Shock on your target
 
-[E][F][W][A]   [SS][ES][FN][RF]   [MH][OH][LS]
-   Totems          Cooldowns      Imbues + Shield
-               ========                Gold line: Stormstrike's bonus is unspent
-[i][Lightning Bolt          1.2]            Cast bar (only while casting)
+                  [SS][Shock][Bolt][FN][RF]            What you press: Stormstrike, shock, Bolt, Fire Nova, burst
+                       ====  ====                      Gold underline: boosted by Stormstrike right now
+                [i][Lightning Bolt     1.2]            Cast bar (only while casting)
 ```
+
+Every icon in that row reads the same way: **gold ring** = press now, **bright** = ready, **dark with a
+number** = on cooldown, **dimmed** = not possible right now (no mana, fewer than five Maelstrom stacks,
+no fire totem for Fire Nova), **red** = target out of melee range.
+
+If you widen the bars beyond about 270px, drag the totem and shield frames outwards in edit mode.
 
 Alerts stack at the top of the screen (the four most important at a time). All positions are saved per account.
 
@@ -77,7 +82,7 @@ Alerts stack at the top of the screen (the four most important at a time). All p
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
-| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below); the shock icon shows the shock to use, and a gold line under the row means Stormstrike's 20% bonus is still unspent. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar and width, cooldown row and icon size, ready flash |
+| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below). The shock icon shows the shock to use, the Bolt icon lights up at five Maelstrom stacks, and a gold underline marks what Stormstrike's 20% bonus would boost right now. Dimmed icons cannot be pressed, a red Stormstrike is out of range. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar and width, cooldown row and icon size, ready flash |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
 **Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, HUD text size, bar texture, sounds,
@@ -101,10 +106,10 @@ Forever guides agree on ([Method](https://www.method.gg/wow-forever/class-guides
 1. **Fire Nova**, only while your Magma Totem is down (that means a group): first, every time it is ready.
 2. **Flame Shock** when it is missing on your target or has under 3 s left (its bar turns red).
 3. **Stormstrike** on cooldown.
-4. **Lightning Bolt** at five Maelstrom Weapon: the Maelstrom bar glows.
+4. **Lightning Bolt** at five Maelstrom Weapon: the Bolt icon and the Maelstrom bar glow.
 5. **Earth Shock** as filler.
 
-What is not ready, not learned or not affordable is skipped. Switch it off under Stormstrike & Shocks >
+What is not ready, not learned, not affordable or out of melee range (Stormstrike) is skipped. Switch it off under Stormstrike & Shocks >
 *Glow on the next spell*. Limits: in combat the client can hide cooldowns from addons, then "ready" goes by
 your own casts, so a Stormstrike reset by a dodge or parry can glow late; a missed or resisted Flame Shock
 still counts as applied until the client shows otherwise.

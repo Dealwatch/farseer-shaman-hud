@@ -166,6 +166,7 @@ function MW:Update()
     state.full = (stacks and stacks >= MAX) or (not stacks and state.procGlow) or false
     if state.full and not wasFull and NS.db.maelstrom.sound then UI:Sound("ALARM_CLOCK_WARNING_2") end
     self:Draw()
+    NS.modules.shocks:Advise()   -- the Bolt icon follows the stacks
 end
 
 function MW:Draw()

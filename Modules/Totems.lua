@@ -93,7 +93,7 @@ function Totems:Init()
     frame:Hide()
     self.frame = frame
     for _, el in ipairs(Spells.ELEMENTS) do makeButton(el) end
-    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -160, -210 })
+    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -202, -150 })
 
     NS:On("PLAYER_TOTEM_UPDATE", function(_, slot) self:UpdateSlot(slot) end)
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
@@ -119,6 +119,10 @@ end
 function Totems.FireTotem()
     local st = slotState[1]
     return st and st.active and st.key or nil
+end
+
+function Totems.HasFire()
+    return slotState[1] ~= nil and slotState[1].active or false
 end
 
 -- In combat the client does not tell us when a totem runs out, but we know when it was dropped:

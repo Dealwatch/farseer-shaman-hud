@@ -1,20 +1,31 @@
 # Changelog
 
 ## 0.7.0
-The rotation, shown with one glow. Order as the Forever guides give it (Method, Warcraft Tavern, wowforever.be).
-- New: next-spell glow. In combat exactly one thing glows gold, your next press: Fire Nova while your
+See at a glance what you can press and what you should press. Order as the Forever guides give it
+(Method, Warcraft Tavern, wowforever.be).
+- New: next-spell glow. In combat exactly one icon glows gold, your next press: Fire Nova while your
   Magma Totem is down (a group), Flame Shock when it is missing or about to run out, Stormstrike,
-  Lightning Bolt at five Maelstrom Weapon (the Maelstrom bar glows), Earth Shock as filler.
+  Lightning Bolt at five Maelstrom Weapon, Earth Shock as filler.
   Replaces the "Shock prompt after Stormstrike"; same switch, now "Glow on the next spell".
+- Every icon in the row reads the same way: gold ring = press now, bright = ready, dark with a number =
+  on cooldown, dimmed = not possible right now (no mana, fewer than five Maelstrom stacks, no fire totem
+  for Fire Nova), red = target out of melee range (Stormstrike; the glow then moves on to your shock).
+- New: Lightning Bolt icon in the row (with Maelstrom Weapon): dimmed until five stacks, so the next
+  press is always in the same place. The Maelstrom bar glows along with it.
 - The shock icon shows the shock to use: Flame Shock when it is due, Earth Shock otherwise.
-- New: a thin gold line under the cooldown row while Stormstrike's 20% bonus is unspent (12 s).
+- New: gold underline under the spells Stormstrike's 20% bonus would boost right now (Earth Shock, the
+  Bolt at five stacks); it drains over the 12 s the bonus lasts.
+- New default layout: the icons you press stand alone on their line under the bars. Totems moved to the
+  left of the bars, shield and imbue buttons to the right. Frames you already moved stay where they are;
+  `/sham edit` > Reset all gives you the new layout.
 - Magma Totem down switches to the group order (Fire Nova first); Searing Totem or none: single target.
 - New: a totem slot pulses in its last seconds, in combat too, and dims when the time is up
   (Totems > "Pulse before a totem runs out"). Durations are learned from the client, with Forever's
   values as a start (Magma 20 s, Stoneclaw 15 s, Earthbind and Grounding 45 s, buff totems 5 min).
-- New: Rotation page in the settings (`/sham rotation`): the order behind the glow, with what you
-  have not learned yet greyed out.
+- New: Rotation page in the settings (`/sham rotation`): the order behind the glow, how to read the
+  icons, and what you have not learned yet greyed out.
 - Flame Shock timer is per target now: a new target starts without one instead of showing the old timer.
+- No ready-flash on the icon that starts to glow gold anyway: one signal at a time.
 - The big "Shock now!" card shows while Stormstrike's bonus waits for an Earth Shock; the setting
   "Prompt stays for" is gone (the bonus lasts 12 s).
 - In combat cooldowns can be hidden from addons: "ready" then goes by your own casts (Stormstrike 6 s,

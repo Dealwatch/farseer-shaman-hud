@@ -100,7 +100,7 @@ function R:BuildShield()
     a:SetDuration(0.6)
     f.pulse = ag
     self.shieldFrame = f
-    NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 178, -210 })
+    NS.Movers:Register(f, "shield", "Shield", { "CENTER", "CENTER", 151, -150 })
     self.shieldNative = NS.Native:Slot({
         key = "shield", parent = f, unit = "player", filter = "HELPFUL", level = 3,
         ids = function() return Spells:AuraIDs("lightningShield", "waterShield") end,

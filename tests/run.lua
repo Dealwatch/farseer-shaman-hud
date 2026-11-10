@@ -839,12 +839,13 @@ run("layout: text size, alert stack, edit mode", function()
     NS.Movers:Toggle(true)
     assert(not NS.Options:IsShown(), "settings window closed by edit mode")
     NS.Movers:Toggle(false)
-    -- default icon row: totems | up to five cooldowns | imbues | shield do not touch
+    -- default layout: totems left of the 240px bar column, shield and imbues right of it,
+    -- so the icons you press stand alone on their line
     local d = function(key) return NS.Movers.byKey[key].default[3] end
-    local cds = (5 * 30 + 4 * 4) / 2
-    assert(d("totems") + (4 * 30 + 3 * 4) / 2 < -cds, "totems clear of the cooldown row")
-    assert(d("imbues") - (2 * 30 + 4) / 2 - 3 > cds, "imbues (with glow) clear of the cooldown row")
-    assert(d("shield") - 15 > d("imbues") + 32 + 3, "shield clear of the imbue glow")
+    assert(d("totems") + (4 * 30 + 3 * 4) / 2 <= -120 - 8, "totems left of the bar column")
+    assert(d("shield") - 15 >= 120 + 8, "shield right of the bar column")
+    assert(d("imbues") - (2 * 30 + 4) / 2 - 3 > d("shield") + 15, "imbue glow clear of the shield")
+    assert(NS.Movers.byKey.totems.default[4] > NS.Movers.byKey.cooldowns.default[4] + 30, "upkeep is not on the line of the icons you press")
 end)
 
 run("next-spell glow: one icon, in the guides' order", function()
@@ -878,12 +879,32 @@ run("next-spell glow: one icon, in the guides' order", function()
     assert(S.Advice() == "stormstrike" and not lit(mw), "Stormstrike before the Bolt; the Maelstrom bar waits")
     cast(17364)
     tick(0.2)
-    assert(S.Advice() == "lightningBolt" and lit(mw), "Bolt at five stacks: the Maelstrom bar glows")
+    assert(S.Advice() == "lightningBolt" and lit(mw) and lit(icon("lightningBolt")), "Bolt at five stacks: its icon and the Maelstrom bar glow")
+    assert(icon("lightningBolt"):GetAlpha() == 1 and icon("lightningBolt").bonus:IsShown(), "Bolt bright and marked as boosted by Stormstrike")
     playerAuras[2] = nil
     cast(403)
     fire("UNIT_AURA", "player", {})
     tick(0.2)
     assert(S.Advice() == nil and not lit(mw), "Bolt spent")
+
+    -- what you cannot press looks different: the Bolt below five stacks, Fire Nova without a fire totem
+    NS.db.learned.maelstromBuffID = NS.db.learned.maelstromBuffID or 408505
+    S:UpdateCooldowns()
+    assert(icon("lightningBolt"):IsShown() and icon("lightningBolt"):GetAlpha() < 1, "Bolt icon dimmed below five stacks")
+    assert(icon("fireNova"):GetAlpha() < 1, "Fire Nova dimmed without a fire totem")
+    assert(icon("stormstrike"):GetAlpha() == 1, "Stormstrike is not dimmed while it is only on cooldown")
+    -- out of melee range: Stormstrike turns red and the glow moves on to what reaches the target
+    tick(6)
+    cast(8050)                                  -- Flame Shock had run out: it comes first
+    tick(0.2)
+    assert(S.Advice() == "stormstrike", "in range: Stormstrike")
+    fire("PLAYER_SWING_RANGE_UPDATE", 0, false, true)
+    tick(0.2)
+    assert(S.Advice() ~= "stormstrike" and icon("stormstrike").why == "range", "out of range: not Stormstrike: " .. tostring(S.Advice()))
+    fire("PLAYER_SWING_RANGE_UPDATE", 0, true, true)
+    tick(0.2)
+    assert(S.Advice() == "stormstrike" and not icon("stormstrike").why, "back in range")
+    cast(17364)
 
     -- Magma Totem down = a group: Fire Nova goes first; the slot pulses before the totem runs out
     tick(6)

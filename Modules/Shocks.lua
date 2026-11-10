@@ -6,8 +6,11 @@
         Stormstrike, Lightning Bolt at five Maelstrom (the Maelstrom bar
         glows), Earth Shock as filler. The shock icon shows the shock to use.
       * Stormstrike boosts your next Earth Shock, Lightning Bolt or Chain
-        Lightning by 20% for 12 s: a gold line under the cooldown row drains
-        while that bonus is unspent.
+        Lightning by 20% for 12 s: the icons it would boost right now get a
+        gold underline that drains while the bonus is unspent.
+      * One way to read every icon: gold ring = press now, bright = ready,
+        dark with a number = on cooldown, dimmed = not possible right now
+        (mana, stacks, no fire totem), red = out of melee range.
       * Flame Shock timer for your target, started from your own cast (target
         debuffs are secret in combat) and corrected from the real aura
         whenever the client lets us read it.
@@ -27,7 +30,8 @@ local Shocks = NS:NewModule("shocks", {
     icon = "Interface\\Icons\\Ability_Shaman_Stormstrike",
 })
 
-local COOLDOWNS = { "stormstrike", "earthShock", "fireNova", "rageFarseer", "elementalMastery" }
+-- left to right; the Bolt icon is only there for Maelstrom Weapon (bright at five stacks)
+local COOLDOWNS = { "stormstrike", "earthShock", "lightningBolt", "fireNova", "rageFarseer", "elementalMastery" }
 local SHOCKS = { earthShock = true, flameShock = true, frostShock = true }
 local SPENDS_BONUS = { earthShock = true, lightningBolt = true, chainLightning = true }
 local GOLD = { 1, 0.82, 0.25 }
@@ -45,7 +49,6 @@ local fsBy = {}             -- target GUID -> { start, ends } of your Flame Shoc
 local cdEnd = {}            -- icon key -> when the cooldown your own cast started is over
 local bonusUntil = 0        -- Stormstrike's bonus is unspent until then
 local advice, advising      -- what glows now; whether the glow logic is running at all
-local bonusBar
 
 ---------------------------------------------------------------------------
 -- Shock prompt
@@ -74,13 +77,21 @@ end
 -- Next-spell glow
 ---------------------------------------------------------------------------
 
-local function ready(key)
+-- Why a spell cannot be pressed even when it is off cooldown (nil: it can).
+local function blocked(key)
     local def = Spells:Get(key)
-    if not (def and def.known) then return false end
     if C_Spell.IsSpellUsable then
         local ok, u = pcall(C_Spell.IsSpellUsable, def.id)
-        if ok and NS.Readable(u) == false then return false end   -- no mana, no fire totem, ...
+        if ok and NS.Readable(u) == false then return "unusable" end          -- no mana, ...
     end
+    if key == "lightningBolt" and not NS.modules.maelstrom.state.full then return "unusable" end   -- instant only at five
+    if key == "fireNova" and not NS.modules.totems.HasFire() then return "unusable" end            -- erupts at a fire totem
+    if key == "stormstrike" and NS.modules.swing.state.outOfRange then return "range" end
+end
+
+local function ready(key)
+    local def = Spells:Get(key)
+    if not (def and def.known) or blocked(key) then return false end
     local iconKey = SHOCKS[key] and "earthShock" or key           -- shocks share one cooldown
     local ok, info = pcall(C_Spell.GetSpellCooldown, def.id)
     local start = ok and info and NS.Readable(info.startTime)
@@ -105,7 +116,7 @@ local function pick()
     if group and ready("fireNova") then return "fireNova" end
     if shock == "flameShock" and ready(shock) then return shock end
     if ready("stormstrike") then return "stormstrike" end
-    if NS.modules.maelstrom.state.full and Spells:Known("lightningBolt") then return "lightningBolt" end
+    if ready("lightningBolt") then return "lightningBolt" end
     if shock and ready(shock) then return shock end
 end
 
@@ -114,6 +125,7 @@ function Shocks.Advising() return advising or false end
 
 -- Called on every event that can change the answer and a few times a second in combat.
 function Shocks:Advise()
+    if not cdRow then return end
     local db = NS.db.shocks
     local on = NS:IsEnabled("shocks") and db.prompt
     advising = on and NS.InCombat() and UI.HostileTarget() or false
@@ -128,8 +140,24 @@ function Shocks:Advise()
         icon.icon:SetTexture(Spells:Get(shock).icon or "Interface\\Icons\\INV_Misc_QuestionMark")
     end
 
-    bonusBar:SetShown(bonus)
-    if bonus then bonusBar:SetValue(bonusUntil - now) end
+    for _, f in ipairs(cdIcons) do
+        if f:IsShown() then
+            -- one look per state: dimmed = not possible right now, red = out of range
+            local why = blocked(f.shock or f.key) or false
+            if why ~= f.why then
+                f.why = why
+                f.icon:SetDesaturated(why == "unusable")
+                f.icon:SetVertexColor(1, why == "range" and 0.3 or 1, why == "range" and 0.3 or 1)
+                f:SetAlpha(why == "unusable" and 0.45 or 1)
+            end
+            -- gold underline: Stormstrike's bonus would go into this spell
+            if f.bonus then
+                local boosted = bonus and not why and (f.key == "lightningBolt" or f.shock == "earthShock")
+                f.bonus:SetShown(boosted)
+                if boosted then f.bonus:SetValue(bonusUntil - now) end
+            end
+        end
+    end
 
     -- the big card: "shock now, it is boosted" (also when there is no icon to light up)
     local card = bonus and new == "earthShock" and (db.promptCard or not icon)
@@ -150,7 +178,7 @@ function Shocks:Advise()
             if mine then UI:Glow(f, GOLD[1], GOLD[2], GOLD[3]) else UI:Glow(f) end
         end
     end
-    -- the Maelstrom bar is the Lightning Bolt "icon"
+    -- the Maelstrom bar glows along with the Bolt icon
     if new == "lightningBolt" or old == "lightningBolt" then NS.modules.maelstrom:Draw() end
 end
 
@@ -285,22 +313,25 @@ local function buildCooldowns()
         f.key = key
         -- flash once when the cooldown that your own cast started runs out
         f.cd:SetScript("OnCooldownDone", function()
-            if f.armed and NS.db.shocks.readyFlash and f:IsShown() then UI:Flash(f) end
-            f.armed = false
             cdEnd[key] = 0
             Shocks:Advise()
+            -- no flash on the icon that now glows gold anyway: one signal at a time
+            if f.armed and NS.db.shocks.readyFlash and f:IsShown() and not f.lit then UI:Flash(f) end
+            f.armed = false
         end)
+        if key == "earthShock" or key == "lightningBolt" then
+            -- Stormstrike's unspent bonus, under the spells it would boost: drains over 12 s
+            f.bonus = CreateFrame("StatusBar", nil, f)
+            f.bonus:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -5)
+            f.bonus:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, -5)
+            f.bonus:SetHeight(2)
+            f.bonus:SetStatusBarTexture(UI.WHITE)
+            f.bonus:SetStatusBarColor(GOLD[1], GOLD[2], GOLD[3])
+            f.bonus:SetMinMaxValues(0, BONUS_WINDOW)
+            f.bonus:Hide()
+        end
         cdIcons[#cdIcons + 1] = f
     end
-    -- Stormstrike's unspent bonus: a gold line under the row, draining over 12 s
-    bonusBar = CreateFrame("StatusBar", nil, cdRow)
-    bonusBar:SetPoint("TOPLEFT", cdRow, "BOTTOMLEFT", 0, -5)
-    bonusBar:SetPoint("TOPRIGHT", cdRow, "BOTTOMRIGHT", 0, -5)
-    bonusBar:SetHeight(2)
-    bonusBar:SetStatusBarTexture(UI.WHITE)
-    bonusBar:SetStatusBarColor(GOLD[1], GOLD[2], GOLD[3])
-    bonusBar:SetMinMaxValues(0, BONUS_WINDOW)
-    bonusBar:Hide()
     -- a few times a second in combat: cooldowns and timers run out without an event
     local since = 0
     cdRow.ticker = CreateFrame("Frame")
@@ -332,6 +363,9 @@ function Shocks:UpdateCooldowns()
     for _, f in ipairs(cdIcons) do
         local def = Spells:Get(f.key)
         local show = def and (def.known or (NS.editing and f.key == "stormstrike"))
+        if f.key == "lightningBolt" then   -- the instant Bolt belongs to Maelstrom Weapon
+            show = show and (Spells:Known("maelstrom") or NS.db.learned.maelstromBuffID ~= nil)
+        end
         f:SetShown(show and true or false)
         if show then
             f:SetSize(size, size)
@@ -340,16 +374,11 @@ function Shocks:UpdateCooldowns()
             x = x + size + 4
             f.icon:SetTexture(Spells:Get(f.shock or f.key).icon or "Interface\\Icons\\INV_Misc_QuestionMark")
             setCooldown(f, def)
-            local usable = true
-            if C_Spell.IsSpellUsable then
-                local ok, u = pcall(C_Spell.IsSpellUsable, def.id)
-                if ok and NS.Readable(u) == false then usable = false end
-            end
-            f.icon:SetDesaturated(not usable)
         end
     end
     cdRow:SetSize(math.max(x - 4, 1), size)
     cdRow:SetShown(NS:IsEnabled("shocks") and NS.db.shocks.cooldowns and x > 0 or false)
+    self:Advise()
 end
 
 ---------------------------------------------------------------------------
@@ -392,7 +421,7 @@ function Shocks:Init()
     end)
     NS:On("SPELL_UPDATE_COOLDOWN", function() self:UpdateCooldowns() end)
     NS:On("SPELL_UPDATE_USABLE", function() self:UpdateCooldowns() end)
-    NS:On("SF_SPELLS", function() self:UpdateCooldowns(); self:Advise() end)
+    NS:On("SF_SPELLS", function() self:UpdateCooldowns() end)
 end
 
 function Shocks:Apply()
@@ -410,5 +439,4 @@ function Shocks:Apply()
         end)
     end
     self:UpdateCooldowns()
-    self:Advise()
 end
