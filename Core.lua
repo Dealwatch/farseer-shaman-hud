@@ -143,7 +143,7 @@ end)
 -- for every icon row. Positions are CENTER offsets on UIParent.
 NS.defaults = {
     modules = {
-        swing = true, mana = true, totems = true, imbues = true,
+        swing = true, castbar = true, mana = true, totems = true, imbues = true,
         maelstrom = true, procs = true, shocks = true, reminders = true,
     },
     positions = {},
@@ -165,6 +165,12 @@ NS.defaults = {
         hideIdle = true,        -- hide when not in combat / not swinging
         rangeTint = true,       -- grey the bar when the target is out of melee range
         showText = true,        -- time to the next swing
+    },
+    castbar = {
+        width = 240, height = 16,
+        showIcon = true,
+        showTime = true,        -- seconds left (when the client lets addons read the cast times)
+        hideBlizzard = true,    -- switch off Blizzard's own player cast bar
     },
     mana = {
         width = 240, height = 6,

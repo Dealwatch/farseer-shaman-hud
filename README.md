@@ -2,11 +2,11 @@
 
 Enhancement Shaman HUD / UI for **WoW Forever** (interface 16001, build 1.60.1).
 
-One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, Maelstrom Weapon, Flame Shock,
+One clean HUD for everything an Enhancement Shaman watches: swing timer, cast bar, mana, Maelstrom Weapon, Flame Shock,
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.5.4, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
+> Status: **0.6.0, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
 > Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client, not yet confirmed in game.
 
 ## Install
@@ -59,6 +59,7 @@ One 240px column under your character and one row of 30px icons below it:
 
 [E][F][W][A]   [SS][ES][FN][RF]   [MH][OH][LS]
    Totems          Cooldowns      Imbues + Shield
+[i][Lightning Bolt          1.2]            Cast bar (only while casting)
 ```
 
 Alerts stack at the top of the screen. All positions are saved per account.
@@ -68,10 +69,11 @@ Alerts stack at the top of the screen. All positions are saved per account.
 | Module | What it shows | Settings |
 |---|---|---|
 | **Swing Timer** | Main hand bar with time to the next swing, thin off hand line. Casts are projected onto the bar and turn red when they delay your swing. Grey when the target is out of melee range. | width, height, off hand, cast projection, range tint, text, hide when not fighting |
+| **Cast Bar** | Your casts and channels with icon, spell name and time left; red "Interrupted" when a cast is cut off. Runs in combat too, also when the client hides the cast times from addons (then without the time text). Shows out of combat as well (heals, Ghost Wolf). | width, height, icon, time left, hide Blizzard's cast bar |
 | **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
 | **Totem Bar** | Earth, Fire, Water, Air with time left (only elements you have a totem for). Left-click recasts the last totem of that element, right-click destroys it. Totems from Call of the Elements/Ancestors/Spirits show up too. Alerts when a totem dies, and a Totemic Recall reminder after combat. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert, recall reminder |
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
-| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size (after /reload) |
+| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
 | **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
@@ -93,7 +95,8 @@ Forever has a few built-in displays that overlap with this HUD. None of them is 
 
 | Blizzard display | What to do |
 |---|---|
-| Swing timer | Swing Timer page: *Hide Blizzard's own swing timer* (same as `/console showSwingTimer 0`) |
+| Swing timer | Swing & Cast Bar page: *Hide Blizzard's own swing timer* (same as `/console showSwingTimer 0`) |
+| Cast bar | Hidden while the Cast Bar module is on (Swing & Cast Bar page: *Hide Blizzard's cast bar*; turning it back on needs a `/reload`) |
 | Totem icons next to your portrait | Harmless; they stay (hiding Blizzard frames from an addon can break their buttons in combat) |
 | Totem bar from Call of the Elements (level 20) | Keep it: that is where you set up and cast your totem sets |
 | Cooldown Manager | Off unless you turned it on (Options > Gameplay Enhancements) |
@@ -215,7 +218,7 @@ Core.lua            namespace, events, settings, modules, slash commands, secret
 Spells.lua          spell table, spellbook lookup, aura IDs
 UI/                 Theme (look, rounded textures), Movers (edit mode), Alerts, Native (aura container),
                     Widgets and Options (settings window)
-Modules/            Swing, Mana, Totems, Imbues, Maelstrom, Procs, Shocks, Reminders
+Modules/            Swing, Castbar, Mana, Totems, Imbues, Maelstrom, Procs, Shocks, Reminders
 Probe.lua           /sham probe and /sham spells
 Media/              rounded-corner textures (TGA)
 tests/run.lua       offline test client
