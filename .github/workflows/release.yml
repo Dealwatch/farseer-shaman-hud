@@ -28,3 +28,14 @@ jobs:
         uses: BigWigsMods/packager@v2
         env:
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
+      # The packager writes the commit log as release text; use the CHANGELOG.md section instead.
+      - name: Release text from CHANGELOG.md
+        if: github.event_name == 'release'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: |
+          version=$(sed -n 's/^## Version: *//p' FarseerShamanHUD.toc | tr -d '\r')
+          awk -v v="## $version" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
+          test -s notes.md || { echo "::error::CHANGELOG.md has no section '## $version'"; exit 1; }
+          gh release edit "$TAG" --notes-file notes.md

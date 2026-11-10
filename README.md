@@ -236,7 +236,8 @@ never shows as out of date.
 Releases: write the notes in `CHANGELOG.md` and bump `## Version` in the TOC, then on GitHub go to
 *Releases* > *Draft a new release*, create the tag `vX.Y.Z` on `main` and publish. The GitHub Action runs the test
 and attaches the addon zip and `release.json` (flavor `forever`, used by WowUp) to that release
-(`.pkgmeta` leaves out `tests` and `.github`).
+(`.pkgmeta` leaves out `tests` and `.github`). The release text is replaced by the `CHANGELOG.md` section of the
+TOC version (the job fails if that section is missing; the zip is attached by then).
 
 ## License
 
