@@ -235,7 +235,7 @@ local function buildPages()
         self:Add(modulesBlock(parent))
     end
 
-    p = newPage("swing", "Swing Timer", "Main and off hand swings from Forever's native swing events.", "Interface\\Icons\\INV_Axe_09")
+    p = newPage("swing", "Swing & Cast Bar", "Your swings from Forever's native swing events, and your casts.", "Interface\\Icons\\INV_Axe_09")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Swing timer", self.icon, bindModule("swing")))
         c:Add(W.Slider(c, "Width", nil, 120, 420, 10, px, bind("swing", "width")))
@@ -251,6 +251,13 @@ local function buildPages()
                 function() return not C_CVar.GetCVarBool("showSwingTimer") end,
                 function(v) C_CVar.SetCVar("showSwingTimer", v and "0" or "1") end))
         end
+
+        local cb = self:Add(W.Card(parent, "Cast bar", "Interface\\Icons\\Spell_Nature_Lightning", bindModule("castbar")))
+        cb:Add(W.Slider(cb, "Width", nil, 120, 420, 10, px, bind("castbar", "width")))
+        cb:Add(W.Slider(cb, "Height", nil, 10, 30, 1, px, bind("castbar", "height")))
+        cb:Add(W.Toggle(cb, "Spell icon", nil, bind("castbar", "showIcon")))
+        cb:Add(W.Toggle(cb, "Time left", nil, bind("castbar", "showTime")))
+        cb:Add(W.Toggle(cb, "Hide Blizzard's cast bar", "So your casts don't show twice. Turning this off again needs a /reload.", bind("castbar", "hideBlizzard")))
     end
 
     p = newPage("mana", "Mana Bar", "A thin mana bar in the HUD column.", "Interface\\Icons\\Spell_Nature_ManaRegenTotem")

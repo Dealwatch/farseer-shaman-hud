@@ -184,7 +184,18 @@ function UnitIsDeadOrGhost() return false end
 function IsMounted() return false end
 function IsShiftKeyDown() return false end
 function InCombatLockdown() return combat end
-function UnitCastingInfo() return nil end
+-- current cast / channel: { name, tex, startMS, endMS }; values are secret in combat
+local casting, channeling
+function UnitCastingInfo()
+    if not casting then return nil end
+    return S(casting[1]), S(casting[1]), S(casting[2]), S(casting[3]), S(casting[4])
+end
+function UnitChannelInfo()
+    if not channeling then return nil end
+    return S(channeling[1]), S(channeling[1]), S(channeling[2]), S(channeling[3]), S(channeling[4])
+end
+function UnitCastingDuration() if casting then return { _duration = true } end end
+function UnitChannelDuration() if channeling then return { _duration = true } end end
 function GetShapeshiftForm() return S(0) end
 function GetInventoryItemID(_, slot) return 1000 + slot end
 GetBindingKey = function() return nil end
@@ -309,6 +320,8 @@ local function tick(dt)
     end
 end
 
+PlayerCastingBarFrame = CreateFrame("Frame", "PlayerCastingBarFrame", UIParent)
+
 -- load the addon in TOC order
 local NS = {}
 local toc = assert(io.open(ROOT .. "FarseerShamanHUD.toc")):read("*a")
@@ -350,6 +363,60 @@ run("login", function()
     assert(NS.Native.slots.flameshock.container._ids[10448], "flame shock ranks in filter")
     assert(NS.Native.slots.procs.container._ids[16257] and NS.Native.slots.procs.container._ids[425336], "proc ids in filter")
     assert(_G.FarseerHUDImbues:GetParent() == UIParent, "imbues stay outside the HUD root")
+end)
+
+run("cast bar", function()
+    local cb = _G.FarseerHUDCastBar
+    local mod = NS.modules.castbar
+    assert(not PlayerCastingBarFrame:IsShown(), "Blizzard's cast bar hidden")
+    assert(not cb:IsShown(), "no cast, no bar")
+    assert(cb:GetParent() == UIParent, "cast bar shows while the HUD is hidden")
+
+    casting = { "Healing Wave", 136052, now * 1000, now * 1000 + 2500 }
+    fire("UNIT_SPELLCAST_START", "player", "cast-1", 331)
+    assert(cb:IsShown() and mod.bar.name:GetText() == "Healing Wave", "cast shown")
+    tick(1)
+    assert(mod.bar.time:GetText() == "1.5", "time left: " .. tostring(mod.bar.time:GetText()))
+    fire("UNIT_SPELLCAST_FAILED", "player", "other", 8042)   -- Earth Shock pressed while casting
+    assert(mod.state.active and mod.bar.name:GetText() == "Healing Wave", "another spell failing is not ours")
+    casting = nil
+    fire("UNIT_SPELLCAST_STOP", "player", "cast-1", 331)
+    assert(cb:IsShown(), "stays up a moment after the cast")
+    tick(0.5)
+    assert(not cb:IsShown(), "gone after the cast")
+
+    casting = { "Ghost Wolf", 136095, now * 1000, now * 1000 + 3000 }
+    fire("UNIT_SPELLCAST_START", "player", "cast-2", 2645)
+    casting = nil
+    fire("UNIT_SPELLCAST_INTERRUPTED", "player", "cast-2", 2645)
+    fire("UNIT_SPELLCAST_FAILED", "player", "cast-2", 2645)
+    fire("UNIT_SPELLCAST_STOP", "player", "cast-2", 2645)
+    assert(cb:IsShown() and mod.bar.name:GetText() == "Interrupted", "interrupted shown")
+    tick(0.5)
+    assert(cb:IsShown(), "interrupt stays up a bit longer")
+    tick(0.7)
+    assert(not cb:IsShown(), "interrupt gone")
+
+    channeling = { "Drain", 136000, now * 1000, now * 1000 + 3000 }
+    fire("UNIT_SPELLCAST_CHANNEL_START", "player", nil, 1)
+    assert(cb:IsShown() and mod.state.channel, "channel shown")
+    channeling = nil
+    fire("UNIT_SPELLCAST_CHANNEL_STOP", "player", nil, 1)
+    tick(0.5)
+    assert(not cb:IsShown(), "channel gone")
+
+    -- in combat the cast values are secret: bar still runs, no time text, no error
+    combat = true
+    casting = { "Lightning Bolt", 136048, now * 1000, now * 1000 + 2000 }
+    fire("UNIT_SPELLCAST_START", "player", "cast-3", 403)
+    assert(cb:IsShown() and mod.state.native, "secret cast runs on the duration object")
+    tick(0.5)
+    assert(mod.bar.time:GetText() == "", "no time text from secret values")
+    casting = nil
+    fire("UNIT_SPELLCAST_STOP", "player", "cast-3", 403)
+    tick(0.5)
+    assert(not cb:IsShown(), "secret cast gone")
+    combat = false
 end)
 
 run("settings window, every page", function()
@@ -740,6 +807,7 @@ run("every setting changes something on screen", function()
         ["reminders: Snooze on right-click"] = true,               -- right-click on an alert
         ["appearance: Play sounds"] = true,                        -- next sound
         ["appearance: Out of combat"] = true,                      -- no enemy targeted
+        ["swing: Hide Blizzard's cast bar"] = true,                -- turning it back on needs a /reload
     }
     print("  " .. #controls .. " settings checked")
     for label in pairs(idle) do

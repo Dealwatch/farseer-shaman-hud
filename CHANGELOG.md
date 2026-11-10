@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0
+- New: cast bar in the HUD style with spell icon, name and time left. Casts and channels; a cut-off cast
+  turns red ("Interrupted") for a moment. The fill comes from the client's duration object, so it also runs
+  when cast times are secret in combat. Shows out of combat too (heals, Ghost Wolf).
+- Blizzard's own player cast bar is switched off while ours is on (setting "Hide Blizzard's cast bar").
+- The Swing Timer page is now "Swing & Cast Bar".
+
 ## 0.5.5
 Layout review: the HUD and every settings page were rebuilt offline with real anchor maths and text
 measuring, at text sizes 0.7x to 1.5x.
