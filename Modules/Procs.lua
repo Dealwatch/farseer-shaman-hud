@@ -43,7 +43,7 @@ function Procs:Init()
         preview[i] = f
     end
 
-    NS.Movers:Register(frame, "procs", "Procs", { "CENTER", "CENTER", 0, -88 })
+    NS.Movers:Register(frame, "procs", "Procs", { "CENTER", "CENTER", 0, -76 })
 
     self.native = NS.Native:Slot({
         key = "procs", parent = frame, unit = "player", filter = "HELPFUL", level = 3,

@@ -6,7 +6,7 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, mana, M
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.5.4, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
+> Status: **0.5.5, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
 > Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client, not yet confirmed in game.
 
 ## Install
@@ -61,7 +61,7 @@ One 240px column under your character and one row of 30px icons below it:
    Totems          Cooldowns      Imbues + Shield
 ```
 
-Alerts stack at the top of the screen. All positions are saved per account.
+Alerts stack at the top of the screen (the four most important at a time). All positions are saved per account.
 
 ## Modules
 
@@ -71,12 +71,12 @@ Alerts stack at the top of the screen. All positions are saved per account.
 | **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
 | **Totem Bar** | Earth, Fire, Water, Air with time left (only elements you have a totem for). Left-click recasts the last totem of that element, right-click destroys it. Totems from Call of the Elements/Ancestors/Spirits show up too. Alerts when a totem dies, and a Totemic Recall reminder after combat. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert, recall reminder |
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
-| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size (after /reload) |
+| **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
 | **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
-**Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, text size, bar texture, sounds,
+**Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, HUD text size, bar texture, sounds,
 out of combat opacity (0% = hidden), show the HUD when an enemy is targeted, HUD scale, edit mode grid,
 reset positions.
 
@@ -131,10 +131,10 @@ need IDs, so the addon also carries the known IDs, including the Forever-only on
 | Call of the Elements / Ancestors / Spirits | 66842 / 66843 / 66844 |
 | Improved Stormstrike (buff) | 1238931 |
 | Lightning Mastery | 16166 |
+| Stormstrike | 17364 |
 
 All of these except the Maelstrom buff are confirmed on the [Warcraft Wiki](https://warcraft.wiki.gg/wiki/Shaman_abilities_(Forever));
 the buff ID 408505 comes from two independent addon sources, and the addon learns the real one in game anyway.
-| Stormstrike | 17364 |
 
 ### What Forever changes (and what the addon does with it)
 

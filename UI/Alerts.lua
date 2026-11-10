@@ -11,7 +11,8 @@ local UI = NS.UI
 local Alerts = { active = {}, cards = {}, snoozed = {} }
 NS.Alerts = Alerts
 
-local CARD_W, CARD_H, GAP = 300, 44, 6
+local CARD_W, CARD_H, GAP = 340, 44, 6
+local MAX_CARDS = 4     -- a longer stack would reach the HUD below; the most important alerts win
 
 local anchor = CreateFrame("Frame", "FarseerHUDAlerts", UIParent)
 anchor:SetSize(CARD_W, CARD_H)
@@ -29,10 +30,10 @@ local function makeCard(i)
     c.strip:SetWidth(3)
     c.iconFrame = UI:Icon(c, CARD_H - 12)
     c.iconFrame:SetPoint("LEFT", 10, 0)
-    c.title = UI:Text(c, 13)
+    c.title = UI:Label(c, 13)
     c.title:SetPoint("TOPLEFT", c.iconFrame, "TOPRIGHT", 10, -1)
     c.title:SetPoint("RIGHT", -8, 0)
-    c.sub = UI:Text(c, 11, UI.palette.textDim)
+    c.sub = UI:Label(c, 11, UI.palette.textDim)
     c.sub:SetPoint("BOTTOMLEFT", c.iconFrame, "BOTTOMRIGHT", 10, 1)
     c.sub:SetPoint("RIGHT", -8, 0)
     c:RegisterForClicks("RightButtonUp")
@@ -57,8 +58,10 @@ function Alerts:Layout()
         if (a.priority or 0) ~= (b.priority or 0) then return (a.priority or 0) > (b.priority or 0) end
         return a.key < b.key
     end)
+    local scale = NS.db and NS.db.appearance.fontScale or 1   -- text size: the whole card grows
+    local max = math.floor(MAX_CARDS / math.max(1, scale) + 0.5)
     for i = 1, math.max(#list, #self.cards) do
-        local info = list[i]
+        local info = i <= max and list[i] or nil
         local c = self.cards[i] or (info and makeCard(i))
         if c then
             if info then
@@ -68,6 +71,7 @@ function Alerts:Layout()
                 c.iconFrame.icon:SetTexture(info.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
                 c.title:SetText(info.title or "")
                 c.sub:SetText(info.text or "")
+                c:SetScale(scale)
                 c:ClearAllPoints()
                 c:SetPoint("TOP", anchor, "TOP", 0, -(i - 1) * (CARD_H + GAP))
                 c:Show()
@@ -115,6 +119,8 @@ end
 NS:On("PLAYER_LOGIN", function()
     NS.Movers:Register(anchor, "alerts", "Alerts", { "TOP", "TOP", 0, -180 }, true)
 end)
+
+NS:On("SF_APPEARANCE", function() Alerts:Layout() end)
 
 -- keep the anchor visible in edit mode so it can be placed
 NS:On("SF_APPLIED", function()

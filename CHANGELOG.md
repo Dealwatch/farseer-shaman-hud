@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.5.5
+Layout review: the HUD and every settings page were rebuilt offline with real anchor maths and text
+measuring, at text sizes 0.7x to 1.5x.
+- Fix: the big "Shock now!" card sat on the proc row, and "Instant Bolt!" touched the proc icons.
+  New default positions: procs and the card sit higher. Frames you already moved stay where they are.
+- Fix: with five cooldown icons the cooldown row touched the totem bar and the imbue buttons.
+  Totems, imbues and the shield icon start a little further out.
+- Fix: long alert texts were cut off ("Flametongue Weapon on main hand runs out", totem and recall
+  texts). Cards are wider and the texts shorter.
+- Fix: a long stack of alerts reached down into the HUD. At most four alerts show at once, the most
+  important first; the rest follow as you clear them.
+- Fix: "Text size" above 1.0 broke the settings window, edit mode and the alert cards (text over text,
+  text outside its box). The setting is now "HUD text size": it scales the HUD texts and the alert
+  cards as a whole; the settings window and edit mode keep their own size.
+- Fix: "Edit layout" left the settings window open on top of the frames you want to drag, with the
+  edit-mode bar over its title. The window now closes when edit mode starts.
+- Fix: settings texts that were cut off: the Reminders description on the overview, imbue names with
+  "(not learned)" in the dropdown, and the "10m 00s" snooze value ran into its slider.
+- README: procs icon size no longer needs a /reload; Stormstrike row back inside the spell table.
+
 ## 0.5.4
 - Fix: settings sliders (icon sizes, widths, heights, timers, text size, scale, ...) still did not save or
   apply. Root cause: every slider got its format function where the save function belonged, so 0.5.3

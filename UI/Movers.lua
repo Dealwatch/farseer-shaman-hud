@@ -51,7 +51,7 @@ local function makeOverlay(entry)
     o:SetAllPoints()
     o:SetFrameLevel(entry.frame:GetFrameLevel() + 30)
     UI:Skin(o, { 0, 0, 0, 0.35 }, { 1, 1, 1, 1 }, "sm")
-    o.label = UI:Text(o, 11, UI.palette.text, "OUTLINE")
+    o.label = UI:Label(o, 11, UI.palette.text, "OUTLINE")
     o.label:SetPoint("CENTER")
     o.label:SetText(entry.label)
     o:RegisterForClicks("AnyUp")
@@ -170,7 +170,7 @@ local function headerButton(parent, text, primary, onClick)
     else
         UI:Skin(b, UI.palette.surface3, UI.palette.border, "lg")
     end
-    b.text = UI:Text(b, 12, primary and { 0.02, 0.05, 0.08, 1 } or UI.palette.text)
+    b.text = UI:Label(b, 12, primary and { 0.02, 0.05, 0.08, 1 } or UI.palette.text)
     b.text:SetPoint("CENTER")
     b.text:SetText(text)
     b:SetScript("OnClick", onClick)
@@ -185,10 +185,10 @@ local function buildHeader()
     UI:Skin(header, UI.palette.surface, UI.palette.border, "lg")
     UI:Shadow(header)
 
-    local title = UI:Text(header, 14)
+    local title = UI:Label(header, 14)
     title:SetPoint("TOPLEFT", 16, -10)
     title:SetText("Edit Mode")
-    local sub = UI:Text(header, 11, UI.palette.textDim)
+    local sub = UI:Label(header, 11, UI.palette.textDim)
     sub:SetPoint("TOPLEFT", title, "BOTTOMLEFT", 0, -3)
     sub:SetText("Drag to move. Arrow keys nudge, right-click resets a frame.")
 
@@ -245,6 +245,8 @@ function Movers:Toggle(on)
     if not grid then buildGrid(); buildHeader() end
     self.active = on
     NS.editing = on
+    -- the settings window would cover the HUD frames you are about to drag
+    if on and NS.Options and NS.Options:IsShown() then NS.Options:Toggle() end
     if on then self.showGrid = true end
     for _, e in ipairs(self.list) do
         if not e.overlay then makeOverlay(e) end

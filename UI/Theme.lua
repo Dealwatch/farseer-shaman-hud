@@ -70,25 +70,31 @@ end
 
 local fontStrings = setmetatable({}, { __mode = "k" })   -- fs -> { size, flags }
 
-function UI:Font(fs, size, flags)
-    fontStrings[fs] = { size = size, flags = flags or "" }
+function UI:Font(fs, size, flags, fixed)
+    fontStrings[fs] = { size = size, flags = flags or "", fixed = fixed }
     local a = NS.db and NS.db.appearance
     local path = a and a.font or "Fonts\\FRIZQT__.TTF"
-    local scale = a and a.fontScale or 1
+    local scale = not fixed and a and a.fontScale or 1
     if not fs:SetFont(path, size * scale, flags or "") then
         fs:SetFont("Fonts\\FRIZQT__.TTF", size * scale, flags or "")
     end
     return fs
 end
 
-function UI:Text(parent, size, color, flags, layer)
+function UI:Text(parent, size, color, flags, layer, fixed)
     local fs = parent:CreateFontString(nil, layer or "OVERLAY")
-    self:Font(fs, size or 12, flags)
+    self:Font(fs, size or 12, flags, fixed)
     local c = color or self.palette.text
     fs:SetTextColor(c[1], c[2], c[3], c[4] or 1)
     fs:SetJustifyH("LEFT")
     fs:SetWordWrap(false)
     return fs
+end
+
+-- Text that ignores the text size setting: the settings window, edit mode and
+-- alert cards have fixed layouts (alert cards scale as a whole instead).
+function UI:Label(parent, size, color, flags, layer)
+    return self:Text(parent, size, color, flags, layer, true)
 end
 
 ---------------------------------------------------------------------------
@@ -400,7 +406,7 @@ function UI:ApplyAppearance()
     for _, f in ipairs(self.hud) do
         NS.AfterCombat("scale" .. tostring(f), function() f:SetScale(scale) end)
     end
-    for fs, info in pairs(fontStrings) do self:Font(fs, info.size, info.flags) end
+    for fs, info in pairs(fontStrings) do self:Font(fs, info.size, info.flags, info.fixed) end
     local tex = self:BarTexture()
     for bar in pairs(bars) do bar:SetStatusBarTexture(tex) end
     NS:Send("SF_APPEARANCE")
