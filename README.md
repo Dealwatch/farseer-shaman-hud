@@ -6,7 +6,7 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, cast ba
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.6.0, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
+> Status: **0.7.0, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
 > Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client, not yet confirmed in game.
 
 ## Install
@@ -36,6 +36,7 @@ in WowUp by themselves (every tagged release).
 | Command | |
 |---|---|
 | `/farseer` (or `/sham`) | Settings window |
+| `/sham rotation` | What to press, in order (the list behind the gold glow) |
 | `/sham edit` | Edit mode: drag frames (snaps to the grid, Shift = free), arrow keys nudge (Shift = 10px), right-click resets a frame |
 | `/sham test` | Preview the alerts for 8 seconds |
 | `/sham probe` | What Forever lets the addon read right now. Run it once out of combat and once **in combat** |
@@ -59,6 +60,7 @@ One 240px column under your character and one row of 30px icons below it:
 
 [E][F][W][A]   [SS][ES][FN][RF]   [MH][OH][LS]
    Totems          Cooldowns      Imbues + Shield
+               ========                Gold line: Stormstrike's bonus is unspent
 [i][Lightning Bolt          1.2]            Cast bar (only while casting)
 ```
 
@@ -71,11 +73,11 @@ Alerts stack at the top of the screen (the four most important at a time). All p
 | **Swing Timer** | Main hand bar with time to the next swing, thin off hand line. Casts are projected onto the bar and turn red when they delay your swing. Grey when the target is out of melee range. | width, height, off hand, cast projection, range tint, text, hide when not fighting |
 | **Cast Bar** | Your casts and channels with icon, spell name and time left; red "Interrupted" when a cast is cut off. Runs in combat too, also when the client hides the cast times from addons (then without the time text). Shows out of combat as well (heals, Ghost Wolf). | width, height, icon, time left, hide Blizzard's cast bar |
 | **Mana Bar** | Thin mana bar, red when low, hidden at full mana out of combat. | width, height, red below %, percentage text, hide at full |
-| **Totem Bar** | Earth, Fire, Water, Air with time left (only elements you have a totem for). Left-click recasts the last totem of that element, right-click destroys it. Totems from Call of the Elements/Ancestors/Spirits show up too. Alerts when a totem dies, and a Totemic Recall reminder after combat. | icon size, spacing, time left, empty slots, hide when no totem, expiry alert, recall reminder |
+| **Totem Bar** | Earth, Fire, Water, Air with time left (only elements you have a totem for). Left-click recasts the last totem of that element, right-click destroys it. Totems from Call of the Elements/Ancestors/Spirits show up too. A slot pulses in its totem's last seconds (in combat too). Alerts when a totem dies, and a Totemic Recall reminder after combat. | icon size, spacing, time left, empty slots, hide when no totem, pulse before it runs out, expiry alert, recall reminder |
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
-| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). Right after Stormstrike the Earth Shock icon glows gold. Flame Shock bar with the real time left on your target. | shock prompt, optional big "Shock now!" card, prompt duration, Flame Shock bar and width, cooldown row and icon size |
+| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below); the shock icon shows the shock to use, and a gold line under the row means Stormstrike's 20% bonus is still unspent. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar and width, cooldown row and icon size, ready flash |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
 **Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, HUD text size, bar texture, sounds,
@@ -88,6 +90,24 @@ for an element you have no totem for, and the imbue buttons use the best imbue y
 
 **Out of combat** the HUD is hidden. What stays: alerts (missing imbue or shield, a totem that died,
 Ankhs) and the imbue buttons that need a click.
+
+## Rotation
+
+In combat with an enemy targeted exactly one thing glows gold: the next press. The order is the one the
+Forever guides agree on ([Method](https://www.method.gg/wow-forever/class-guides/enhancement-shaman/rotation-and-playstyle),
+[Warcraft Tavern](https://www.warcrafttavern.com/forever/guides/enhancement-shaman/),
+[wowforever.be](https://wowforever.be/guides/enhancement-shaman/)); `/sham rotation` shows it in game.
+
+1. **Fire Nova**, only while your Magma Totem is down (that means a group): first, every time it is ready.
+2. **Flame Shock** when it is missing on your target or has under 3 s left (its bar turns red).
+3. **Stormstrike** on cooldown.
+4. **Lightning Bolt** at five Maelstrom Weapon: the Maelstrom bar glows.
+5. **Earth Shock** as filler.
+
+What is not ready, not learned or not affordable is skipped. Switch it off under Stormstrike & Shocks >
+*Glow on the next spell*. Limits: in combat the client can hide cooldowns from addons, then "ready" goes by
+your own casts, so a Stormstrike reset by a dodge or parry can glow late; a missed or resisted Flame Shock
+still counts as applied until the client shows otherwise.
 
 ## Blizzard's own displays
 

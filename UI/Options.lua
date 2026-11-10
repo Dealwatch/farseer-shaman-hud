@@ -221,6 +221,36 @@ local function modulesBlock(parent)
     return m
 end
 
+-- One line of the Rotation page: number, spell icon and name, what to do with it.
+local function step(parent, n, key, text)
+    local f = CreateFrame("Frame", nil, parent)
+    f:SetHeight(44)
+    f.num = UI:Label(f, 15, P.textDim)
+    f.num:SetPoint("LEFT", 16, 0)
+    f.num:SetText(n or "")
+    f.iconFrame = UI:Icon(f, 28)
+    f.iconFrame:SetPoint("LEFT", 40, 0)
+    f.label = UI:Label(f, 13)
+    f.label:SetPoint("TOPLEFT", f.iconFrame, "TOPRIGHT", 12, 0)
+    f.desc = UI:Label(f, 11, P.textDim)
+    f.desc:SetPoint("BOTTOMLEFT", f.iconFrame, "BOTTOMRIGHT", 12, 1)
+    f.desc:SetText(text)
+    f.sep = f:CreateTexture(nil, "ARTWORK")
+    f.sep:SetTexture(UI.WHITE)
+    f.sep:SetVertexColor(1, 1, 1, 0.06)
+    f.sep:SetPoint("TOPLEFT", 16, 0)
+    f.sep:SetPoint("TOPRIGHT", -16, 0)
+    f.sep:SetHeight(1)
+    function f:Refresh()
+        local def = Spells:Get(key)
+        self.iconFrame.icon:SetTexture(def.icon or "Interface\\Icons\\INV_Misc_QuestionMark")
+        self.label:SetText((def.name or def.en) .. (def.known and "" or "  (not learned yet)"))
+        self:SetAlpha(def.known and 1 or 0.5)
+    end
+    f:Refresh()
+    return f
+end
+
 ---------------------------------------------------------------------------
 -- Pages
 ---------------------------------------------------------------------------
@@ -233,6 +263,21 @@ local function buildPages()
         self:Add(heroBlock(parent))
         self:Add(tilesBlock(parent))
         self:Add(modulesBlock(parent))
+    end
+
+    -- the same order Modules/Shocks.lua lights the icons in
+    p = newPage("rotation", "Rotation", "The icon that glows gold is your next press. This is the order behind it.", "Interface\\Icons\\INV_Misc_Book_09")
+    p.build = function(self, parent)
+        local c = self:Add(W.Card(parent, "What to press, top to bottom", "Interface\\Icons\\Ability_Shaman_Stormstrike"))
+        c:Add(step(c, "1", "fireNova", "Only while your Magma Totem is down (a group): first, every time it is ready."))
+        c:Add(step(c, "2", "flameShock", "Keep it on your target. Refresh it when its bar turns red."))
+        c:Add(step(c, "3", "stormstrike", "On cooldown. The gold line: your next Earth Shock or Bolt hits 20% harder."))
+        c:Add(step(c, "4", "lightningBolt", "At five Maelstrom Weapon it is instant: the bar turns gold."))
+        c:Add(step(c, "5", "earthShock", "Filler: whenever your shock is ready and Flame Shock still runs."))
+        local a = self:Add(W.Card(parent, "Around the fight", "Interface\\Icons\\Spell_Nature_LightningShield"))
+        a:Add(step(a, nil, "lightningShield", "Shield and weapon imbue: the HUD warns you when one is missing."))
+        a:Add(step(a, nil, "rageFarseer", "Burst: 30% attack speed for 25 s. Press it when you can stay on the target."))
+        a:Add(step(a, nil, "totemicRecall", "After the fight: takes your totems back and refunds 25% of their mana."))
     end
 
     p = newPage("swing", "Swing & Cast Bar", "Your swings from Forever's native swing events, and your casts.", "Interface\\Icons\\INV_Axe_09")
@@ -278,6 +323,7 @@ local function buildPages()
         c:Add(W.Toggle(c, "Show time left", nil, bind("totems", "showTimers")))
         c:Add(W.Toggle(c, "Show empty slots", "Dimmed element icons for slots without a totem.", bind("totems", "showEmpty")))
         c:Add(W.Toggle(c, "Hide out of combat when no totem is down", nil, bind("totems", "hideIdle")))
+        c:Add(W.Toggle(c, "Pulse before a totem runs out", "The slot pulses in the last seconds, in combat too.", bind("totems", "expireWarn")))
         c:Add(W.Toggle(c, "Alert when a totem dies or expires", "Only when the client tells us (out of combat or not secret).", bind("totems", "expireAlert")))
         c:Add(W.Toggle(c, "Totemic Recall reminder after combat", "For 10 s while totems are still down: recalling refunds 25% of their mana.", bind("totems", "recallReminder")))
     end
@@ -326,12 +372,11 @@ local function buildPages()
         c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness - whichever you have.", "Reload UI", function() ReloadUI() end))
     end
 
-    p = newPage("shocks", "Stormstrike & Shocks", "Shock-now prompt, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")
+    p = newPage("shocks", "Stormstrike & Shocks", "Next-spell glow, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Stormstrike & shocks", self.icon, bindModule("shocks")))
-        c:Add(W.Toggle(c, "Shock prompt after Stormstrike", "Stormstrike boosts your next Earth Shock, Lightning Bolt or Chain Lightning by 20%: the Earth Shock icon glows.", bind("shocks", "prompt")))
-        c:Add(W.Toggle(c, "Also show a big \"Shock now!\" card", "Used anyway when the cooldown row is off.", bind("shocks", "promptCard")))
-        c:Add(W.Slider(c, "Prompt stays for", nil, 2, 12, 1, function(v) return v .. "s" end, bind("shocks", "promptWindow")))
+        c:Add(W.Toggle(c, "Glow on the next spell", "One icon glows gold: your next press. The order is on the Rotation page.", bind("shocks", "prompt")))
+        c:Add(W.Toggle(c, "Also show a big \"Shock now!\" card", "While Stormstrike's bonus waits for an Earth Shock. Used anyway when the cooldown row is off.", bind("shocks", "promptCard")))
         c:Add(W.Toggle(c, "Flame Shock timer", "Starts from your cast; corrected from the real debuff when readable.", bind("shocks", "flameShock")))
         c:Add(W.Slider(c, "Flame Shock duration", "Used until the addon has read the real duration once.", 6, 30, 1, function(v) return v .. "s" end, bind("shocks", "flameShockDuration")))
         c:Add(W.Slider(c, "Flame Shock bar width", nil, 120, 360, 10, px, bind("shocks", "barWidth")))
@@ -390,8 +435,8 @@ end
 
 local function navButton(page, i)
     local b = CreateFrame("Button", nil, win.nav)
-    b:SetSize(NAV_W - 24, 40)
-    b:SetPoint("TOPLEFT", 12, -96 - (i - 1) * 44)
+    b:SetSize(NAV_W - 24, 36)
+    b:SetPoint("TOPLEFT", 12, -96 - (i - 1) * 40)   -- eleven pages above the status box
     b.bg = UI:ShapeTexture(b, "lg")
     b.bg:SetAllPoints()
     b.bar = b:CreateTexture(nil, "ARTWORK")

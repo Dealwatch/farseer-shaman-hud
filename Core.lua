@@ -185,6 +185,7 @@ NS.defaults = {
         showEmpty = true,       -- show empty element slots (dimmed)
         hideIdle = false,       -- hide the whole bar out of combat when no totem is down
         expireAlert = true,
+        expireWarn = true,      -- the slot pulses shortly before its totem runs out
         recallReminder = true,  -- after combat: "Totemic Recall" (refunds 25% of the totems' mana)
     },
     imbues = {
@@ -205,9 +206,8 @@ NS.defaults = {
         hideEmpty = true,       -- hide out of combat at 0 stacks
     },
     shocks = {
-        prompt = true,          -- after Stormstrike: Earth Shock icon glows
-        promptCard = false,     -- also a big "Shock now!" card
-        promptWindow = 6,       -- seconds the prompt stays up
+        prompt = true,          -- next-spell glow: one icon glows gold, the next press
+        promptCard = false,     -- also a big "Shock now!" card while Stormstrike's bonus is up
         flameShock = true,      -- Flame Shock timer bar
         flameShockDuration = 12,
         cooldowns = true,       -- cooldown icon row
@@ -228,6 +228,8 @@ NS.defaults = {
     learned = {
         maelstromBuffID = nil,  -- learned from a readable aura
         durations = {},         -- spell name -> seconds, learned from readable auras
+        cooldowns = {},         -- cooldown icon key -> seconds, learned from readable cooldowns
+        totemDur = {},          -- totem spell name -> seconds it lasts
     },
 }
 
@@ -353,9 +355,11 @@ commands["reset"] = function(arg)
     NS:ApplyAll()
     NS.Print("settings reset.")
 end
+commands["rotation"] = function() if NS.Options then NS.Options:Show("rotation") end end
 commands["help"] = function()
     NS.Print("commands:")
     print("  /farseer or /sham - settings window")
+    print("  /sham rotation - what to press, in order")
     print("  /sham edit - move frames")
     print("  /sham test - preview alerts")
     print("  /sham probe - what Forever lets the addon read (use it in combat too)")

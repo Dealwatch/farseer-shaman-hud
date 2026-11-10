@@ -194,7 +194,10 @@ function MW:Draw()
         if state.full then p.fill:SetVertexColor(1, 0.82, 0.25, 1) else p.fill:SetVertexColor(r, g, b, 1) end
     end
     self.hint:SetShown(state.full)
-    if state.full and db.glow then UI:Glow(frame, 1, 0.82, 0.25) else UI:Glow(frame) end
+    -- with the next-spell glow running, the bar only pulses when the Bolt is the next press
+    local rot = NS.modules.shocks
+    local lead = not rot.Advising() or rot.Advice() == "lightningBolt"
+    if state.full and db.glow and lead then UI:Glow(frame, 1, 0.82, 0.25) else UI:Glow(frame) end
 end
 
 function MW:Apply()

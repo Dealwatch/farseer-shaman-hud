@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.7.0
+The rotation, shown with one glow. Order as the Forever guides give it (Method, Warcraft Tavern, wowforever.be).
+- New: next-spell glow. In combat exactly one thing glows gold, your next press: Fire Nova while your
+  Magma Totem is down (a group), Flame Shock when it is missing or about to run out, Stormstrike,
+  Lightning Bolt at five Maelstrom Weapon (the Maelstrom bar glows), Earth Shock as filler.
+  Replaces the "Shock prompt after Stormstrike"; same switch, now "Glow on the next spell".
+- The shock icon shows the shock to use: Flame Shock when it is due, Earth Shock otherwise.
+- New: a thin gold line under the cooldown row while Stormstrike's 20% bonus is unspent (12 s).
+- Magma Totem down switches to the group order (Fire Nova first); Searing Totem or none: single target.
+- New: a totem slot pulses in its last seconds, in combat too, and dims when the time is up
+  (Totems > "Pulse before a totem runs out"). Durations are learned from the client, with Forever's
+  values as a start (Magma 20 s, Stoneclaw 15 s, Earthbind and Grounding 45 s, buff totems 5 min).
+- New: Rotation page in the settings (`/sham rotation`): the order behind the glow, with what you
+  have not learned yet greyed out.
+- Flame Shock timer is per target now: a new target starts without one instead of showing the old timer.
+- The big "Shock now!" card shows while Stormstrike's bonus waits for an Earth Shock; the setting
+  "Prompt stays for" is gone (the bonus lasts 12 s).
+- In combat cooldowns can be hidden from addons: "ready" then goes by your own casts (Stormstrike 6 s,
+  shocks 6 s, Fire Nova 10 s, corrected whenever the client shows the real numbers). A Stormstrike
+  reset by a dodge or parry can therefore glow late.
+
 ## 0.6.0
 - New: cast bar in the HUD style with spell icon, name and time left. Casts and channels; a cut-off cast
   turns red ("Interrupted") for a moment. The fill comes from the client's duration object, so it also runs
