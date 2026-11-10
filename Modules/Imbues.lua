@@ -145,7 +145,7 @@ function Imbues:Init()
     self.frame = frame
     for _, hand in ipairs(HANDS) do makeButton(hand) end
     -- outside the HUD root: a missing imbue must stay clickable out of combat
-    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 114, -210 }, true)
+    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 126, -210 }, true)
 
     local function update() self:Update() end
     NS:On("WEAPON_ENCHANT_CHANGED", update)
@@ -182,8 +182,8 @@ function Imbues:Update()
         local alertKey = "imbue" .. hand.key
         if bad and (db.inCombat or not inCombat) then
             NS.Alerts:Set(alertKey, {
-                title = has and string.format("%s on %s runs out", def.name, hand.label:lower()) or string.format("No %s on %s", def.name, hand.label:lower()),
-                text = has and ("Only " .. fmt(left) .. " left - click the imbue button") or "Click the imbue button to apply it",
+                title = has and (def.name .. " runs out") or string.format("No %s on %s", def.name, hand.label:lower()),
+                text = has and (hand.label .. ": " .. fmt(left) .. " left - click the imbue button") or "Click the imbue button to apply it",
                 icon = def.icon, priority = 6, sound = "RAID_WARNING",
             })
         else

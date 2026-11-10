@@ -196,7 +196,7 @@ NS.defaults = {
         size = 30,
     },
     procs = {
-        size = 30,              -- icon size (applies after /reload: the client lays the row out)
+        size = 30,              -- icon size
     },
     maelstrom = {
         width = 240, height = 10,

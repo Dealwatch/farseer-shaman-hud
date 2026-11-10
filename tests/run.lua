@@ -817,6 +817,35 @@ run("every setting changes something on screen", function()
     end
 end)
 
+run("layout: text size, alert stack, edit mode", function()
+    -- HUD text follows the text size, fixed layouts (settings, edit mode, alert cards) do not
+    NS.db.appearance.fontScale = 1.5
+    NS.UI:ApplyAppearance()
+    NS.Alerts:Test()
+    assert(NS.modules.maelstrom.hint._calls.SetFont[2] == 11 * 1.5, "HUD text scales")
+    assert(NS.Alerts.cards[1].title._calls.SetFont[2] == 13, "alert text keeps its size")
+    assert(NS.Alerts.cards[1]._calls.SetScale[1] == 1.5, "the alert card scales as a whole")
+    NS.db.appearance.fontScale = 1
+    NS.UI:ApplyAppearance()
+    -- never more than four alert cards at once
+    for i = 1, 6 do NS.Alerts:Set("many" .. i, { title = "t", priority = i }) end
+    local shown = 0
+    for _, c in ipairs(NS.Alerts.cards) do if c:IsShown() then shown = shown + 1 end end
+    assert(shown == 4 and NS.Alerts.cards[1].key == "test1", "four cards, highest priority first")
+    for i = 1, 6 do NS.Alerts:Clear("many" .. i) end
+    -- edit mode closes the settings window (it would cover the HUD)
+    NS.Options:Show("overview")
+    NS.Movers:Toggle(true)
+    assert(not NS.Options:IsShown(), "settings window closed by edit mode")
+    NS.Movers:Toggle(false)
+    -- default icon row: totems | up to five cooldowns | imbues | shield do not touch
+    local d = function(key) return NS.Movers.byKey[key].default[3] end
+    local cds = (5 * 30 + 4 * 4) / 2
+    assert(d("totems") + (4 * 30 + 3 * 4) / 2 < -cds, "totems clear of the cooldown row")
+    assert(d("imbues") - (2 * 30 + 4) / 2 - 3 > cds, "imbues (with glow) clear of the cooldown row")
+    assert(d("shield") - 15 > d("imbues") + 32 + 3, "shield clear of the imbue glow")
+end)
+
 run("reset", function()
     SlashCmdList.FARSEERHUD("reset confirm")
 end)

@@ -86,7 +86,7 @@ function Totems:Init()
     frame:Hide()
     self.frame = frame
     for _, el in ipairs(Spells.ELEMENTS) do makeButton(el) end
-    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -148, -210 })
+    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -160, -210 })
 
     NS:On("PLAYER_TOTEM_UPDATE", function(_, slot) self:UpdateSlot(slot) end)
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
@@ -156,7 +156,7 @@ function Totems:UpdateSlot(slot)
         elseif wasActive and not st.destroyed and NS.db.totems.expireAlert and NS:IsEnabled("totems") then
             NS.Alerts:Set("totem" .. slot, {
                 title = (st.name or b.el.label .. " totem") .. " is gone",
-                text = b.el.label .. " slot is empty - click the totem bar to recast",
+                text = b.el.label .. " slot is empty - click its icon to recast",
                 icon = st.icon or b.el.icon, color = b.el.color, priority = 3, sound = "ALARM_CLOCK_WARNING_3",
             })
             C_Timer.After(6, function() NS.Alerts:Clear("totem" .. slot) end)
