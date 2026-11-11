@@ -6,8 +6,10 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, cast ba
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.7.0, tested in game up to level 15.** Features from later levels (Stormstrike, Maelstrom Weapon,
-> Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client, not yet confirmed in game.
+> Status: **0.7.0.** Last tested in game with 0.5.2 at level 15. Everything since (the layout review, the cast
+> bar, the next-spell glow and the new default layout) and the features from later levels (Stormstrike, Maelstrom
+> Weapon, Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client,
+> not yet confirmed in game. What to check is under [Testing in game](#testing-in-game).
 
 ## Install
 
@@ -28,8 +30,9 @@ in WowUp by themselves (every tagged release).
 1. `/sham` opens the settings window. The overview shows your imbues, shield and Maelstrom detection,
    plus one switch per module.
 2. `/sham edit` (or **Edit layout**) shows every frame with a label: drag them where you want them, click **Done**.
-3. Fight something. The HUD shows in combat and while an enemy is targeted. Out of combat it is hidden;
-   only alerts and imbue buttons that need you (missing or running out) stay on screen.
+3. Fight something. The HUD shows in combat and while an enemy is targeted; the icon with the gold ring is
+   your next press (`/sham rotation` explains the order). Out of combat it is hidden; only alerts, the cast
+   bar while you cast, and imbue buttons that need you (missing or running out) stay on screen.
 
 ## Commands
 
@@ -42,6 +45,7 @@ in WowUp by themselves (every tagged release).
 | `/sham probe` | What Forever lets the addon read right now. Run it once out of combat and once **in combat** |
 | `/sham spells` | Copyable list of your spellbook with spell IDs |
 | `/sham reset confirm` | Reset all settings and positions |
+| `/sham help` | List of these commands in chat |
 
 The addon also has an entry in the minimap's addon compartment.
 
@@ -82,7 +86,7 @@ Alerts stack at the top of the screen (the four most important at a time). All p
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
-| **Stormstrike & Shocks** | Cooldown icons (Stormstrike, Earth Shock, Fire Nova, Rage of the Farseer and other cooldowns you know, the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below). The shock icon shows the shock to use, the Bolt icon lights up at five Maelstrom stacks, and a gold underline marks what Stormstrike's 20% bonus would boost right now. Dimmed icons cannot be pressed, a red Stormstrike is out of range. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar and width, cooldown row and icon size, ready flash |
+| **Stormstrike & Shocks** | One row of icons for what you press: Stormstrike, your shock, the Bolt (with Maelstrom Weapon), Fire Nova, Rage of the Farseer, Lightning Mastery, each with its cooldown (the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below). The shock icon shows the shock to use, the Bolt icon lights up at five Maelstrom stacks, and a gold underline marks what Stormstrike's 20% bonus would boost right now. Dimmed icons cannot be pressed, a red Stormstrike is out of range. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar, its fallback duration and width, cooldown row and icon size, ready flash |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
 **Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, HUD text size, bar texture, sounds,
@@ -94,7 +98,7 @@ for an element you have no totem for, and the imbue buttons use the best imbue y
 (e.g. Windfury) is learned.
 
 **Out of combat** the HUD is hidden. What stays: alerts (missing imbue or shield, a totem that died,
-Ankhs) and the imbue buttons that need a click.
+Ankhs), the imbue buttons that need a click, and the cast bar while you cast.
 
 ## Rotation
 
@@ -174,14 +178,14 @@ it shows what is in your spellbook, so this table is only what to expect while l
 | 1 | Lightning Bolt, Rockbiter Weapon | imbue button (best imbue you know) |
 | 4 / 6 / 8 | Earth Shock, Stoneskin / Earthbind / Lightning Shield, Stoneclaw | cooldown row, totem bar, shield icon |
 | 10 | Flame Shock, Flametongue Weapon, Searing Totem, Strength of Earth | Flame Shock bar, fire totem slot |
-| 12 | **Fire Nova** (a spell now: erupts at your fire totem; Fire Nova Totem is gone), Purge | cooldown row |
+| 12 | **Fire Nova** (a spell now: erupts at your fire totem; Fire Nova Totem is gone), Purge | Fire Nova icon, dimmed while no fire totem stands |
 | 20 | **Call of the Elements** (drops a set of 4 totems, unlocks Blizzard's totem bar), **Totemic Recall** (returns all totems, refunds mana), Ghost Wolf, Frost Shock, Frostbrand | totems from a Call show up; no alerts after a Recall; Ghost Wolf warning |
 | 22 | **Totemic Call** (teleports your totems to you, 30 s cooldown) | |
-| 25 | **Stormstrike** (talent, row 4; was 40), Flurry | Earth Shock glow after Stormstrike, Flurry in the proc row |
-| 26 / 28 | Magma, Mana Spring / Flametongue Totem | |
+| 25 | **Stormstrike** (talent, row 4; was 40), Flurry | Stormstrike icon and its place in the glow order, gold underline for its bonus, Flurry in the proc row |
+| 26 / 28 | Magma, Mana Spring / Flametongue Totem | Magma Totem down switches the glow to the group order (Fire Nova first) |
 | 30 | Windfury Weapon, Reincarnation (needs an Ankh), Call of the Ancestors (second totem set) | imbue switches to Windfury, Ankh reminder |
 | 32 | Chain Lightning, Windfury Totem | |
-| 35 | **Maelstrom Weapon** (talent, row 6) | Maelstrom bar appears |
+| 35 | **Maelstrom Weapon** (talent, row 6) | Maelstrom bar and Bolt icon appear |
 | 40 | **Rage of the Farseer** (talent, row 7: +30% attack speed for 25 s, 3 min cooldown), Call of the Spirits (third totem set) | cooldown row and proc row |
 | 42 | Grace of Air Totem | |
 
@@ -194,7 +198,9 @@ Other Forever facts the addon is built on:
 - Totemic Recall refunds 25% of the totems' mana: the addon reminds you for 10 s after a fight.
 - Maelstrom Weapon: stacks up to 5, 20% faster and cheaper Lightning Bolt per stack, lasts 30 s.
 - Improved Stormstrike: mana regeneration while casting, and Stormstrike's cooldown resets on dodge or parry.
-- Totems: 1 s global cooldown; buff totems last 5 minutes.
+- Totems: 1 s global cooldown; buff totems last 5 minutes, Magma Totem 20 s, Stoneclaw 15 s, Earthbind and
+  Grounding 45 s, Searing Totem 30 to 55 s by rank.
+- Shocks: 6 s cooldown. Fire Nova: 10 s cooldown, hits within 10 yd of your fire totem.
 - Elemental Mastery is now Lightning Mastery; Lava Burst, Fire Nova Totem, Tranquil Air Totem and
   Shamanistic Rage do not exist on Forever.
 
@@ -202,7 +208,10 @@ Sources: [The Forever Era: spells by level](https://theforeverera.com/en/spells/
 [The Forever Era: Enhancement](https://theforeverera.com/en/classes/shaman/enhancement/),
 [The Forever Era: Shaman changes](https://theforeverera.com/en/classes/shaman/),
 [WoW Forever Talent Calculator: Shaman spells](https://wow-forever-talent-calculator.com/shaman/spells),
-[WCLBox: Shaman spells by level](https://wowforever.wclbox.com/en/fashu/shaman/levels).
+[WCLBox: Shaman spells by level](https://wowforever.wclbox.com/en/fashu/shaman/levels),
+Warcraft Wiki, Forever sections of [Fire Nova](https://warcraft.wiki.gg/wiki/Fire_Nova#Forever),
+[Earth Shock](https://warcraft.wiki.gg/wiki/Earth_Shock#Forever), [Flame Shock](https://warcraft.wiki.gg/wiki/Flame_Shock#Forever)
+and [Magma Totem](https://warcraft.wiki.gg/wiki/Magma_Totem#Forever).
 
 Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning Bolt, Chain Lightning and Purge
 (see `Spells.lua`). `/sham spells` prints the IDs your client really uses.
@@ -210,14 +219,21 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
 ## Testing in game
 
 1. Optional but helpful: install **BugGrabber + BugSack**, or type `/console scriptErrors 1`.
-2. Out of combat: `/sham` (screenshot the overview), `/sham spells`, `/sham probe`, `/sham edit`
-   (screenshot), `/sham test`.
-3. Check: cast Lightning Shield (shield icon shows charges), click each imbue button (does the off hand
-   button really imbue the **off hand**?), drop a totem, left-click and right-click its icon.
-4. Fight a few mobs for 2-3 minutes: proc row (Flurry after a crit), swing bars, Earth Shock glow after Stormstrike, Flame Shock bar,
-   Maelstrom filling and turning gold at five, Lightning Bolt resetting it, mana bar, grey swing bar when
-   you step out of range.
-5. **In combat**, with a few Maelstrom stacks: `/sham probe`. Screenshot the HUD.
+2. Out of combat: `/sham` (screenshot the overview), `/sham rotation`, `/sham spells`, `/sham probe`,
+   `/sham edit` (screenshot; **Reset all** there gives you the 0.7.0 default layout), `/sham test`.
+3. Check: cast Lightning Shield (shield icon shows charges), click the imbue button, drop a totem,
+   left-click and right-click its icon. Cast something with a cast time (cast bar, Blizzard's own one gone).
+4. Fight a few mobs for 2-3 minutes and watch the icon row:
+   - exactly one gold ring at a time, in the order of the Rotation page; nothing glows while everything is
+     on cooldown;
+   - the shock icon shows Flame Shock on a fresh target and Earth Shock while Flame Shock runs;
+   - step out of melee range: Stormstrike turns red (the swing bar turns grey) and loses the ring;
+   - Fire Nova is dimmed without a fire totem; with Magma Totem down it gets the ring first;
+   - a totem slot pulses in its last seconds (easiest with Magma or Stoneclaw);
+   - from level 25: gold underline under Earth Shock after Stormstrike; from level 35: the Bolt icon is
+     dimmed below five Maelstrom stacks and gets the ring at five, together with the Maelstrom bar;
+   - as before: proc row (Flurry after a crit), swing bar, Flame Shock bar, mana bar.
+5. **In combat**: `/sham probe`. Screenshot the HUD.
 6. `/reload`, then send `World of Warcraft\_forever_\WTF\Account\<account>\SavedVariables\FarseerShamanHUD.lua`
    (it holds both probes and the spell list), the screenshots and any Lua errors.
 
@@ -225,13 +241,20 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
 
 - `/sham` does nothing: the addon is not loaded. Check the folder path and the AddOns list at character select.
 - An alert or module gets in the way: switch it off in `/sham`, then keep testing the rest.
-- A frame is off screen: `/sham edit` > **Reset all**.
+- A frame is off screen, or you want the default layout back: `/sham edit` > **Reset all**.
+- The gold ring is distracting or wrong: Stormstrike & Shocks > *Glow on the next spell* off; the icons
+  still show cooldown, dimmed and red.
 
-### Open points for the first test
+### Open points for the next test
 
-- Whether the native aura container works in the real client (`/sham probe` shows `native` per slot).
+- Whether the gold ring comes on time in combat. If the client hides cooldowns there, the addon goes by
+  your own casts (the in-combat `/sham probe` shows `<secret>` in the Cooldowns section in that case).
+- Whether Stormstrike turning red matches the swing bar turning grey; if that range signal were wrong,
+  Stormstrike would never get the ring.
+- Whether the Bolt icon follows five Maelstrom stacks when the stacks themselves are hidden from addons
+  (it then relies on the Lightning Bolt glow of the client).
+- Whether a totem slot pulses and dims at the right time (durations are learned out of combat).
 - Unit of the imbue time left (assumed milliseconds; wrong if imbues warn all the time).
-- Whether the off hand imbue button imbues the off hand.
 - Whether Reincarnation needs an Ankh on Forever (turn the Ankh reminder off if not).
 
 ## Project layout
@@ -252,7 +275,8 @@ tests/run.lua       offline test client
 ## Development
 
 `lua5.1 tests/run.lua` loads the addon into a fake client (including secret values in combat and the native
-aura container) and drives login, every settings page, edit mode, the mana bar, the fade and a combat sequence.
+aura container) and drives login, every settings page, edit mode, the cast bar, the mana bar, the fade, a combat
+sequence and the next-spell glow step by step.
 Any Lua error fails the run.
 
 When Blizzard patches Forever, bump `## Interface` in the TOC to the new number and release, so the addon

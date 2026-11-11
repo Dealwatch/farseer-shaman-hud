@@ -51,7 +51,7 @@ local bonusUntil = 0        -- Stormstrike's bonus is unspent until then
 local advice, advising      -- what glows now; whether the glow logic is running at all
 
 ---------------------------------------------------------------------------
--- Shock prompt
+-- Shock card
 ---------------------------------------------------------------------------
 
 local function buildPrompt()

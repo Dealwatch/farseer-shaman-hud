@@ -28,6 +28,10 @@ See at a glance what you can press and what you should press. Order as the Forev
 - No ready-flash on the icon that starts to glow gold anyway: one signal at a time.
 - The big "Shock now!" card shows while Stormstrike's bonus waits for an Earth Shock; the setting
   "Prompt stays for" is gone (the bonus lasts 12 s).
+- Text fit: the swing time and the imbue time ("50m", "none") now stay inside their bar or icon at every
+  HUD text size and icon size; the Maelstrom tile on the overview reads "native bar".
+- Procs page: the leftover "Reload UI" button is gone (the icon size applies right away since 0.5.4).
+- README: status, test steps and open points for this version.
 - In combat cooldowns can be hidden from addons: "ready" then goes by your own casts (Stormstrike 6 s,
   shocks 6 s, Fire Nova 10 s, corrected whenever the client shows the real numbers). A Stormstrike
   reset by a dodge or parry can therefore glow late.

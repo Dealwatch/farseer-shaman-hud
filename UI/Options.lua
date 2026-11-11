@@ -101,7 +101,7 @@ local function heroBlock(parent)
     h.line2:SetPoint("TOPLEFT", h.line1, "BOTTOMLEFT", 0, -6)
     h.line2:SetPoint("RIGHT", h.edit, "LEFT", -16, 0)
     h.line2:SetWordWrap(true)
-    h.line2:SetText("/farseer opens this window, /sham edit moves frames, /sham probe tests the client")
+    h.line2:SetText("/farseer opens this window, /sham rotation shows what to press, /sham edit moves frames")
     function h:Layout(width) self:SetSize(width, 116) return 116 end
     function h:Refresh()
         local r, g, b = UI:Accent()
@@ -141,7 +141,7 @@ local function tilesBlock(parent)
         { label = "MAELSTROM", icon = "Interface\\Icons\\Spell_Shaman_MaelstromWeapon", value = function()
             local st = NS.modules.maelstrom.state
             local native = NS.Native.slots.maelstrom and NS.Native.slots.maelstrom:Active()
-            if native then return "native stack bar" end
+            if native then return "native bar" end
             if st.source == "aura" then return "exact stacks" end
             if st.source == "proc" then return "5-stack glow" end
             return "not seen yet"
@@ -390,7 +390,7 @@ local function buildPages()
     p.build = function(self, parent)
         local c = self:Add(W.Card(parent, "Procs", self.icon, bindModule("procs")))
         c:Add(W.Slider(c, "Icon size", nil, 20, 48, 1, px, bind("procs", "size")))
-        c:Add(W.ButtonRow(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness - whichever you have.", "Reload UI", function() ReloadUI() end))
+        c:Add(note(c, "Tracked", "Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness - whichever you have. The client fills the row itself, also in combat."))
     end
 
     p = newPage("shocks", "Stormstrike & Shocks", "Next-spell glow, Flame Shock timer and your cooldowns.", "Interface\\Icons\\Ability_Shaman_Stormstrike")

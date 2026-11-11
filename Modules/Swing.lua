@@ -126,6 +126,8 @@ function Swing:Apply()
     self.mh.spark:SetHeight(db.height)
     self.oh.spark:SetHeight(ohHeight())
     self.mh.time:SetShown(db.showText and db.height >= 9)
+    -- HUD text size must not push the time out of its bar
+    UI:Font(self.mh.time, math.min(10, db.height / (NS.db.appearance.fontScale or 1)), "OUTLINE")
     local r, g, b = UI:Accent()
     self.color = { r, g, b }
     self:Refresh()
