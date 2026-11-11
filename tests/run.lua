@@ -214,9 +214,10 @@ local SPELLS = {
     [2645] = "Ghost Wolf", [20608] = "Reincarnation", [3599] = "Searing Totem", [8075] = "Strength of Earth Totem",
     [53817] = "Maelstrom Weapon", [90001] = "Rage of the Farseer",
     [66842] = "Call of the Elements", [36936] = "Totemic Recall",
+    [408341] = "Fire Nova", [8190] = "Magma Totem",
 }
 -- player knows these (spellbook, Forever-style unknown ID for Rage of the Farseer)
-local BOOK = { 17364, 8042, 8050, 403, 324, 8232, 8024, 2645, 20608, 3599, 8075, 90001, 66842, 36936 }
+local BOOK = { 17364, 8042, 8050, 403, 324, 8232, 8024, 2645, 20608, 3599, 8075, 90001, 66842, 36936, 408341, 8190 }
 
 C_Spell = {
     GetSpellName = function(id) return SPELLS[id] end,
@@ -421,7 +422,7 @@ end)
 
 run("settings window, every page", function()
     SlashCmdList.FARSEERHUD("")
-    for _, key in ipairs({ "overview", "swing", "totems", "imbues", "maelstrom", "shocks", "reminders", "appearance" }) do
+    for _, key in ipairs({ "overview", "rotation", "swing", "mana", "totems", "imbues", "maelstrom", "procs", "shocks", "reminders", "appearance" }) do
         NS.Options:Show(key)
     end
     NS.Options:Toggle()
@@ -787,8 +788,8 @@ run("every setting changes something on screen", function()
     -- test character is not in); each one was checked by hand to read its value at that moment
     local eventOnly = {
         ["shocks: Flash when a spell is ready again"] = true,      -- OnCooldownDone
-        ["shocks: Shock prompt after Stormstrike"] = true,         -- next Stormstrike cast
-        ["shocks: Prompt stays for"] = true,                       -- next Stormstrike cast
+        ["shocks: Glow on the next spell"] = true,                 -- a spell that is ready, in combat
+        ["totems: Pulse before a totem runs out"] = true,          -- a totem in its last seconds
         ["shocks: Flame Shock duration"] = true,                   -- next Flame Shock cast
         ["swing: Project casts onto the bar"] = true,              -- next cast
         ["swing: Grey out when out of melee range"] = true,        -- out of range
@@ -838,12 +839,117 @@ run("layout: text size, alert stack, edit mode", function()
     NS.Movers:Toggle(true)
     assert(not NS.Options:IsShown(), "settings window closed by edit mode")
     NS.Movers:Toggle(false)
-    -- default icon row: totems | up to five cooldowns | imbues | shield do not touch
+    -- default layout: totems left of the 240px bar column, shield and imbues right of it,
+    -- so the icons you press stand alone on their line
     local d = function(key) return NS.Movers.byKey[key].default[3] end
-    local cds = (5 * 30 + 4 * 4) / 2
-    assert(d("totems") + (4 * 30 + 3 * 4) / 2 < -cds, "totems clear of the cooldown row")
-    assert(d("imbues") - (2 * 30 + 4) / 2 - 3 > cds, "imbues (with glow) clear of the cooldown row")
-    assert(d("shield") - 15 > d("imbues") + 32 + 3, "shield clear of the imbue glow")
+    assert(d("totems") + (4 * 30 + 3 * 4) / 2 <= -120 - 8, "totems left of the bar column")
+    assert(d("shield") - 15 >= 120 + 8, "shield right of the bar column")
+    assert(d("imbues") - (2 * 30 + 4) / 2 - 3 > d("shield") + 15, "imbue glow clear of the shield")
+    assert(NS.Movers.byKey.totems.default[4] > NS.Movers.byKey.cooldowns.default[4] + 30, "upkeep is not on the line of the icons you press")
+end)
+
+run("next-spell glow: one icon, in the guides' order", function()
+    local S = NS.modules.shocks
+    local function icon(key) for _, f in ipairs(S.cdIcons) do if f.key == key then return f end end end
+    local function lit(f) return f.sfGlow ~= nil and f.sfGlow:IsShown() end
+    local function cast(id) fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", id) end
+    local mw = _G.FarseerHUDMaelstrom
+    tick(30)                                    -- cooldowns and timers of earlier steps are over
+    assert(S.Advice() == nil, "nothing glows out of combat")
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    fire("PLAYER_TARGET_CHANGED")               -- a fresh target has no Flame Shock
+    tick(0.2)
+    assert(S.Advice() == "flameShock" and lit(icon("earthShock")), "Flame Shock first: " .. tostring(S.Advice()))
+    assert(icon("earthShock").shock == "flameShock", "the shock icon shows Flame Shock")
+    cast(8050)
+    tick(0.2)
+    assert(S.Advice() == "stormstrike" and lit(icon("stormstrike")) and not lit(icon("earthShock")), "then Stormstrike, one glow only")
+    tick(3)
+    cast(17364)
+    tick(0.2)
+    assert(S.Advice() == nil, "everything on cooldown: nothing glows")
+    tick(2.9)                                   -- shock ready, Flame Shock still has 6 s
+    assert(S.Advice() == "earthShock" and icon("earthShock").shock == "earthShock", "Earth Shock as filler: " .. tostring(S.Advice()))
+    cast(8042)
+    tick(3)                                     -- Stormstrike ready again, five Maelstrom stacks
+    playerAuras[2] = { name = "Maelstrom Weapon", spellId = 53817, applications = 5, whitelisted = true }
+    fire("UNIT_AURA", "player", {})
+    tick(0.2)
+    assert(S.Advice() == "stormstrike" and not lit(mw), "Stormstrike before the Bolt; the Maelstrom bar waits")
+    cast(17364)
+    tick(0.2)
+    assert(S.Advice() == "lightningBolt" and lit(mw) and lit(icon("lightningBolt")), "Bolt at five stacks: its icon and the Maelstrom bar glow")
+    assert(icon("lightningBolt"):GetAlpha() == 1 and icon("lightningBolt").bonus:IsShown(), "Bolt bright and marked as boosted by Stormstrike")
+    playerAuras[2] = nil
+    cast(403)
+    fire("UNIT_AURA", "player", {})
+    tick(0.2)
+    assert(S.Advice() == nil and not lit(mw), "Bolt spent")
+
+    -- what you cannot press looks different: the Bolt below five stacks, Fire Nova without a fire totem
+    NS.db.learned.maelstromBuffID = NS.db.learned.maelstromBuffID or 408505
+    S:UpdateCooldowns()
+    assert(icon("lightningBolt"):IsShown() and icon("lightningBolt"):GetAlpha() < 1, "Bolt icon dimmed below five stacks")
+    assert(icon("fireNova"):GetAlpha() < 1, "Fire Nova dimmed without a fire totem")
+    assert(icon("stormstrike"):GetAlpha() == 1, "Stormstrike is not dimmed while it is only on cooldown")
+    -- out of melee range: Stormstrike turns red and the glow moves on to what reaches the target
+    tick(6)
+    cast(8050)                                  -- Flame Shock had run out: it comes first
+    tick(0.2)
+    assert(S.Advice() == "stormstrike", "in range: Stormstrike")
+    fire("PLAYER_SWING_RANGE_UPDATE", 0, false, true)
+    tick(0.2)
+    assert(S.Advice() ~= "stormstrike" and icon("stormstrike").why == "range", "out of range: not Stormstrike: " .. tostring(S.Advice()))
+    fire("PLAYER_SWING_RANGE_UPDATE", 0, true, true)
+    tick(0.2)
+    assert(S.Advice() == "stormstrike" and not icon("stormstrike").why, "back in range")
+    cast(17364)
+
+    -- Magma Totem down = a group: Fire Nova goes first; the slot pulses before the totem runs out
+    tick(6)
+    cast(8190)
+    tick(0.2)
+    assert(NS.modules.totems.FireTotem() == "magmaTotem" and S.Advice() == "fireNova", "Fire Nova first with Magma down: " .. tostring(S.Advice()))
+    cast(408341)
+    tick(0.2)
+    assert(S.Advice() ~= "fireNova", "Fire Nova on cooldown")
+    local fireSlot = _G.FarseerHUDTotemFire
+    assert(not lit(fireSlot), "no pulse yet")
+    tick(15.1)
+    assert(lit(fireSlot), "slot pulses in the totem's last seconds")
+    tick(5)
+    assert(not lit(fireSlot) and NS.modules.totems.FireTotem() == nil, "totem over: pulse off, single-target order again")
+    assert(S.Advice() ~= "fireNova", "no Fire Nova without Magma")
+
+    -- another target mid-fight: its Flame Shock is unknown, so it is asked for again
+    cast(8050)
+    tick(0.2)
+    fire("PLAYER_TARGET_CHANGED")
+    tick(6.2)
+    assert(icon("earthShock").shock == "flameShock", "new target: Flame Shock again")
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    assert(S.Advice() == nil and not lit(icon("stormstrike")), "glow off after the fight")
+    NS.db.shocks.prompt = false
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    tick(0.2)
+    assert(S.Advice() == nil, "switched off: nothing glows")
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    NS.db.shocks.prompt = true
+end)
+
+run("regression: a totem that runs out still gets its 'is gone' alert", function()
+    totems[1] = { name = "Searing Totem" }
+    fire("PLAYER_TOTEM_UPDATE", 1)
+    for _ = 1, 300 do tick(1) end      -- the slot times out on our own clock first
+    assert(not NS.modules.totems.HasFire(), "slot dimmed when its time is up")
+    totems[1] = nil
+    fire("PLAYER_TOTEM_UPDATE", 1)     -- then the client says it is gone
+    assert(NS.Alerts.active.totem1, "'is gone' alert after the slot timed out")
+    NS.Alerts:Clear("totem1")
 end)
 
 run("reset", function()

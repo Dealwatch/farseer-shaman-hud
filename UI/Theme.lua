@@ -369,6 +369,8 @@ local function hostileTarget()
     return can and true or false
 end
 
+UI.HostileTarget = hostileTarget
+
 function UI:UpdateFade(forceActive)
     if not NS.db then return end
     local a = NS.db.appearance

@@ -32,6 +32,9 @@ local function totemInfo(slot)
 end
 
 local CALLS = { callElements = true, callAncestors = true, callSpirits = true }
+-- seconds a totem lasts, until the client has told us (read whenever it is not secret)
+local BASE_DUR = { magmaTotem = 20, stoneclawTotem = 15, earthbindTotem = 45, groundingTotem = 45,
+    strengthTotem = 300, stoneskinTotem = 300, graceTotem = 300, windfuryTotem = 300, manaSpring = 300, healingStream = 300 }
 
 local function setSecureSpell(btn)
     local db = NS.db.totems
@@ -53,7 +56,10 @@ local function makeButton(el)
     b:SetAttribute("type2", "destroytotem")
     b:SetAttribute("totem-slot", el.slot)
     b:SetScript("PreClick", function(self, button)
-        if button == "RightButton" then slotState[self.slot].destroyed = true end
+        if button == "RightButton" then
+            local st = slotState[self.slot]
+            st.destroyed, st.expires = true, nil
+        end
     end)
 
     b.cd = UI:Cooldown(b)
@@ -74,6 +80,7 @@ local function makeButton(el)
     end)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
 
+    UI:Glow(b)   -- build the pulse ring now: nothing gets created on a secure button in combat
     slotState[el.slot] = { active = false }
     buttons[el.slot] = b
     return b
@@ -86,7 +93,7 @@ function Totems:Init()
     frame:Hide()
     self.frame = frame
     for _, el in ipairs(Spells.ELEMENTS) do makeButton(el) end
-    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -160, -210 })
+    NS.Movers:Register(frame, "totems", "Totems", { "CENTER", "CENTER", -202, -150 })
 
     NS:On("PLAYER_TOTEM_UPDATE", function(_, slot) self:UpdateSlot(slot) end)
     NS:On("PLAYER_ENTERING_WORLD", function() self:UpdateAll() end)
@@ -99,6 +106,43 @@ function Totems:Init()
     NS:OnUnit("UNIT_SPELLCAST_SUCCEEDED", "player", function(_, _, _, spellID)
         self:OnCast(spellID)
     end)
+    local since = 0
+    frame:SetScript("OnUpdate", function(_, dt)
+        since = since + (dt or 0)
+        if since < 0.25 then return end
+        since = 0
+        self:Tick()
+    end)
+end
+
+-- The key of your fire totem while it stands (nil: none, or we cannot tell which).
+function Totems.FireTotem()
+    local st = slotState[1]
+    return st and st.active and st.key or nil
+end
+
+function Totems.HasFire()
+    return slotState[1] ~= nil and slotState[1].active or false
+end
+
+-- In combat the client does not tell us when a totem runs out, but we know when it was dropped:
+-- pulse the slot shortly before, dim it when the time is up.
+function Totems:Tick()
+    local now = GetTime()
+    for slot, st in pairs(slotState) do
+        local left = st.active and st.expires and st.expires - now
+        if left and left <= 0 then
+            -- timedOut: the client's own "gone" event may come after this and must still alert
+            st.active, st.expires, st.timedOut, left = false, nil, true, nil
+            self:Draw(slot)
+        end
+        local warn = left and NS.db.totems.expireWarn and NS:IsEnabled("totems") and left <= math.min(10, st.dur / 4) or false
+        if warn ~= (st.warning or false) then
+            st.warning = warn
+            local c = buttons[slot].el.color
+            if warn then UI:Glow(buttons[slot], c[1], c[2], c[3]) else UI:Glow(buttons[slot]) end
+        end
+    end
 end
 
 -- Own cast: remember which totem went into which slot.
@@ -110,12 +154,15 @@ function Totems:OnCast(spellID)
     if key == "totemicRecall" then
         NS.Alerts:Clear("recall")
         -- you took them back on purpose: no "totem is gone" alerts
-        for s, st in pairs(slotState) do st.destroyed = true; NS.Alerts:Clear("totem" .. s) end
+        for s, st in pairs(slotState) do st.destroyed, st.expires = true, nil; NS.Alerts:Clear("totem" .. s) end
         return
     end
     if key and CALLS[key] then
         -- several totems at once: each slot reports itself via PLAYER_TOTEM_UPDATE
-        for s, st in pairs(slotState) do st.calledAt = GetTime(); st.destroyed = false end
+        for s, st in pairs(slotState) do
+            st.calledAt, st.destroyed = GetTime(), false
+            st.key, st.castName, st.expires = nil, nil, nil   -- which totems, and for how long, is the client's secret
+        end
         return
     end
     local def = key and Spells:Get(key)
@@ -124,6 +171,9 @@ function Totems:OnCast(spellID)
     local st = slotState[slot]
     st.active, st.name, st.icon, st.destroyed = true, name, Spells.TextureOf(spellID), false
     st.rawIcon, st.hasRaw = nil, false
+    st.key, st.castName = key, name
+    st.dur = name and NS.db.learned.totemDur[name] or BASE_DUR[key]
+    st.expires = st.dur and GetTime() + st.dur or nil
     if key then
         NS.db.totems.last[slot] = key
     else
@@ -147,10 +197,18 @@ function Totems:UpdateSlot(slot)
     end
     if have ~= nil then
         st.rawIcon, st.hasRaw = nil, false
-        local wasActive = st.active
+        local wasActive = st.active or st.timedOut
+        st.timedOut = nil
         st.active = have
         if have then
             st.name, st.icon = name or st.name, icon or st.icon
+            if start and dur and dur > 0 then
+                st.dur, st.expires = dur, start + dur
+                -- only when this really is the totem we saw you cast (the two events come in no fixed order)
+                if st.castName and name and name:find(st.castName, 1, true) == 1 then
+                    NS.db.learned.totemDur[st.castName] = dur
+                end
+            end
             if name and not Spells:KeyFor(name) then NS.db.learned.totemSlots[name] = slot end
             NS.Alerts:Clear("totem" .. slot)
         elseif wasActive and not st.destroyed and NS.db.totems.expireAlert and NS:IsEnabled("totems") then
@@ -161,7 +219,7 @@ function Totems:UpdateSlot(slot)
             })
             C_Timer.After(6, function() NS.Alerts:Clear("totem" .. slot) end)
         end
-        if not have then st.destroyed = false end
+        if not have then st.destroyed, st.key, st.castName, st.expires = false, nil, nil, nil end
     end
     self:Draw(slot, start, dur)
 end

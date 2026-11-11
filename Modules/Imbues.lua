@@ -145,7 +145,7 @@ function Imbues:Init()
     self.frame = frame
     for _, hand in ipairs(HANDS) do makeButton(hand) end
     -- outside the HUD root: a missing imbue must stay clickable out of combat
-    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 126, -210 }, true)
+    NS.Movers:Register(frame, "imbues", "Imbues", { "CENTER", "CENTER", 204, -150 }, true)
 
     local function update() self:Update() end
     NS:On("WEAPON_ENCHANT_CHANGED", update)
@@ -203,6 +203,8 @@ function Imbues:Apply()
         for _, hand in ipairs(HANDS) do
             local b = buttons[hand.key]
             b:SetSize(db.size, db.size)
+            -- "none" and "50m" stay inside the icon at every icon size and HUD text size
+            UI:Font(b.time, math.min(11, db.size * 0.4 / (NS.db.appearance.fontScale or 1)), "OUTLINE")
             b:ClearAllPoints()
             b:SetPoint("TOPLEFT", frame, "TOPLEFT", x, 0)
             x = x + db.size + 4
