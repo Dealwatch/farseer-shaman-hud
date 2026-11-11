@@ -941,6 +941,17 @@ run("next-spell glow: one icon, in the guides' order", function()
     NS.db.shocks.prompt = true
 end)
 
+run("regression: a totem that runs out still gets its 'is gone' alert", function()
+    totems[1] = { name = "Searing Totem" }
+    fire("PLAYER_TOTEM_UPDATE", 1)
+    for _ = 1, 300 do tick(1) end      -- the slot times out on our own clock first
+    assert(not NS.modules.totems.HasFire(), "slot dimmed when its time is up")
+    totems[1] = nil
+    fire("PLAYER_TOTEM_UPDATE", 1)     -- then the client says it is gone
+    assert(NS.Alerts.active.totem1, "'is gone' alert after the slot timed out")
+    NS.Alerts:Clear("totem1")
+end)
+
 run("reset", function()
     SlashCmdList.FARSEERHUD("reset confirm")
 end)

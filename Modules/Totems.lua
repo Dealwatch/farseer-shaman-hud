@@ -132,7 +132,8 @@ function Totems:Tick()
     for slot, st in pairs(slotState) do
         local left = st.active and st.expires and st.expires - now
         if left and left <= 0 then
-            st.active, st.expires, left = false, nil, nil
+            -- timedOut: the client's own "gone" event may come after this and must still alert
+            st.active, st.expires, st.timedOut, left = false, nil, true, nil
             self:Draw(slot)
         end
         local warn = left and NS.db.totems.expireWarn and NS:IsEnabled("totems") and left <= math.min(10, st.dur / 4) or false
@@ -196,7 +197,8 @@ function Totems:UpdateSlot(slot)
     end
     if have ~= nil then
         st.rawIcon, st.hasRaw = nil, false
-        local wasActive = st.active
+        local wasActive = st.active or st.timedOut
+        st.timedOut = nil
         st.active = have
         if have then
             st.name, st.icon = name or st.name, icon or st.icon
