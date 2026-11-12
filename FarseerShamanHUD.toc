@@ -2,7 +2,7 @@
 ## Title: |cff0097ffFarseer|r |cffe8eaed- Shaman HUD|r
 ## Notes: Enhancement Shaman HUD / UI for WoW Forever: next-spell glow, swing timer, cast bar, totems, weapon imbues, Maelstrom Weapon and reminders.
 ## Author: Dealwatch
-## Version: 0.7.0
+## Version: 0.7.1
 ## SavedVariables: FarseerShamanHUDDB
 ## IconTexture: Interface\Icons\Spell_Nature_LightningShield
 ## Category: Combat

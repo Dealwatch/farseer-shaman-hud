@@ -8,9 +8,10 @@
       * Stormstrike boosts your next Earth Shock, Lightning Bolt or Chain
         Lightning by 20% for 12 s: the icons it would boost right now get a
         gold underline that drains while the bonus is unspent.
-      * One way to read every icon: gold ring = press now, bright = ready,
-        dark with a number = on cooldown, dimmed = not possible right now
-        (mana, stacks, no fire totem), red = out of melee range.
+      * One way to read every icon: gold ring and shimmer = press now,
+        bright = ready, dark with a number = on cooldown, blue = not enough
+        mana, red = out of melee range, dimmed = not possible right now
+        (stacks, no fire totem).
       * Flame Shock timer for your target, started from your own cast (target
         debuffs are secret in combat) and corrected from the real aura
         whenever the client lets us read it.
@@ -81,8 +82,10 @@ end
 local function blocked(key)
     local def = Spells:Get(key)
     if C_Spell.IsSpellUsable then
-        local ok, u = pcall(C_Spell.IsSpellUsable, def.id)
-        if ok and NS.Readable(u) == false then return "unusable" end          -- no mana, ...
+        local ok, u, noMana = pcall(C_Spell.IsSpellUsable, def.id)
+        if ok and NS.Readable(u) == false then
+            return NS.Readable(noMana) == true and "mana" or "unusable"
+        end
     end
     if key == "lightningBolt" and not NS.modules.maelstrom.state.full then return "unusable" end   -- instant only at five
     if key == "fireNova" and not NS.modules.totems.HasFire() then return "unusable" end            -- erupts at a fire totem
@@ -146,8 +149,11 @@ function Shocks:Advise()
             local why = blocked(f.shock or f.key) or false
             if why ~= f.why then
                 f.why = why
+                -- tints as on the game's action bars: blue = not enough mana, red = out of range
                 f.icon:SetDesaturated(why == "unusable")
-                f.icon:SetVertexColor(1, why == "range" and 0.3 or 1, why == "range" and 0.3 or 1)
+                if why == "mana" then f.icon:SetVertexColor(0.4, 0.5, 1)
+                elseif why == "range" then f.icon:SetVertexColor(1, 0.3, 0.3)
+                else f.icon:SetVertexColor(1, 1, 1) end
                 f:SetAlpha(why == "unusable" and 0.45 or 1)
             end
             -- gold underline: Stormstrike's bonus would go into this spell
@@ -175,7 +181,7 @@ function Shocks:Advise()
         local mine = new ~= nil and (f.key == new or (f.key == "earthShock" and SHOCKS[new] == true))
         if mine ~= (f.lit or false) then
             f.lit = mine
-            if mine then UI:Glow(f, GOLD[1], GOLD[2], GOLD[3]) else UI:Glow(f) end
+            if mine then UI:Glow(f, GOLD[1], GOLD[2], GOLD[3], true) else UI:Glow(f) end
         end
     end
     -- the Maelstrom bar glows along with the Bolt icon
@@ -322,8 +328,8 @@ local function buildCooldowns()
         if key == "earthShock" or key == "lightningBolt" then
             -- Stormstrike's unspent bonus, under the spells it would boost: drains over 12 s
             f.bonus = CreateFrame("StatusBar", nil, f)
-            f.bonus:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -5)
-            f.bonus:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, -5)
+            f.bonus:SetPoint("TOPLEFT", f, "BOTTOMLEFT", 0, -7)    -- below the outer glow ring
+            f.bonus:SetPoint("TOPRIGHT", f, "BOTTOMRIGHT", 0, -7)
             f.bonus:SetHeight(2)
             f.bonus:SetStatusBarTexture(UI.WHITE)
             f.bonus:SetStatusBarColor(GOLD[1], GOLD[2], GOLD[3])

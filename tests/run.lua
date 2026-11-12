@@ -865,6 +865,9 @@ run("next-spell glow: one icon, in the guides' order", function()
     cast(8050)
     tick(0.2)
     assert(S.Advice() == "stormstrike" and lit(icon("stormstrike")) and not lit(icon("earthShock")), "then Stormstrike, one glow only")
+    local g = icon("stormstrike").sfGlow
+    assert(g.wash and g.halo and g.wash._calls.SetVertexColor[4] > 0, "the icon to press also shimmers")
+    assert(_G.FarseerHUDTotemFire.sfGlow.wash == nil, "other glows (totem pulse) stay plain rings")
     tick(3)
     cast(17364)
     tick(0.2)
@@ -904,6 +907,20 @@ run("next-spell glow: one icon, in the guides' order", function()
     fire("PLAYER_SWING_RANGE_UPDATE", 0, true, true)
     tick(0.2)
     assert(S.Advice() == "stormstrike" and not icon("stormstrike").why, "back in range")
+    -- not enough mana: the icons turn blue (as on the action bars) and nothing glows
+    local usable = C_Spell.IsSpellUsable
+    C_Spell.IsSpellUsable = function() return false, true end
+    tick(0.2)
+    local ss = icon("stormstrike")
+    local tint = ss.icon._calls.SetVertexColor
+    assert(ss.why == "mana" and tint[3] == 1 and tint[1] < 0.6, "Stormstrike blue without mana")
+    assert(ss:GetAlpha() == 1 and S.Advice() == nil and not lit(ss), "tinted, not dimmed, and nothing to press")
+    C_Spell.IsSpellUsable = function() return false, false end
+    tick(0.2)
+    assert(ss.why == "unusable" and ss:GetAlpha() < 1, "unusable for another reason: dimmed, not blue")
+    C_Spell.IsSpellUsable = usable
+    tick(0.2)
+    assert(not ss.why and ss.icon._calls.SetVertexColor[1] == 1 and S.Advice() == "stormstrike", "mana back: normal again")
     cast(17364)
 
     -- Magma Totem down = a group: Fire Nova goes first; the slot pulses before the totem runs out

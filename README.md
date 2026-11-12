@@ -6,7 +6,7 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, cast ba
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.7.0.** Last tested in game with 0.5.2 at level 15. Everything since (the layout review, the cast
+> Status: **0.7.1.** Last tested in game with 0.5.2 at level 15. Everything since (the layout review, the cast
 > bar, the next-spell glow and the new default layout) and the features from later levels (Stormstrike, Maelstrom
 > Weapon, Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client,
 > not yet confirmed in game. What to check is under [Testing in game](#testing-in-game).
@@ -30,7 +30,7 @@ in WowUp by themselves (every tagged release).
 1. `/sham` opens the settings window. The overview shows your imbues, shield and Maelstrom detection,
    plus one switch per module.
 2. `/sham edit` (or **Edit layout**) shows every frame with a label: drag them where you want them, click **Done**.
-3. Fight something. The HUD shows in combat and while an enemy is targeted; the icon with the gold ring is
+3. Fight something. The HUD shows in combat and while an enemy is targeted; the icon with the gold glow is
    your next press (`/sham rotation` explains the order). Out of combat it is hidden; only alerts, the cast
    bar while you cast, and imbue buttons that need you (missing or running out) stay on screen.
 
@@ -67,9 +67,9 @@ One 240px column under your character. The icons you press stand alone on their 
                 [i][Lightning Bolt     1.2]            Cast bar (only while casting)
 ```
 
-Every icon in that row reads the same way: **gold ring** = press now, **bright** = ready, **dark with a
-number** = on cooldown, **dimmed** = not possible right now (no mana, fewer than five Maelstrom stacks,
-no fire totem for Fire Nova), **red** = target out of melee range.
+Every icon in that row reads the same way: **gold glow** (ring and shimmer) = press now, **bright** = ready,
+**dark with a number** = on cooldown, **blue** = not enough mana, **red** = target out of melee range,
+**dimmed** = not possible right now (fewer than five Maelstrom stacks, no fire totem for Fire Nova).
 
 If you widen the bars beyond about 270px, drag the totem and shield frames outwards in edit mode.
 
@@ -86,7 +86,7 @@ Alerts stack at the top of the screen (the four most important at a time). All p
 | **Weapon Imbues** | Shown when an imbue is missing or about to run out (or always, if you prefer), with time left. Click a button to apply your chosen imbue. Stays visible out of combat when needed. Not with a fishing pole. | imbue per hand, warn below minutes, when needed / always, warn in combat, icon size |
 | **Procs** | One centred row that shows only active procs and burst buffs: Flurry, Clearcasting, Improved Stormstrike, Rage of the Farseer, Lightning Mastery, Nature's Swiftness, with time-left swipe and stacks. | icon size |
 | **Maelstrom Weapon** | Five-segment bar that turns gold at five stacks, with glow, sound and "Instant Bolt!". | width, height, glow, sound, hide at zero |
-| **Stormstrike & Shocks** | One row of icons for what you press: Stormstrike, your shock, the Bolt (with Maelstrom Weapon), Fire Nova, Rage of the Farseer, Lightning Mastery, each with its cooldown (the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below). The shock icon shows the shock to use, the Bolt icon lights up at five Maelstrom stacks, and a gold underline marks what Stormstrike's 20% bonus would boost right now. Dimmed icons cannot be pressed, a red Stormstrike is out of range. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar, its fallback duration and width, cooldown row and icon size, ready flash |
+| **Stormstrike & Shocks** | One row of icons for what you press: Stormstrike, your shock, the Bolt (with Maelstrom Weapon), Fire Nova, Rage of the Farseer, Lightning Mastery, each with its cooldown (the global cooldown ignored). **Next-spell glow:** one icon glows gold, your next press (see *Rotation* below). The shock icon shows the shock to use, the Bolt icon lights up at five Maelstrom stacks, and a gold underline marks what Stormstrike's 20% bonus would boost right now. Blue icons lack mana, a red Stormstrike is out of range, dimmed icons cannot be pressed right now. Flame Shock bar with the real time left on your target. | next-spell glow, optional big "Shock now!" card, Flame Shock bar, its fallback duration and width, cooldown row and icon size, ready flash |
 | **Reminders** | Shield icon with Lightning/Water Shield charges and time left. Alerts: shield missing (in combat the shield icon turns red and pulses instead), Ghost Wolf in combat, low on Ankhs. Right-click an alert to snooze it. | each reminder on/off, shield icon size, Ankh threshold, snooze time |
 
 **Appearance:** accent colour (Shaman, Air, Water, Fire, Earth), font, HUD text size, bar texture, sounds,
@@ -224,8 +224,9 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
 3. Check: cast Lightning Shield (shield icon shows charges), click the imbue button, drop a totem,
    left-click and right-click its icon. Cast something with a cast time (cast bar, Blizzard's own one gone).
 4. Fight a few mobs for 2-3 minutes and watch the icon row:
-   - exactly one gold ring at a time, in the order of the Rotation page; nothing glows while everything is
-     on cooldown;
+   - exactly one icon with the gold glow (ring and shimmer) at a time, in the order of the Rotation page;
+     nothing glows while everything is on cooldown;
+   - run out of mana: the icons you cannot afford turn blue and lose the glow;
    - the shock icon shows Flame Shock on a fresh target and Earth Shock while Flame Shock runs;
    - step out of melee range: Stormstrike turns red (the swing bar turns grey) and loses the ring;
    - Fire Nova is dimmed without a fire totem; with Magma Totem down it gets the ring first;
@@ -242,12 +243,12 @@ Plus every Classic rank of Lightning Shield, Flame/Earth/Frost Shock, Lightning 
 - `/sham` does nothing: the addon is not loaded. Check the folder path and the AddOns list at character select.
 - An alert or module gets in the way: switch it off in `/sham`, then keep testing the rest.
 - A frame is off screen, or you want the default layout back: `/sham edit` > **Reset all**.
-- The gold ring is distracting or wrong: Stormstrike & Shocks > *Glow on the next spell* off; the icons
-  still show cooldown, dimmed and red.
+- The gold glow is distracting or wrong: Stormstrike & Shocks > *Glow on the next spell* off; the icons
+  still show cooldown, blue, red and dimmed.
 
 ### Open points for the next test
 
-- Whether the gold ring comes on time in combat. If the client hides cooldowns there, the addon goes by
+- Whether the gold glow comes on time in combat. If the client hides cooldowns there, the addon goes by
   your own casts (the in-combat `/sham probe` shows `<secret>` in the Cooldowns section in that case).
 - Whether Stormstrike turning red matches the swing bar turning grey; if that range signal were wrong,
   Stormstrike would never get the ring.
@@ -286,7 +287,8 @@ Releases: write the notes in `CHANGELOG.md` and bump `## Version` in the TOC, th
 *Releases* > *Draft a new release*, create the tag `vX.Y.Z` on `main` and publish. The GitHub Action runs the test
 and attaches the addon zip and `release.json` (flavor `forever`, used by WowUp) to that release
 (`.pkgmeta` leaves out `tests` and `.github`). The release text is replaced by the `CHANGELOG.md` section of the
-TOC version (the job fails if that section is missing; the zip is attached by then).
+TOC version (the job fails if that section is missing; the zip is attached by then). Without the GitHub
+page: push the tag `vX.Y.Z` and run the *Release* workflow on that tag; the packager then creates the release.
 
 ## License
 
