@@ -3,6 +3,8 @@ name: Release
 # Publish a release on GitHub (Releases > Draft a new release, new tag vX.Y.Z on main).
 # This job then runs the offline test and attaches the addon zip and release.json
 # (flavor "forever", read by WowUp) to that release.
+# Without the GitHub page: push the tag vX.Y.Z, then run this workflow on that tag
+# (Actions > Release > Run workflow); the packager creates the release itself.
 on:
   release:
     types: [published]
@@ -30,10 +32,10 @@ jobs:
           GITHUB_OAUTH: ${{ secrets.GITHUB_TOKEN }}
       # The packager writes the commit log as release text; use the CHANGELOG.md section instead.
       - name: Release text from CHANGELOG.md
-        if: github.event_name == 'release'
+        if: github.event_name == 'release' || github.ref_type == 'tag'
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG: ${{ github.event.release.tag_name }}
+          TAG: ${{ github.event.release.tag_name || github.ref_name }}
         run: |
           version=$(sed -n 's/^## Version: *//p' FarseerShamanHUD.toc | tr -d '\r')
           awk -v v="## $version" '$0==v{f=1;next} /^## /{f=0} f' CHANGELOG.md > notes.md
