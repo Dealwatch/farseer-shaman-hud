@@ -236,7 +236,9 @@ end
 -- Pulse glow (accent border that breathes)
 ---------------------------------------------------------------------------
 
-function UI:Glow(frame, r, g, b)
+-- strong: the "press this now" look: a second, soft ring further out and a
+-- shimmer over the icon itself, and the pulse never fades far.
+function UI:Glow(frame, r, g, b, strong)
     if not frame.sfGlow then
         local glow = CreateFrame("Frame", nil, frame)
         glow:SetPoint("TOPLEFT", -3, 3)
@@ -256,13 +258,29 @@ function UI:Glow(frame, r, g, b)
         a:SetFromAlpha(1)
         a:SetToAlpha(0.25)
         a:SetDuration(0.45)
-        glow.anim = ag
+        glow.anim, glow.pulse = ag, a
         glow:Hide()
         frame.sfGlow = glow
     end
     local glow = frame.sfGlow
+    if strong and not glow.wash then
+        glow.halo = glow:CreateTexture(nil, "ARTWORK")
+        glow.halo:SetPoint("TOPLEFT", -2, 2)
+        glow.halo:SetPoint("BOTTOMRIGHT", 2, -2)
+        if not sliced(glow.halo, "Glow", "sm") then glow.halo:SetTexture(self.WHITE); glow.halo:Hide() end
+        glow.wash = glow:CreateTexture(nil, "BACKGROUND")
+        glow.wash:SetPoint("TOPLEFT", 4, -4)
+        glow.wash:SetPoint("BOTTOMRIGHT", -4, 4)
+        glow.wash:SetTexture(self.WHITE)
+        glow.wash:SetBlendMode("ADD")
+    end
     if r then
         self:SetBorderColor(glow, r, g, b, 1)
+        if glow.wash then
+            glow.halo:SetVertexColor(r, g, b, strong and 0.4 or 0)
+            glow.wash:SetVertexColor(r, g, b, strong and 0.3 or 0)
+        end
+        glow.pulse:SetToAlpha(strong and 0.6 or 0.25)
         glow:Show()
         glow.anim:Play()
     else

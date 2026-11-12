@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.7.1
+- The icon to press stands out more: a second, soft gold ring around it and a gold shimmer over the icon
+  itself, and the pulse no longer fades to almost nothing.
+- Not enough mana: the icon turns blue, as on the game's action bars (was: dimmed like everything else
+  that is not possible). Red stays "out of melee range", dimmed is now only "not possible right now"
+  (fewer than five Maelstrom stacks, no fire totem for Fire Nova).
+
 ## 0.7.0
 See at a glance what you can press and what you should press. Order as the Forever guides give it
 (Method, Warcraft Tavern, wowforever.be).
