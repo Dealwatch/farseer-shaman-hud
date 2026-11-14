@@ -135,6 +135,7 @@ local function makeButton(hand)
         GameTooltip:Show()
     end)
     b:SetScript("OnLeave", function() GameTooltip:Hide() end)
+    UI:Glow(b)   -- build the warning ring now: nothing gets created on a secure button in combat
     buttons[hand.key] = b
     return b
 end

@@ -166,10 +166,12 @@ function Cast:Apply()
     local b = blizzardBar()
     if b then
         if NS:IsEnabled("castbar") and NS.db.castbar.hideBlizzard then
-            -- only C-side calls: Blizzard's own Lua state stays untouched (no taint)
-            b:UnregisterAllEvents()
-            b:Hide()
-            self.blizzardHidden = true
+            if not self.blizzardHidden then   -- once is enough: it has no events left to come back with
+                -- only C-side calls: Blizzard's own Lua state stays untouched (no taint)
+                b:UnregisterAllEvents()
+                b:Hide()
+                self.blizzardHidden = true
+            end
         elseif self.blizzardHidden and not warned then
             warned = true
             NS.Print("type /reload to bring Blizzard's cast bar back.")
