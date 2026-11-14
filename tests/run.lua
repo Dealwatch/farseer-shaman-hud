@@ -277,8 +277,9 @@ local totems = {}
 function GetTotemInfo(slot)
     local t = totems[slot]
     if combat then return secret(), secret(), secret(), secret(), secret() end
+    -- like the client: the first value only says you own the totem tool, not that a totem stands
     if t then return true, t.name, now - 5, 300, 1234 end
-    return false, "", 0, 0, 0
+    return true, "", 0, 0, 0
 end
 function GetTotemDuration() return { _duration = true } end
 Enum = {
@@ -537,6 +538,7 @@ run("leave combat", function()
     tick(2)
     assert(NS.db.probe.combat and NS.db.probe.outOfCombat and NS.db.probe.spells, "probe saved")
     assert(NS.Alerts.active.recall, "Totemic Recall reminder after combat with totems down")
+    for s = 1, 4 do assert(NS.modules.totems.Standing(s) == (totems[s] ~= nil), "slot " .. s .. " standing only with a totem") end
     totems[2] = nil
     fire("UNIT_SPELLCAST_SUCCEEDED", "player", "guid", 36936)   -- Totemic Recall
     assert(not NS.Alerts.active.recall, "reminder cleared by the recall")
@@ -549,6 +551,27 @@ run("leave combat", function()
     UnitCanAttack = function() return true end
     fire("PLAYER_TARGET_CHANGED")
     assert(NS.UI.root:IsShown() and NS.UI.root:GetAlpha() == 1, "enemy targeted out of combat: HUD shown")
+end)
+
+run("regression: empty totem slots are empty (no Totemic Recall reminder without totems)", function()
+    -- in game the client says "have" for every slot you own the totem tool for, standing totem or not
+    for s = 1, 4 do totems[s] = nil; fire("PLAYER_TOTEM_UPDATE", s) end
+    runTimers()
+    NS.Alerts:Clear("recall")
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    assert(not NS.Alerts.active.recall, "no totem stands: no reminder")
+    assert(not NS.modules.totems.HasFire(), "no fire totem")
+    assert(_G.FarseerHUDTotemEarth:GetAlpha() < 1, "empty slot is dimmed")
+    totems[2] = { name = "Strength of Earth Totem" }
+    fire("PLAYER_TOTEM_UPDATE", 2)
+    assert(NS.modules.totems.Standing(2) and _G.FarseerHUDTotemEarth:GetAlpha() == 1, "a standing totem still counts")
+    totems[2] = nil
+    fire("PLAYER_TOTEM_UPDATE", 2)
+    assert(NS.Alerts.active.totem2, "and its end is noticed: 'is gone' alert")
+    NS.Alerts:Clear("totem2")
 end)
 
 -- Regressions reported from the Mage HUD review (combat start happens BEFORE lockdown:

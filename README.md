@@ -6,7 +6,7 @@ One clean HUD for everything an Enhancement Shaman watches: swing timer, cast ba
 cooldowns, totems, weapon imbues, Lightning Shield and reminders. Every element can be moved, resized or
 switched off. The addon is in English.
 
-> Status: **0.7.1.** Last tested in game with 0.5.2 at level 15. Everything since (the layout review, the cast
+> Status: **0.7.2.** Last tested in game with 0.5.2 at level 15. Everything since (the layout review, the cast
 > bar, the next-spell glow and the new default layout) and the features from later levels (Stormstrike, Maelstrom
 > Weapon, Rage of the Farseer, ...) are built against Blizzard's Forever UI code and an offline test client,
 > not yet confirmed in game. What to check is under [Testing in game](#testing-in-game).

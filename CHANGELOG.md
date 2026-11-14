@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.7.2
+- Fix: the Totemic Recall reminder came after every fight, also with no totem down. The client reports
+  "you own the totem tool" for every slot, and the addon read that as "a totem stands there". A slot now
+  only counts as occupied when the client names a totem in it.
+- The same mistake had more effects, all fixed with it: empty totem slots are dimmed again, the
+  "totem is gone" alert works out of combat, "Hide out of combat when no totem is down" hides the bar,
+  and Fire Nova is dimmed without a fire totem.
+
 ## 0.7.1
 - The icon to press stands out more: a second, soft gold ring around it and a gold shimmer over the icon
   itself, and the pulse no longer fades to almost nothing.
