@@ -37,6 +37,22 @@ local eventFrames = {}     -- event -> { frame = true }
 local unitEventFrames = {}
 local allFrames = {}
 
+-- Protected frames: secure buttons and every ancestor of one. During combat lockdown the client
+-- blocks showing, hiding, moving, sizing, reparenting and attribute changes on them
+-- (ADDON_ACTION_BLOCKED). Here such a call is an error, so the tests catch it.
+local secureFrames = {}
+local function guard(o, what)
+    if not combat then return end
+    for _, s in ipairs(secureFrames) do
+        local p = s
+        while p do
+            if p == o then error("ADDON_ACTION_BLOCKED: " .. what .. "() on a protected frame in combat", 3) end
+            p = p._parent
+        end
+    end
+end
+local GUARDED = { SetPoint = true, SetAllPoints = true, SetScale = true, SetFrameStrata = true, SetFrameLevel = true }
+
 local Object = {}
 Object.__index = function(self, k)
     local m = Object[k]
@@ -45,6 +61,7 @@ Object.__index = function(self, k)
         if k:match("^Set") then
             -- unknown setter: remember the last arguments so tests can see what changed
             return function(o, ...)
+                if GUARDED[k] then guard(o, k) end
                 local key = k == "SetPoint" and k .. tostring((...)) or k
                 rawget(o, "_calls")[key] = { ... }
             end
@@ -60,14 +77,18 @@ local function newObject(kind, parent)
     return o
 end
 
-function Object:SetSize(w, h) self._w, self._h = w, h end
-function Object:SetWidth(w) self._w = w end
-function Object:SetHeight(h) self._h = h end
+function Object:SetSize(w, h) guard(self, "SetSize"); self._w, self._h = w, h end
+function Object:SetWidth(w) guard(self, "SetWidth"); self._w = w end
+function Object:SetHeight(h) guard(self, "SetHeight"); self._h = h end
+function Object:SetParent(p) guard(self, "SetParent"); self._parent = p end
+function Object:ClearAllPoints() guard(self, "ClearAllPoints") end
+function Object:EnableMouse() guard(self, "EnableMouse") end
 function Object:GetWidth() return self._w end
 function Object:GetHeight() return self._h end
 function Object:GetSize() return self._w, self._h end
-function Object:Show() self._shown = true end
+function Object:Show() guard(self, "Show"); self._shown = true end
 function Object:Hide()
+    guard(self, "Hide")
     local was = self._shown
     self._shown = false
     if was and self._scripts.OnHide then self._scripts.OnHide(self) end
@@ -83,7 +104,7 @@ function Object:GetEffectiveScale() return 1 end
 function Object:GetScale() return 1 end
 function Object:GetFrameLevel() return 1 end
 function Object:GetParent() return self._parent end
-function Object:SetAttribute(k, v) self._attr[k] = v end
+function Object:SetAttribute(k, v) guard(self, "SetAttribute"); self._attr[k] = v end
 function Object:GetAttribute(k) return self._attr[k] end
 function Object:SetAlpha(a) self._alpha = a end
 function Object:GetAlpha() return self._alpha end
@@ -154,6 +175,7 @@ function CreateFrame(kind, name, parent, template)
     local f = newObject(kind, parent)
     if name then _G[name] = f end
     f._template = template
+    if template == "SecureActionButtonTemplate" then secureFrames[#secureFrames + 1] = f end
     return f
 end
 
@@ -351,9 +373,24 @@ local function run(name, fn)
     check(name)
 end
 
-run("login", function()
+-- /reload in the middle of a fight: the client blocks every touch of a secure frame until the
+-- fight ends, so the HUD must wait. (The whole run starts this way; logging in out of combat
+-- runs the same code without the wait.)
+run("login during combat: the HUD is built when the fight ends", function()
+    combat = true
     fire("PLAYER_LOGIN")
     fire("PLAYER_ENTERING_WORLD")
+    assert(NS.db and NS.isShaman, "settings are loaded right away")
+    assert(_G.FarseerHUDTotems == nil, "secure frames wait for the end of the fight")
+    SlashCmdList.FARSEERHUD("")          -- the settings window opens anyway
+    fire("PLAYER_TARGET_CHANGED")
+    NS.Options:Toggle()
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    assert(_G.FarseerHUDTotems and _G.FarseerHUDTotems:GetParent() == NS.UI.root, "built after the fight")
+end)
+
+run("login", function()
     assert(NS.db and NS.isShaman, "db/shaman")
     assert(NS.Spells:Get("stormstrike").known, "stormstrike resolved")
     assert(NS.Spells:Get("rageFarseer").known and NS.Spells:Get("rageFarseer").id == 90001, "resolved by name from spellbook")
@@ -572,6 +609,27 @@ run("regression: empty totem slots are empty (no Totemic Recall reminder without
     fire("PLAYER_TOTEM_UPDATE", 2)
     assert(NS.Alerts.active.totem2, "and its end is noticed: 'is gone' alert")
     NS.Alerts:Clear("totem2")
+end)
+
+run("regression: nothing protected is touched in combat (ADDON_ACTION_BLOCKED)", function()
+    -- reported from the game: FarseerHUDHUD:Show() blocked on every target change in a fight
+    fire("PLAYER_REGEN_DISABLED")
+    combat = true
+    for _ = 1, 3 do fire("PLAYER_TARGET_CHANGED") end
+    NS.Options:Show("totems")            -- settings opened, changed and closed mid-fight
+    NS.db.totems.size = 36
+    NS:ApplyAll()
+    NS.Options:Toggle()
+    fire("SPELLS_CHANGED")
+    fire("UNIT_INVENTORY_CHANGED", "player")
+    SlashCmdList.FARSEERHUD("edit")      -- refused in combat
+    assert(not NS.editing, "no edit mode in combat")
+    assert(NS.UI.root:IsShown() and NS.UI.root:GetAlpha() == 1, "HUD stays up")
+    combat = false
+    fire("PLAYER_REGEN_ENABLED")
+    assert(_G.FarseerHUDTotemEarth:GetWidth() == 36, "the size change arrived after the fight")
+    NS.db.totems.size = 30
+    NS:ApplyAll()
 end)
 
 -- Regressions reported from the Mage HUD review (combat start happens BEFORE lockdown:

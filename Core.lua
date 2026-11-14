@@ -312,14 +312,21 @@ NS:On("PLAYER_LOGIN", function()
     NS.Spells:Resolve()
     if NS.UI then NS.UI:ApplyAppearance() end
 
-    for _, key in ipairs(NS.moduleOrder) do
-        local m = NS.modules[key]
-        if m.Init and NS.isShaman then
-            local ok, err = pcall(m.Init, m)
-            if not ok then geterrorhandler()(err) end
+    -- Building the HUD parents, places and scales secure buttons, which the client blocks during
+    -- combat lockdown: after a /reload in the middle of a fight the HUD is built when it ends.
+    local late = InCombatLockdown()
+    if late and NS.isShaman then NS.Print("in combat - the HUD starts when the fight is over.") end
+    NS.AfterCombat("init", function()
+        for _, key in ipairs(NS.moduleOrder) do
+            local m = NS.modules[key]
+            if m.Init and NS.isShaman then
+                local ok, err = pcall(m.Init, m)
+                if not ok then geterrorhandler()(err) end
+            end
         end
-    end
-    NS:ApplyAll()
+        NS:ApplyAll()
+        if late then NS:Send("PLAYER_ENTERING_WORLD") end   -- the modules were not there for the real one
+    end)
 
     if not NS.isShaman then
         NS.Print("not a Shaman - modules are off. /sham still opens the settings.")

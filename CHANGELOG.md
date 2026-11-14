@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.7.3
+- Fix: error "AddOn tried to call the protected function FarseerHUDHUD:Show()" on every target change
+  in combat (also when opening or closing the settings in a fight). The HUD's root frame holds secure
+  buttons, so the client blocks Show on it during combat, even when it is already shown. In combat only
+  its opacity is touched now. Nothing was missing on screen; it was error spam.
+- Fix: after a /reload in the middle of a fight the HUD is now built when the fight ends (a chat line
+  says so). Before, placing the totem bar was blocked and it could stay invisible for the session.
+- The warning ring of the imbue buttons is built at login, not on first use in combat.
+- Tests: the offline client now refuses protected calls in combat the way the game does, so this kind
+  of error fails the test run.
+
 ## 0.7.2
 - Fix: the Totemic Recall reminder came after every fight, also with no totem down. The client reports
   "you own the totem tool" for every slot, and the addon read that as "a totem stands there". A slot now

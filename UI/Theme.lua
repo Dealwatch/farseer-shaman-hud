@@ -394,13 +394,16 @@ function UI:UpdateFade(forceActive)
     local a = NS.db.appearance
     local active = forceActive or NS.InCombat() or NS.editing
         or (NS.Options and NS.Options:IsShown()) or (a.showOnTarget and hostileTarget())
+    -- The root holds secure buttons, so the client blocks Show/Hide on it during combat lockdown,
+    -- even a Show on a frame that is already shown. It is shown right before the lockdown
+    -- (PLAYER_REGEN_DISABLED), so in combat only the alpha is touched.
+    local locked = InCombatLockdown()
     if active then
-        self.root:Show()
+        if not locked and not self.root:IsShown() then self.root:Show() end
         self.root:SetAlpha(1)
     else
-        -- only reached out of combat, where hiding secure children is allowed;
         -- hiding (not alpha 0) also keeps invisible buttons from catching clicks
-        self.root:SetShown(a.idleAlpha > 0.01)
+        if not locked then self.root:SetShown(a.idleAlpha > 0.01) end
         self.root:SetAlpha(a.idleAlpha)
     end
 end
