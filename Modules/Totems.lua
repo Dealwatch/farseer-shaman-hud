@@ -24,11 +24,17 @@ local slotState = {}        -- slot -> { active, name, icon, destroyed }
 
 -- Readable values, plus the raw icon: a secret icon can still go straight
 -- into Texture:SetTexture (needed for totems dropped by a Call spell in combat).
+-- First value: whether a totem stands in the slot (nil: the client hides it).
+-- The client's own first value only says that you own the totem tool, so it is
+-- true for an empty slot too; a standing totem has a name (or a running time).
 local function totemInfo(slot)
     if not GetTotemInfo then return end
     local ok, have, name, start, dur, icon = pcall(GetTotemInfo, slot)
     if not ok then return end
-    return NS.Readable(have), NS.Readable(name), NS.Readable(start), NS.Readable(dur), NS.Readable(icon), icon
+    name, start, dur = NS.Readable(name), NS.Readable(start), NS.Readable(dur)
+    if NS.Readable(have) == nil or (name == nil and dur == nil) then return nil, nil, nil, nil, nil, icon end
+    local up = have and ((name ~= nil and name ~= "") or (dur ~= nil and dur > 0)) or false
+    return up, up and name ~= "" and name or nil, start, dur, NS.Readable(icon), icon
 end
 
 local CALLS = { callElements = true, callAncestors = true, callSpirits = true }
@@ -121,9 +127,11 @@ function Totems.FireTotem()
     return st and st.active and st.key or nil
 end
 
-function Totems.HasFire()
-    return slotState[1] ~= nil and slotState[1].active or false
+function Totems.Standing(slot)
+    return slotState[slot] ~= nil and slotState[slot].active or false
 end
+
+function Totems.HasFire() return Totems.Standing(1) end
 
 -- In combat the client does not tell us when a totem runs out, but we know when it was dropped:
 -- pulse the slot shortly before, dim it when the time is up.
